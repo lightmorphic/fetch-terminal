@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-08-01
+
+### Fixed
+
+- Snippet list picked up the same `overflow-x` bug already fixed for the
+  password list (`overflow-y: auto` alone silently promotes the other
+  axis to `auto` too) — the always-present edit-button tooltip now
+  triggers it, so it needed the same explicit `overflow-x: hidden`.
+- Snippet row's edit pencil sat noticeably farther from the panel edge
+  than the password row's — tightened its right-side padding to match.
+
 ## [0.10.0] - 2026-08-01
 
 ### Added
@@ -332,7 +343,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.1...HEAD
+[0.10.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.0...0.10.1
 [0.10.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.2...0.10.0
 [0.9.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.0...0.9.1
