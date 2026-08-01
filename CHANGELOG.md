@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-08-01
+
+### Added
+
+- The app now registers itself as a proper desktop application (a
+  `.desktop` file in `~/.local/share/applications`, plus the icon in the
+  standard icon-theme location) the first time it's run as a plain
+  AppImage, with no separate integration tool required. Without this
+  there's no launcher for a panel/taskbar to actually pin — pinning
+  always works by remembering a `.desktop` entry, not a running process,
+  so a plain double-clicked AppImage had nothing to attach a pin to.
+  Re-registers on every launch to stay in sync (this doesn't affect an
+  existing pin, since that's the desktop environment's own state, keyed
+  off the file's name, which never changes), and keeps working across
+  auto-updates since electron-updater replaces the AppImage file in
+  place rather than under a new name.
+
 ## [0.19.2] - 2026-08-01
 
 ### Fixed

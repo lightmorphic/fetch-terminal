@@ -114,6 +114,61 @@ function restoreThemeSource() {
   // Otherwise leave the default 'system', which follows the desktop theme.
 }
 
+// A plain, un-integrated AppImage has no application launcher the desktop
+// knows about, so there's nothing for a taskbar/panel to actually "pin" —
+// pinning always works by remembering a .desktop file, not a running
+// process. `AppImage` env var is set by the AppImage runtime itself to the
+// image's own absolute path, so this only runs when actually launched that
+// way (never in dev, never on other platforms), and that path stays valid
+// across auto-updates since electron-updater replaces the file in place
+// rather than renaming it. Re-registering on every launch is intentional
+// and safe: it doesn't touch the pin itself (that's the desktop
+// environment's own state, keyed off the .desktop file's name, which never
+// changes), it just keeps the file's contents in sync.
+function ensureDesktopIntegration() {
+  if (process.platform !== 'linux' || !process.env.APPIMAGE) return;
+  try {
+    const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
+    const desktopDir = path.join(dataHome, 'applications');
+    const iconDir = path.join(dataHome, 'icons', 'hicolor', '512x512', 'apps');
+    fs.mkdirSync(desktopDir, { recursive: true });
+    fs.mkdirSync(iconDir, { recursive: true });
+
+    fs.copyFileSync(
+      path.join(__dirname, 'build', 'icons', '512x512.png'),
+      path.join(iconDir, 'fetch-terminal.png')
+    );
+
+    const entry = [
+      '[Desktop Entry]',
+      'Type=Application',
+      'Name=Fetch Terminal',
+      `Exec="${process.env.APPIMAGE}" %U`,
+      'Icon=fetch-terminal',
+      'Terminal=false',
+      'Categories=System;TerminalEmulator;',
+      // Must match the running window's WM_CLASS for the desktop
+      // environment to treat this launcher and the running window as the
+      // same app — Electron derives that from executableName below.
+      'StartupWMClass=fetch-terminal',
+      '',
+    ].join('\n');
+    fs.writeFileSync(path.join(desktopDir, 'fetch-terminal.desktop'), entry, 'utf8');
+
+    // Best-effort: nudges the desktop environment into picking this up
+    // immediately rather than waiting for its own periodic rescan. Neither
+    // tool is guaranteed to exist, and nothing here depends on it working.
+    for (const [cmd, args] of [
+      ['update-desktop-database', [desktopDir]],
+      ['gtk-update-icon-cache', ['-f', '-t', path.join(dataHome, 'icons', 'hicolor')]],
+    ]) {
+      try { require('child_process').execFileSync(cmd, args, { stdio: 'ignore' }); } catch (err) { /* not installed, or not needed on this desktop */ }
+    }
+  } catch (err) {
+    /* best-effort — never block startup over desktop integration */
+  }
+}
+
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = false;
 
@@ -154,6 +209,7 @@ const UPDATE_CHECK_INTERVAL_MS = 30 * 60 * 1000;
 
 app.whenReady().then(() => {
   restoreThemeSource();
+  ensureDesktopIntegration();
   createWindow();
   mainWindow.once('ready-to-show', runUpdateCheck);
   setInterval(runUpdateCheck, UPDATE_CHECK_INTERVAL_MS);

@@ -89,9 +89,11 @@ chmod +x ~/Downloads/Fetch-Terminal-*.AppImage
 ~/Downloads/Fetch-Terminal-*.AppImage
 ```
 
-Most desktop environments let you add an AppImage to your application menu
-directly (e.g. via an "AppImage Launcher"-style integration tool), or you can
-just keep launching it from `~/Downloads`.
+The first time you run it, Fetch Terminal registers itself as a proper
+desktop application (a `.desktop` entry and icon in the standard XDG
+locations) — no separate integration tool needed. That's what lets you
+find it in your application menu and pin it to your taskbar/panel like
+any other installed app, and it keeps working across auto-updates.
 
 ## Development
 
