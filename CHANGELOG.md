@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-08-01
+
+### Added
+
+- `Ctrl+C` copies the terminal's selection instead of sending an
+  interrupt signal, but only when there's actually a selection — with
+  nothing selected it still interrupts a running command as usual.
+  `Ctrl+V` always pastes.
+
+### Changed
+
+- Sidebar is locked open by default now, instead of auto-collapsing
+  after running a snippet unless you'd pinned it.
+- "+ New snippet" moved above the Passwords section instead of being
+  grouped with Import/Export/branding in the footer.
+- Import, Export, and Reset are now one row of small buttons instead
+  of Reset standing alone as a larger, more prominent one.
+- Reset no longer pops a native confirmation dialog — clicking it
+  turns it into a "Confirm?" button that has to be clicked again
+  (auto-reverting after a few seconds), so it stays a deliberate,
+  low-visibility action instead of something you'd trigger by accident
+  or use often.
+- Tooltips (the update status dot, and now the Light/Dark/Auto theme
+  buttons too) restyled away from a flat, solid-accent-color box into a
+  darker panel with a subtle accent-colored left border — reads as a
+  proper tooltip instead of a colored block.
+
 ## [0.8.1] - 2026-08-01
 
 ### Fixed
@@ -239,7 +266,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.1...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.0...HEAD
+[0.9.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.1...0.9.0
 [0.8.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.0...0.7.1

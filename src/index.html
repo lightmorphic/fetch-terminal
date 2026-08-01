@@ -23,9 +23,9 @@
         <div class="popover-panel">
           <div class="popover-title">Theme</div>
           <div id="theme-mode-row" class="theme-mode-row">
-            <button class="theme-mode-btn" data-mode="light" data-icon="sun" title="Light"></button>
-            <button class="theme-mode-btn" data-mode="dark" data-icon="moon" title="Dark"></button>
-            <button class="theme-mode-btn" data-mode="system" data-icon="auto" title="Auto (follow the desktop)"></button>
+            <button class="theme-mode-btn" data-mode="light" data-icon="sun" data-tooltip="Light"></button>
+            <button class="theme-mode-btn" data-mode="dark" data-icon="moon" data-tooltip="Dark"></button>
+            <button class="theme-mode-btn" data-mode="system" data-icon="auto" data-tooltip="Auto (follows your desktop)"></button>
           </div>
           <div class="popover-title">Accent color</div>
           <div id="accent-swatches"></div>
@@ -64,6 +64,7 @@
         <div class="footer-row">
           <button id="import-btn" class="text-btn small neutral" data-icon-inline="import">Import</button>
           <button id="export-btn" class="text-btn small neutral" data-icon-inline="export">Export</button>
+          <button id="reset-data-btn" class="text-btn small neutral reset-data-btn" data-tooltip="Delete all snippets, history, passwords, and settings">Reset</button>
         </div>
         <div id="app-brand">
           <a id="app-brand-link" class="app-brand-link" href="https://github.com/fosscharlie/fetch-terminal" title="View on GitHub">
@@ -72,7 +73,6 @@
           </a>
           <span id="update-dot" class="update-dot" data-tooltip="Checking for updates…"></span>
           <button id="update-btn" class="update-btn hidden"></button>
-          <button id="reset-data-btn" class="reset-data-btn" data-tooltip="Delete all snippets, history, passwords, and settings">Reset</button>
         </div>
       </div>
     </aside>

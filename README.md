@@ -22,7 +22,8 @@ remote assets of any kind.
 - Collapsible sidebar of snippets — saved shell commands (including SSH
   one-liners) that run instantly in the active tab when clicked
   - Live search box at the top of the sidebar filters as you type
-  - Pin/lock the sidebar open, or let it auto-collapse after running a snippet
+  - Locked open by default; unlock it to let it auto-collapse after
+    running a snippet instead
   - Export/import snippets as a Markdown file for backup and sharing
 - No accounts, no built-in SSH connection manager beyond what snippets provide
 - PIN-protected password vault — save a password once, encrypted, and click
@@ -30,6 +31,8 @@ remote assets of any kind.
   it; it can never be viewed or exported again through the app
 - A "Reset all data" button that wipes every snippet, history entry, saved
   password, and setting on demand
+- Standard `Ctrl+C`/`Ctrl+V` copy and paste in the terminal, without giving
+  up `Ctrl+C` as an interrupt signal
 
 ## Keyboard shortcuts
 
@@ -41,6 +44,8 @@ remote assets of any kind.
 | `Ctrl+Shift+B`      | Toggle the snippets sidebar  |
 | `Ctrl+Tab` / `+Shift` | Cycle to next/previous tab |
 | `Tab` / `→`         | Accept an autocomplete suggestion |
+| `Ctrl+C`            | Copy the selection (only when there is one — otherwise sends the usual interrupt signal) |
+| `Ctrl+V`            | Paste the clipboard           |
 | `Esc`               | Close an open dialog          |
 
 ## Installing on Linux
@@ -200,9 +205,12 @@ binary; it doesn't (and can't) run any cleanup, since nothing is executing
 anymore to do that cleanup. Anything the app saved to disk stays there
 until removed by hand.
 
-To clear everything from inside the app, click **Reset all data** at the
-bottom of the sidebar. After confirming, it deletes all snippets, command
-history, saved passwords, and settings, then restarts with a clean slate.
+To clear everything from inside the app, click the small **Reset** button
+next to Import/Export at the bottom of the sidebar, then click the
+**Confirm?** button that appears in its place (it reverts back to "Reset"
+on its own after a few seconds if you don't). That deletes all snippets,
+command history, saved passwords, and settings, then restarts with a clean
+slate.
 
 To remove it all manually instead (e.g. after deleting the AppImage
 itself), delete the whole per-user data directory:
