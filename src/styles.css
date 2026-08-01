@@ -301,7 +301,8 @@ input:focus, textarea:focus {
   color: var(--md-primary);
   background: var(--md-primary-container);
 }
-.icon-btn.active .icon-pin { fill: currentColor; }
+.icon-btn.accent-icon-btn { color: var(--md-primary); }
+.icon-btn.accent-icon-btn:hover { color: var(--md-primary); background: var(--md-primary-container); }
 
 #new-tab-btn {
   margin: 6px 6px 6px 2px;
@@ -367,6 +368,10 @@ input:focus, textarea:focus {
   border: 1px solid var(--md-outline);
   border-radius: var(--radius-lg);
   padding: 6px 12px;
+}
+.search-field.search-field-short {
+  flex: none;
+  width: 175px;
 }
 .search-field input {
   border: none;
@@ -491,6 +496,13 @@ input:focus, textarea:focus {
 .text-btn:active { filter: brightness(0.9); box-shadow: var(--elevation-1); }
 .text-btn.small { padding: 7px 10px; }
 .text-btn.danger { color: var(--md-error); background: var(--md-error-container); box-shadow: none; }
+.text-btn.neutral {
+  color: var(--md-on-surface-variant);
+  background: var(--md-surface-4);
+  box-shadow: none;
+}
+.text-btn.neutral:hover { filter: none; background: var(--md-surface-5); box-shadow: none; }
+.text-btn.neutral:active { filter: none; background: var(--md-surface-5); }
 .btn-icon { display: flex; }
 .btn-icon svg { width: 13px; height: 13px; }
 

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-08-01
+
+### Changed
+
+- Sidebar: replaced the pin icon with the standard lock/unlock icon,
+  always shown in the accent color, and shortened the search box so it
+  sits clearly beside it instead of crowding it out.
+- The terminal's ANSI "green" slot (what most distros' default shell
+  prompt uses for `user@host`) now follows the accent color too, so the
+  prompt reads in the same hue as the rest of the app.
+- Expanded the accent color picker from 10 to 15 Material Design colors
+  (added Deep Orange, Yellow, Lime, Light Blue, and Deep Purple).
+- Import/Export are now small, neutral-gray buttons instead of
+  accent-filled ones, so "+ New snippet" reads as the one primary action.
+
 ## [0.5.0] - 2026-08-01
 
 ### Added
@@ -105,7 +120,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/fosscharlie/fetch-terminal/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.3.0...v0.4.0

@@ -58,6 +58,9 @@ const THEME_MEDIA = window.matchMedia('(prefers-color-scheme: dark)');
 function isDarkMode() {
   return THEME_MEDIA.matches;
 }
+// Most Linux distros' default shell prompt (`user@host`) is colored via the
+// ANSI "green"/"bright green" slot, so we tint that slot with the accent hue
+// too — the prompt then visually matches the rest of the app's accent color.
 function currentTerminalTheme() {
   const base = isDarkMode() ? DARK_TERMINAL_THEME : LIGHT_TERMINAL_THEME;
   const hue = typeof currentAccentHue === 'number' ? currentAccentHue : DEFAULT_ACCENT_HUE;
@@ -65,6 +68,8 @@ function currentTerminalTheme() {
     ...base,
     cursor: isDarkMode() ? hsl(hue, 85, 78) : hsl(hue, 55, 42),
     selectionBackground: isDarkMode() ? hsla(hue, 85, 78, 0.28) : hsla(hue, 55, 42, 0.2),
+    green: isDarkMode() ? hsl(hue, 70, 72) : hsl(hue, 60, 38),
+    brightGreen: isDarkMode() ? hsl(hue, 75, 80) : hsl(hue, 65, 46),
   };
 }
 
@@ -503,8 +508,15 @@ function toggleSidebar() {
 
 function togglePin() {
   sidebarPinned = !sidebarPinned;
-  document.getElementById('pin-btn').classList.toggle('active', sidebarPinned);
+  updatePinButton();
   if (sidebarPinned && sidebarCollapsed) setSidebarCollapsed(false);
+}
+
+function updatePinButton() {
+  const btn = document.getElementById('pin-btn');
+  btn.classList.toggle('active', sidebarPinned);
+  btn.innerHTML = icon(sidebarPinned ? 'lock' : 'unlock');
+  btn.title = sidebarPinned ? 'Unlock (allow the sidebar to auto-collapse)' : 'Lock the sidebar open';
 }
 
 // ---------- Theme (follows the desktop theme by default) ----------
@@ -532,15 +544,20 @@ THEME_MEDIA.addEventListener('change', () => {
 // ---------- Accent color (10 Material Design hues) ----------
 
 const ACCENT_COLORS = [
-  { name: 'Purple', hue: 262 },
-  { name: 'Indigo', hue: 231 },
-  { name: 'Blue', hue: 217 },
-  { name: 'Cyan', hue: 190 },
-  { name: 'Teal', hue: 174 },
-  { name: 'Green', hue: 142 },
-  { name: 'Amber', hue: 45 },
-  { name: 'Orange', hue: 27 },
   { name: 'Red', hue: 355 },
+  { name: 'Deep Orange', hue: 14 },
+  { name: 'Orange', hue: 27 },
+  { name: 'Amber', hue: 45 },
+  { name: 'Yellow', hue: 55 },
+  { name: 'Lime', hue: 78 },
+  { name: 'Green', hue: 142 },
+  { name: 'Teal', hue: 174 },
+  { name: 'Cyan', hue: 190 },
+  { name: 'Light Blue', hue: 200 },
+  { name: 'Blue', hue: 217 },
+  { name: 'Indigo', hue: 231 },
+  { name: 'Deep Purple', hue: 262 },
+  { name: 'Purple', hue: 291 },
   { name: 'Pink', hue: 330 },
 ];
 const DEFAULT_ACCENT_HUE = 262;
@@ -697,6 +714,7 @@ function applyIcons() {
 function wireStaticControls() {
   applyIcons();
   updateThemeToggleIcon();
+  updatePinButton();
   document.getElementById('sidebar-toggle').classList.add('active');
   document.getElementById('app-brand-version').textContent = `v${APP_VERSION}`;
 
