@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.4] - 2026-08-01
+
+### Fixed
+
+- Update downloads were failing: the release's `latest-linux.yml`
+  pointed at a hyphenated filename, but GitHub renames uploaded
+  assets with spaces in them by replacing the spaces with dots, so the
+  two never matched. Build output is now named without spaces
+  (`Fetch-Terminal-<version>.AppImage`) so the filenames agree.
+
+### Added
+
+- The app now re-checks for updates automatically every 30 minutes
+  while running, in addition to the check at startup.
+
 ## [0.6.3] - 2026-08-01
 
 ### Changed
@@ -162,7 +177,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.3...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.4...HEAD
+[0.6.4]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.3...0.6.4
 [0.6.3]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.0...0.6.1

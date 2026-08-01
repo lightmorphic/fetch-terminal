@@ -111,10 +111,13 @@ ipcMain.handle('update:install', () => {
   autoUpdater.quitAndInstall();
 });
 
+const UPDATE_CHECK_INTERVAL_MS = 30 * 60 * 1000;
+
 app.whenReady().then(() => {
   restoreThemeSource();
   createWindow();
   mainWindow.once('ready-to-show', runUpdateCheck);
+  setInterval(runUpdateCheck, UPDATE_CHECK_INTERVAL_MS);
 });
 
 ipcMain.handle('theme:set', (event, source) => {
