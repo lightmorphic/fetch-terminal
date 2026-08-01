@@ -17,16 +17,21 @@
     </div>
     <div class="titlebar-drag spacer"></div>
     <div class="titlebar-popover-anchor">
-      <button id="accent-btn" class="icon-btn titlebar-btn" data-icon="palette" title="Accent color"></button>
-      <div id="accent-popover" class="popover hidden">
+      <button id="appearance-btn" class="icon-btn titlebar-btn" data-icon="palette" title="Appearance"></button>
+      <div id="appearance-popover" class="popover hidden">
         <div class="popover-scrim"></div>
         <div class="popover-panel">
+          <div class="popover-title">Theme</div>
+          <div id="theme-mode-row" class="theme-mode-row">
+            <button class="theme-mode-btn" data-mode="light" data-icon="sun" title="Light"></button>
+            <button class="theme-mode-btn" data-mode="dark" data-icon="moon" title="Dark"></button>
+            <button class="theme-mode-btn" data-mode="system" data-icon="auto" title="Auto (follow the desktop)"></button>
+          </div>
           <div class="popover-title">Accent color</div>
           <div id="accent-swatches"></div>
         </div>
       </div>
     </div>
-    <button id="theme-toggle-btn" class="icon-btn titlebar-btn" data-icon="moon" title="Toggle light / dark theme"></button>
     <div class="titlebar-brand titlebar-drag"><span class="app-title">Fetch Terminal</span></div>
     <div id="window-controls">
       <button id="btn-min" class="win-btn" data-icon="minimize" title="Minimize"></button>

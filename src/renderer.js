@@ -521,10 +521,17 @@ function updatePinButton() {
 
 // ---------- Theme (follows the desktop theme by default) ----------
 
-function updateThemeToggleIcon() {
-  const btn = document.getElementById('theme-toggle-btn');
+let currentThemeMode = 'system';
+
+function updateAppearanceIcon() {
+  const btn = document.getElementById('appearance-btn');
   btn.innerHTML = icon(isDarkMode() ? 'moon' : 'sun');
-  btn.title = isDarkMode() ? 'Switch to light theme' : 'Switch to dark theme';
+}
+
+function renderThemeModeButtons() {
+  document.querySelectorAll('.theme-mode-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.mode === currentThemeMode);
+  });
 }
 
 function applyThemeToAllTerminals() {
@@ -532,31 +539,35 @@ function applyThemeToAllTerminals() {
   for (const tab of tabs) tab.term.options.theme = theme;
 }
 
-async function toggleTheme() {
-  await ipcRenderer.invoke('theme:set', isDarkMode() ? 'light' : 'dark');
+async function setThemeMode(mode) {
+  currentThemeMode = mode;
+  renderThemeModeButtons();
+  await ipcRenderer.invoke('theme:set', mode);
+}
+
+async function loadThemeMode() {
+  const mode = await ipcRenderer.invoke('theme:get');
+  currentThemeMode = mode === 'light' || mode === 'dark' ? mode : 'system';
+  renderThemeModeButtons();
 }
 
 THEME_MEDIA.addEventListener('change', () => {
-  updateThemeToggleIcon();
+  updateAppearanceIcon();
   applyAccent(currentAccentHue);
 });
 
-// ---------- Accent color (10 Material Design hues) ----------
+// ---------- Accent color (10 Material Design hues, spread for max contrast
+// in both light and dark schemes) ----------
 
 const ACCENT_COLORS = [
   { name: 'Red', hue: 355 },
-  { name: 'Deep Orange', hue: 14 },
   { name: 'Orange', hue: 27 },
   { name: 'Amber', hue: 45 },
-  { name: 'Yellow', hue: 55 },
-  { name: 'Lime', hue: 78 },
   { name: 'Green', hue: 142 },
   { name: 'Teal', hue: 174 },
   { name: 'Cyan', hue: 190 },
-  { name: 'Light Blue', hue: 200 },
   { name: 'Blue', hue: 217 },
   { name: 'Indigo', hue: 231 },
-  { name: 'Deep Purple', hue: 262 },
   { name: 'Purple', hue: 291 },
   { name: 'Pink', hue: 330 },
 ];
@@ -623,19 +634,19 @@ function renderAccentSwatches() {
 async function selectAccent(hue) {
   applyAccent(hue);
   await ipcRenderer.invoke('accent:set', hue);
-  closeAccentPopover();
+  closeAppearancePopover();
 }
 
-function openAccentPopover() {
-  document.getElementById('accent-popover').classList.remove('hidden');
+function openAppearancePopover() {
+  document.getElementById('appearance-popover').classList.remove('hidden');
 }
-function closeAccentPopover() {
-  document.getElementById('accent-popover').classList.add('hidden');
+function closeAppearancePopover() {
+  document.getElementById('appearance-popover').classList.add('hidden');
 }
-function toggleAccentPopover() {
-  const popover = document.getElementById('accent-popover');
-  if (popover.classList.contains('hidden')) openAccentPopover();
-  else closeAccentPopover();
+function toggleAppearancePopover() {
+  const popover = document.getElementById('appearance-popover');
+  if (popover.classList.contains('hidden')) openAppearancePopover();
+  else closeAppearancePopover();
 }
 
 async function loadAccent() {
@@ -779,7 +790,7 @@ function applyIcons() {
 
 function wireStaticControls() {
   applyIcons();
-  updateThemeToggleIcon();
+  updateAppearanceIcon();
   updatePinButton();
   document.getElementById('sidebar-toggle').classList.add('active');
   document.getElementById('app-brand-version').textContent = `v${APP_VERSION}`;
@@ -787,12 +798,14 @@ function wireStaticControls() {
   document.getElementById('new-tab-btn').addEventListener('click', () => createTab());
   document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
   document.getElementById('pin-btn').addEventListener('click', togglePin);
-  document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
-  document.getElementById('accent-btn').addEventListener('click', (e) => {
+  document.getElementById('appearance-btn').addEventListener('click', (e) => {
     e.stopPropagation();
-    toggleAccentPopover();
+    toggleAppearancePopover();
   });
-  document.getElementById('accent-popover').querySelector('.popover-scrim').addEventListener('click', closeAccentPopover);
+  document.getElementById('appearance-popover').querySelector('.popover-scrim').addEventListener('click', closeAppearancePopover);
+  document.querySelectorAll('.theme-mode-btn').forEach((btn) => {
+    btn.addEventListener('click', () => setThemeMode(btn.dataset.mode));
+  });
 
   document.getElementById('snippet-search').addEventListener('input', (e) => renderSnippetList(e.target.value));
   document.getElementById('add-snippet-btn').addEventListener('click', () => openSnippetModal(null));
@@ -851,8 +864,8 @@ function wireStaticControls() {
       } else if (!document.getElementById('snippet-modal').classList.contains('hidden')) {
         closeSnippetModal();
         e.preventDefault();
-      } else if (!document.getElementById('accent-popover').classList.contains('hidden')) {
-        closeAccentPopover();
+      } else if (!document.getElementById('appearance-popover').classList.contains('hidden')) {
+        closeAppearancePopover();
         e.preventDefault();
       }
     }
@@ -877,7 +890,7 @@ function wireStaticControls() {
 
 async function bootstrap() {
   wireStaticControls();
-  await Promise.all([loadSnippets(), loadHistory(), loadAccent()]);
+  await Promise.all([loadSnippets(), loadHistory(), loadAccent(), loadThemeMode()]);
   createTab();
 }
 

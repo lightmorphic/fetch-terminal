@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-01
+
+### Changed
+
+- Merged the separate theme toggle and accent color buttons into one
+  "Appearance" popover in the titlebar. It now has an explicit
+  Light/Dark/Auto theme selector (Auto follows the desktop's setting —
+  previously only reachable as an unlabeled default, with no way back
+  to it once you'd toggled light/dark) above the accent color swatches.
+- Reduced the accent color palette from 15 back down to 10 hues (Red,
+  Orange, Amber, Green, Teal, Cyan, Blue, Indigo, Purple, Pink),
+  dropping the ones added later that were too close to a neighbor to
+  tell apart at a glance.
+- Documented the update system and the new appearance popover in the
+  README.
+
 ## [0.6.4] - 2026-08-01
 
 ### Fixed
@@ -177,7 +193,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.4...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.4...0.7.0
 [0.6.4]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.3...0.6.4
 [0.6.3]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.1...0.6.2

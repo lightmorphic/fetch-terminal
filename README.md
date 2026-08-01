@@ -12,8 +12,10 @@ remote assets of any kind.
 - Tabs running your default shell (`$SHELL`, falling back to `/bin/bash`)
 - Custom, frameless Material Design 3 interface with a violet-to-teal accent,
   a hand-drawn local icon set, and light/dark themes
-- Follows your desktop's light/dark theme by default, with a one-click toggle
-  to override it
+- Light/Dark/Auto theme selector (Auto follows your desktop's setting), plus
+  10 accent colors, in one appearance popover
+- Automatic update checks against GitHub Releases (startup + every 30
+  minutes), with a status dot you can click any time to check on demand
 - Scrollable, searchable command history (`Ctrl+Shift+F`) shared across tabs
 - Inline autocomplete that suggests previously-typed commands as you type
   (accept with `Tab` or `→`)
@@ -59,12 +61,12 @@ sudo apt install -y build-essential python3
 (On other distributions, install your distro's equivalent of `gcc`/`make`
 and `python3`.)
 
-`npm run dist` builds `Fetch Terminal-<version>.AppImage` and automatically
+`npm run dist` builds `Fetch-Terminal-<version>.AppImage` and automatically
 moves it into your `~/Downloads` folder. Then just:
 
 ```sh
-chmod +x ~/Downloads/Fetch\ Terminal-*.AppImage
-~/Downloads/Fetch\ Terminal-*.AppImage
+chmod +x ~/Downloads/Fetch-Terminal-*.AppImage
+~/Downloads/Fetch-Terminal-*.AppImage
 ```
 
 Most desktop environments let you add an AppImage to your application menu
@@ -112,19 +114,47 @@ snippet, which is displayed using its raw command text as the label.
 
 ## Theming
 
-Fetch Terminal follows your desktop's light/dark preference automatically
-(Electron keeps this in sync with the OS). Click the sun/moon button in the
-titlebar to force light or dark regardless of the desktop setting — your
-choice is remembered across restarts.
+Click the sun/moon button in the titlebar to open the appearance popover.
+It has two parts:
 
-Click the palette button in the titlebar to pick an accent color from 10
-Material Design hues (Purple, Indigo, Blue, Cyan, Teal, Green, Amber,
-Orange, Red, Pink). The whole app re-themes instantly — buttons, the active
-tab indicator, icons, and the terminal's cursor/selection color — and your
-choice is remembered across restarts.
+- **Theme** — three buttons: Light, Dark, and Auto. Auto follows your
+  desktop's light/dark preference automatically (Electron keeps this in
+  sync with the OS); Light/Dark force that regardless of the desktop
+  setting. Your choice is remembered across restarts.
+- **Accent color** — 10 Material Design hues (Red, Orange, Amber, Green,
+  Teal, Cyan, Blue, Indigo, Purple, Pink), chosen to stay clearly distinct
+  from each other in both light and dark mode. The whole app re-themes
+  instantly — buttons, the active tab indicator, icons, and the terminal's
+  cursor/selection color — and your choice is remembered across restarts.
 
 Every icon in the app is a local, hand-drawn inline SVG; none are loaded
 from a font or a CDN.
+
+## Updates
+
+Fetch Terminal checks GitHub Releases for a newer version automatically:
+once at startup, and then again every 30 minutes while it keeps running.
+This only applies to a packaged AppImage install — running from source via
+`npm start` always reports "up to date" since the check is skipped in dev.
+
+A small status dot sits next to the version number in the sidebar footer:
+
+| Dot color | Meaning |
+| --------- | ------- |
+| Green     | You're on the latest version |
+| Red       | An update is available (or already downloaded and ready to install) |
+| Gray      | Currently checking, or the last check failed (e.g. no network) |
+
+Hovering the dot shows exactly what state it's in. **You don't have to wait
+for the next scheduled check** — clicking the dot at any time triggers an
+immediate re-check, overriding the 30-minute interval.
+
+When an update is found, an "Update to v_X.Y.Z_" button appears underneath
+the version. Clicking it downloads the new AppImage in the background; once
+finished, the button changes to "Restart & install update" — clicking that
+quits the app, replaces the running AppImage with the new one, and restarts
+it automatically. Nothing downloads or installs without you clicking
+through both of those steps yourself.
 
 ## Data storage
 

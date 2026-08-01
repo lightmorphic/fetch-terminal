@@ -126,6 +126,8 @@ ipcMain.handle('theme:set', (event, source) => {
   writeJson(SETTINGS_FILE(), { ...readJson(SETTINGS_FILE(), {}), themeSource: source });
 });
 
+ipcMain.handle('theme:get', () => readJson(SETTINGS_FILE(), {}).themeSource || 'system');
+
 ipcMain.handle('accent:get', () => readJson(SETTINGS_FILE(), {}).accentHue);
 
 ipcMain.handle('accent:set', (event, hue) => {
