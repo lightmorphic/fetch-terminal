@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.20.1] - 2026-08-01
+
+### Fixed
+
+- The icon and `.desktop` file the app self-registers (0.20.0) could end
+  up owner-only (`0600`), unreadable to anything but this app's own
+  process, because `fs.copyFileSync`'s resulting permissions follow the
+  process's own umask rather than the source file's. Neither file has
+  anything sensitive in it — both are now explicitly `chmod 644` after
+  being written, regardless of umask.
+
 ## [0.20.0] - 2026-08-01
 
 ### Added

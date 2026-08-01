@@ -134,10 +134,14 @@ function ensureDesktopIntegration() {
     fs.mkdirSync(desktopDir, { recursive: true });
     fs.mkdirSync(iconDir, { recursive: true });
 
-    fs.copyFileSync(
-      path.join(__dirname, 'build', 'icons', '512x512.png'),
-      path.join(iconDir, 'fetch-terminal.png')
-    );
+    const iconTarget = path.join(iconDir, 'fetch-terminal.png');
+    fs.copyFileSync(path.join(__dirname, 'build', 'icons', '512x512.png'), iconTarget);
+    // copyFileSync's resulting mode isn't guaranteed to match the source
+    // file's — it's subject to this process's own umask, which can leave
+    // it owner-only (0600) and unreadable to the desktop environment's own
+    // process. Icons and desktop entries are meant to be world-readable,
+    // there's nothing sensitive in either.
+    fs.chmodSync(iconTarget, 0o644);
 
     const entry = [
       '[Desktop Entry]',
@@ -153,7 +157,9 @@ function ensureDesktopIntegration() {
       'StartupWMClass=fetch-terminal',
       '',
     ].join('\n');
-    fs.writeFileSync(path.join(desktopDir, 'fetch-terminal.desktop'), entry, 'utf8');
+    const desktopTarget = path.join(desktopDir, 'fetch-terminal.desktop');
+    fs.writeFileSync(desktopTarget, entry, 'utf8');
+    fs.chmodSync(desktopTarget, 0o644);
 
     // Best-effort: nudges the desktop environment into picking this up
     // immediately rather than waiting for its own periodic rescan. Neither
