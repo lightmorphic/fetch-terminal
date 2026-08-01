@@ -145,6 +145,9 @@ ipcMain.handle('terminal:context-menu', (event, { hasSelection }) => {
     };
     const menu = Menu.buildFromTemplate([
       { label: 'Copy', enabled: !!hasSelection, click: () => finish('copy') },
+      // A terminal selection is historical output, not editable text, so
+      // there's nothing to actually remove — Cut behaves the same as Copy.
+      { label: 'Cut', enabled: !!hasSelection, click: () => finish('cut') },
       { label: 'Paste', click: () => finish('paste') },
     ]);
     menu.popup({ window: mainWindow, callback: () => finish(null) });
@@ -175,10 +178,23 @@ function readCredentialsFile() {
   return readJson(CREDENTIALS_FILE(), { pin: null, entries: [] });
 }
 function writeCredentialsFile(data) {
-  writeJson(CREDENTIALS_FILE(), data);
+  const file = CREDENTIALS_FILE();
+  writeJson(file, data);
+  // Defense in depth: this file holds the PIN hash and encrypted
+  // passwords, so restrict it to the owning user even on a shared
+  // multi-user machine, on top of writeJson's default permissions.
+  try { fs.chmodSync(file, 0o600); } catch (err) { /* best-effort */ }
 }
 function hashPin(pin, salt) {
-  return crypto.scryptSync(pin, salt, 64).toString('hex');
+  return crypto.scryptSync(pin, salt, 64);
+}
+function pinMatches(pin, salt, expectedHash) {
+  const actual = hashPin(pin, salt);
+  const expected = Buffer.from(expectedHash, 'hex');
+  // Lengths always match here (scrypt output is fixed-size), but
+  // timingSafeEqual throws on a length mismatch rather than returning
+  // false, so guard it explicitly.
+  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
 }
 function isVaultUnlocked() {
   return Date.now() < vaultUnlockedUntil;
@@ -202,11 +218,11 @@ ipcMain.handle('vault:status', () => {
 });
 
 ipcMain.handle('vault:setPin', (event, pin) => {
-  if (!pin || pin.length < 4) return { error: 'invalid' };
+  if (typeof pin !== 'string' || pin.length < 4) return { error: 'invalid' };
   const data = readCredentialsFile();
   if (data.pin) return { error: 'exists' };
   const salt = crypto.randomBytes(16).toString('hex');
-  data.pin = { salt, hash: hashPin(pin, salt) };
+  data.pin = { salt, hash: hashPin(pin, salt).toString('hex') };
   writeCredentialsFile(data);
   touchVaultActivity();
   sendVaultState();
@@ -216,7 +232,7 @@ ipcMain.handle('vault:setPin', (event, pin) => {
 ipcMain.handle('vault:unlock', (event, pin) => {
   const data = readCredentialsFile();
   if (!data.pin) return { error: 'no-pin' };
-  const ok = hashPin(pin, data.pin.salt) === data.pin.hash;
+  const ok = typeof pin === 'string' && pinMatches(pin, data.pin.salt, data.pin.hash);
   if (ok) {
     touchVaultActivity();
     sendVaultState();

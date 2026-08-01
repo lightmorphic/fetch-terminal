@@ -1,7 +1,6 @@
 const { ipcRenderer, shell, clipboard } = require('electron');
 const { Terminal } = require('@xterm/xterm');
 const { FitAddon } = require('@xterm/addon-fit');
-const { SearchAddon } = require('@xterm/addon-search');
 const { WebLinksAddon } = require('@xterm/addon-web-links');
 const { icon } = require('./icons');
 const { version: APP_VERSION } = require('../package.json');
@@ -160,7 +159,6 @@ function createTab() {
 
   const fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
-  term.loadAddon(new SearchAddon());
   term.loadAddon(new WebLinksAddon((_event, uri) => shell.openExternal(uri)));
 
   term.open(pane);
@@ -200,11 +198,17 @@ function createTab() {
     if (!(event.ctrlKey || event.metaKey)) return true;
     const key = event.key.toLowerCase();
 
-    if (key === 'c') {
+    // Returning false only stops xterm's own key handling — it does not
+    // stop the browser's native paste action from also firing on the same
+    // keypress (xterm's hidden textarea has its own native 'paste' listener),
+    // which was pasting everything twice. preventDefault() stops that too.
+    if (key === 'c' || key === 'x') {
+      event.preventDefault();
       copySelection(term);
       return false;
     }
     if (key === 'v') {
+      event.preventDefault();
       pasteIntoTerminal(tab);
       return false;
     }
@@ -214,7 +218,7 @@ function createTab() {
   pane.addEventListener('contextmenu', async (event) => {
     event.preventDefault();
     const action = await ipcRenderer.invoke('terminal:context-menu', { hasSelection: term.hasSelection() });
-    if (action === 'copy') copySelection(term);
+    if (action === 'copy' || action === 'cut') copySelection(term);
     else if (action === 'paste') pasteIntoTerminal(tab);
   });
 

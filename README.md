@@ -34,10 +34,10 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
   it; it can never be viewed or exported again through the app
 - A "Reset all data" button that wipes every snippet, history entry, saved
   password, and setting on demand
-- `Ctrl+Shift+C`/`Ctrl+Shift+V` to copy/paste in the terminal, plus a
-  right-click context menu with Copy/Paste — plain `Ctrl+C`, `Ctrl+V`, and
-  `Ctrl+X` are left completely alone, so they keep their normal shell
-  meaning (interrupt, etc.)
+- `Ctrl+Shift+C`/`Ctrl+Shift+X`/`Ctrl+Shift+V` to copy/cut/paste in the
+  terminal, plus a right-click context menu with the same three — plain
+  `Ctrl+C`, `Ctrl+X`, and `Ctrl+V` are left completely alone, so they keep
+  their normal shell meaning (interrupt, etc.)
 
 ## Keyboard shortcuts
 
@@ -50,10 +50,11 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
 | `Ctrl+Tab` / `+Shift` | Cycle to next/previous tab |
 | `Tab` / `→`         | Accept an autocomplete suggestion |
 | `Ctrl+Shift+C`      | Copy the terminal selection    |
+| `Ctrl+Shift+X`      | Cut — same as copy, since a terminal selection is historical output rather than editable text |
 | `Ctrl+Shift+V`      | Paste the clipboard into the terminal |
 | `Esc`               | Close an open dialog          |
 
-Right-click inside a terminal for a Copy/Paste context menu instead, if you
+Right-click inside a terminal for a Copy/Cut/Paste context menu instead, if you
 prefer that to the shortcuts.
 
 ## Installing on Linux

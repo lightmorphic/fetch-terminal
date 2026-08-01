@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-01
+
+A full security and code-quality pass: audited every IPC handler, the
+password vault, clipboard handling, and the Content-Security-Policy;
+removed everything that wasn't earning its place.
+
+### Fixed
+
+- Copy/paste double-fired: returning `false` from xterm's key handler
+  only stops xterm's own handling, not the browser's native paste
+  action on the same keypress (xterm's hidden textarea has its own
+  native paste listener) — `Ctrl+Shift+V` was pasting the clipboard
+  twice. Now calls `preventDefault()` explicitly.
+- Vault PIN comparison used `===` on hash strings instead of a
+  constant-time comparison — switched to `crypto.timingSafeEqual`.
+
+### Added
+
+- `Ctrl+Shift+X` (Cut) and a Cut entry in the terminal's right-click
+  menu, alongside Copy/Paste. Behaves the same as Copy, since a
+  terminal selection is historical output rather than editable text
+  with something to actually remove.
+- Password vault file (`credentials.json`) is now `chmod 600` after
+  every write — defense in depth restricting it to the owning user
+  even on a shared multi-user machine, on top of the existing
+  encryption and PIN gate.
+
+### Changed
+
+- Tightened the Content-Security-Policy: removed `unsafe-inline` from
+  `script-src` (nothing in the app uses inline scripts, so this was
+  pure unused attack surface) and split it from `style-src`, which
+  still needs it because xterm.js injects its own `<style>` elements
+  internally.
+- Removed `@xterm/addon-search` — it was loaded into every terminal
+  but never actually used (command history search is a separate,
+  custom modal, not xterm's own search) — along with a chunk of
+  genuinely dead CSS left over from an earlier autocomplete-UI
+  iteration.
+
 ## [0.11.2] - 2026-08-01
 
 ### Fixed
@@ -387,7 +427,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.2...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.12.0...HEAD
+[0.12.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.2...0.12.0
 [0.11.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.1...0.11.2
 [0.11.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.1...0.11.0

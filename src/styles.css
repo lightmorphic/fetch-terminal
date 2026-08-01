@@ -831,22 +831,6 @@ input:focus, textarea:focus {
   z-index: 2;
 }
 
-.autocomplete-hint {
-  position: absolute;
-  right: 14px;
-  bottom: 8px;
-  font-size: 10.5px;
-  color: var(--md-on-surface-variant);
-  background: var(--md-surface-2);
-  border: 1px solid var(--md-outline);
-  border-radius: var(--radius-sm);
-  padding: 3px 8px;
-  opacity: 0;
-  transition: opacity var(--motion-fast);
-  pointer-events: none;
-}
-.autocomplete-hint.visible { opacity: 0.9; }
-
 /* ---------- Modals ---------- */
 
 .modal {

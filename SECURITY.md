@@ -39,3 +39,20 @@ terminal, treat every snippet (your own or imported from someone else) with
 the same care you'd give a command you're about to type yourself — this
 includes SSH one-liners, which can connect to and execute commands on a
 remote host.
+
+### Password vault threat model
+
+Saved passwords are encrypted at rest via Electron's `safeStorage` (backed
+by your OS's own keyring/Secret Service), and the underlying value is never
+sent back to the renderer once saved — only used (typed into the active
+terminal) or deleted, never displayed. That encryption is what actually
+protects the ciphertext on disk; the separate vault PIN is a UI-level gate
+on top of it, specifically against someone else at your already-unlocked
+computer clicking through the app, and it auto-locks after 5 minutes idle.
+It is not a substitute for full-disk encryption or locking your session —
+anyone who can already run code as your OS user account has the same
+access to the keyring your session does, PIN or not.
+
+The Content-Security-Policy in `src/index.html` disallows inline scripts
+and any non-local network origin; the only network access the app makes at
+all is an update check against GitHub Releases (see the README).
