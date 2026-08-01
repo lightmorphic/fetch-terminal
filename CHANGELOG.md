@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.20.2] - 2026-08-01
+
+### Changed
+
+- The window's own icon (set via `BrowserWindow`'s `icon` option, what
+  most Linux taskbars/panels actually read for a running window) now
+  reads from the same `~/.local/share` copy that desktop integration
+  manages — verified world-readable and correct — instead of the copy
+  bundled inside the packaged app's own asar archive, whose path
+  resolution has already caused one round of this exact bug. Falls back
+  to the bundled copy in dev mode or before desktop integration has run.
+
 ## [0.20.1] - 2026-08-01
 
 ### Fixed

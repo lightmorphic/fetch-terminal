@@ -60,10 +60,8 @@ function createWindow() {
     // Not every Linux window manager's taskbar/panel/alt-tab switcher reads
     // the icon out of an AppImage's desktop file — several fall back to
     // asking the window itself, and without this it's Electron's own
-    // default logo. Pointing this at the same source icon used for the
-    // packaged build's icon set keeps it correct everywhere, packaged or
-    // running from source.
-    icon: path.join(__dirname, 'build', 'icons', '512x512.png'),
+    // default logo.
+    icon: resolveAppIcon(),
     // A real per-pixel transparent window (for rounded corners) only
     // renders correctly on Linux if a compositing window manager is
     // actually running, which isn't reliable across the range of desktops
@@ -106,6 +104,26 @@ function createWindow() {
   });
 }
 
+function bundledIconPath() {
+  return path.join(__dirname, 'build', 'icons', '512x512.png');
+}
+
+// Prefers the copy this app manages under ~/.local/share (written by
+// ensureDesktopIntegration below, and confirmed world-readable there) over
+// the one bundled inside the packaged app's own asar archive — asar path
+// resolution for this exact icon has already bitten this feature once, so
+// this sidesteps trusting it a second time for the window's own icon.
+// Falls back to the bundled copy in dev mode, on other platforms, or
+// before desktop integration has had a chance to run.
+function resolveAppIcon() {
+  if (process.env.APPIMAGE) {
+    const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
+    const managed = path.join(dataHome, 'icons', 'hicolor', '512x512', 'apps', 'fetch-terminal.png');
+    if (fs.existsSync(managed)) return managed;
+  }
+  return bundledIconPath();
+}
+
 function restoreThemeSource() {
   const settings = readJson(SETTINGS_FILE(), {});
   if (settings.themeSource === 'light' || settings.themeSource === 'dark') {
@@ -135,7 +153,7 @@ function ensureDesktopIntegration() {
     fs.mkdirSync(iconDir, { recursive: true });
 
     const iconTarget = path.join(iconDir, 'fetch-terminal.png');
-    fs.copyFileSync(path.join(__dirname, 'build', 'icons', '512x512.png'), iconTarget);
+    fs.copyFileSync(bundledIconPath(), iconTarget);
     // copyFileSync's resulting mode isn't guaranteed to match the source
     // file's — it's subject to this process's own umask, which can leave
     // it owner-only (0600) and unreadable to the desktop environment's own
