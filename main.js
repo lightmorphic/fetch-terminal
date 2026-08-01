@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const pty = require('node-pty');
+const { autoUpdater } = require('electron-updater');
 
 const USER_DATA = () => app.getPath('userData');
 const SNIPPETS_FILE = () => path.join(USER_DATA(), 'snippets.json');
@@ -74,9 +75,49 @@ function restoreThemeSource() {
   // Otherwise leave the default 'system', which follows the desktop theme.
 }
 
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = false;
+
+function sendUpdateState(state, extra) {
+  if (mainWindow) mainWindow.webContents.send('update:state', { state, ...extra });
+}
+
+autoUpdater.on('update-available', (info) => sendUpdateState('available', { version: info.version }));
+autoUpdater.on('update-not-available', () => sendUpdateState('not-available'));
+autoUpdater.on('error', (err) => sendUpdateState('error', { message: err == null ? 'Unknown error' : err.message }));
+autoUpdater.on('download-progress', (progress) => sendUpdateState('downloading', { percent: progress.percent }));
+autoUpdater.on('update-downloaded', (info) => sendUpdateState('downloaded', { version: info.version }));
+
+ipcMain.handle('update:check', async () => {
+  if (!app.isPackaged) return { state: 'not-available' };
+  try {
+    sendUpdateState('checking');
+    await autoUpdater.checkForUpdates();
+  } catch (err) {
+    sendUpdateState('error', { message: err.message });
+  }
+});
+
+ipcMain.handle('update:download', async () => {
+  try {
+    await autoUpdater.downloadUpdate();
+  } catch (err) {
+    sendUpdateState('error', { message: err.message });
+  }
+});
+
+ipcMain.handle('update:install', () => {
+  autoUpdater.quitAndInstall();
+});
+
 app.whenReady().then(() => {
   restoreThemeSource();
   createWindow();
+  if (app.isPackaged) {
+    mainWindow.once('ready-to-show', () => {
+      autoUpdater.checkForUpdates().catch((err) => sendUpdateState('error', { message: err.message }));
+    });
+  }
 });
 
 ipcMain.handle('theme:set', (event, source) => {

@@ -25,6 +25,7 @@ const ICONS = {
   moon: svg('<path d="M20.5 13.4A8.5 8.5 0 1 1 10.6 3.5a7 7 0 0 0 9.9 9.9z"/>'),
   palette: svg('<path d="M12 3a9 9 0 1 0 0 18h.6a2 2 0 0 0 2-2 2 2 0 0 1 2-2h.6A3.8 3.8 0 0 0 21 13.2 9 9 0 0 0 12 3z"/><circle cx="7.8" cy="10.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="16.2" cy="10.2" r="1.15" fill="currentColor" stroke="none"/>'),
   check: svg('<path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>'),
+  update: svg('<path d="M12 3v10"/><path d="M7.5 9.5 12 14l4.5-4.5"/><path d="M5 20h14"/>'),
 };
 
 function icon(name) {

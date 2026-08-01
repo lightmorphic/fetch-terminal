@@ -699,6 +699,58 @@ function insertCommand(command) {
   tab.term.focus();
 }
 
+// ---------- Updates ----------
+
+let latestUpdateVersion = null;
+
+function setUpdateButton({ label, action, disabled = false }) {
+  const btn = document.getElementById('update-btn');
+  btn.classList.remove('hidden');
+  btn.disabled = disabled;
+  btn.dataset.action = action || '';
+  btn.innerHTML = `<span class="btn-icon">${icon('update')}</span><span>${label}</span>`;
+}
+
+function applyUpdateState(payload) {
+  const btn = document.getElementById('update-btn');
+  switch (payload.state) {
+    case 'available':
+      latestUpdateVersion = payload.version;
+      setUpdateButton({ label: `Update to v${payload.version}`, action: 'download' });
+      break;
+    case 'downloading': {
+      const pct = Math.round(payload.percent || 0);
+      setUpdateButton({ label: `Downloading… ${pct}%`, action: 'downloading', disabled: true });
+      break;
+    }
+    case 'downloaded':
+      setUpdateButton({ label: 'Restart & install update', action: 'install' });
+      break;
+    case 'error':
+      if (btn.dataset.action === 'downloading') {
+        showToast('Update failed to download');
+      }
+      btn.classList.add('hidden');
+      break;
+    case 'checking':
+    case 'not-available':
+    default:
+      btn.classList.add('hidden');
+      break;
+  }
+}
+
+async function handleUpdateButtonClick() {
+  const btn = document.getElementById('update-btn');
+  const action = btn.dataset.action;
+  if (action === 'download') {
+    setUpdateButton({ label: `Downloading… 0%`, action: 'downloading', disabled: true });
+    await ipcRenderer.invoke('update:download');
+  } else if (action === 'install') {
+    await ipcRenderer.invoke('update:install');
+  }
+}
+
 // ---------- Wiring ----------
 
 function applyIcons() {
@@ -744,6 +796,9 @@ function wireStaticControls() {
   document.getElementById('btn-min').addEventListener('click', () => ipcRenderer.send('window:minimize'));
   document.getElementById('btn-max').addEventListener('click', () => ipcRenderer.send('window:maximize-toggle'));
   document.getElementById('btn-close').addEventListener('click', () => ipcRenderer.send('window:close'));
+
+  document.getElementById('update-btn').addEventListener('click', handleUpdateButtonClick);
+  ipcRenderer.on('update:state', (_event, payload) => applyUpdateState(payload));
 
   document.addEventListener('keydown', (e) => {
     const mod = e.ctrlKey || e.metaKey;
