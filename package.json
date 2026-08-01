@@ -1,7 +1,7 @@
 {
   "name": "fetch-terminal",
   "productName": "Fetch Terminal",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A lightweight, open source terminal emulator for Linux desktop, built with Electron. No GTK or Qt dependency, consistent Material design UI across desktop environments.",
   "main": "main.js",
   "license": "MIT",
@@ -43,13 +43,13 @@
     },
     "linux": {
       "target": [
-        "AppImage",
-        "deb"
+        "AppImage"
       ],
       "category": "System",
       "executableName": "fetch-terminal",
       "icon": "build/icons",
       "maintainer": "Fetch Terminal contributors <noreply@fetch-terminal.local>"
-    }
+    },
+    "afterAllArtifactBuild": "scripts/move-to-downloads.js"
   }
 }

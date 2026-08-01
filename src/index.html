@@ -10,25 +10,18 @@
 <body>
 
   <div id="titlebar">
-    <div class="titlebar-left titlebar-drag">
-      <span class="app-icon">&gt;_</span>
-      <span class="app-title">Fetch Terminal</span>
-    </div>
+    <button id="sidebar-toggle" class="icon-btn titlebar-btn" data-icon="sidebar" title="Toggle snippets sidebar (Ctrl+Shift+B)"></button>
     <div id="tabbar">
       <div id="tabs"></div>
-      <button id="new-tab-btn" class="icon-btn" title="New tab (Ctrl+T)">+</button>
+      <button id="new-tab-btn" class="icon-btn" data-icon="plus" title="New tab (Ctrl+Shift+T)"></button>
     </div>
     <div class="titlebar-drag spacer"></div>
+    <button id="theme-toggle-btn" class="icon-btn titlebar-btn" data-icon="moon" title="Toggle light / dark theme"></button>
+    <div class="titlebar-brand titlebar-drag"><span class="app-title">Fetch Terminal</span></div>
     <div id="window-controls">
-      <button id="btn-min" class="win-btn" title="Minimize">
-        <svg viewBox="0 0 10 10" width="10" height="10"><rect x="0" y="9" width="10" height="1" fill="currentColor"/></svg>
-      </button>
-      <button id="btn-max" class="win-btn" title="Maximize">
-        <svg viewBox="0 0 10 10" width="10" height="10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor"/></svg>
-      </button>
-      <button id="btn-close" class="win-btn win-btn-close" title="Close">
-        <svg viewBox="0 0 10 10" width="10" height="10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor"/></svg>
-      </button>
+      <button id="btn-min" class="win-btn" data-icon="minimize" title="Minimize"></button>
+      <button id="btn-max" class="win-btn" data-icon="maximize" title="Maximize"></button>
+      <button id="btn-close" class="win-btn win-btn-close" data-icon="closeWindow" title="Close"></button>
     </div>
   </div>
 
@@ -36,22 +29,24 @@
     <aside id="sidebar">
       <div id="sidebar-header">
         <div class="search-field">
-          <span class="search-icon">&#128269;</span>
+          <span class="search-icon" data-icon="search"></span>
           <input id="snippet-search" placeholder="Search snippets" autocomplete="off" />
         </div>
-        <button id="pin-btn" class="icon-btn" title="Keep sidebar open">&#128204;</button>
+        <button id="pin-btn" class="icon-btn" data-icon="pin" title="Keep sidebar open"></button>
       </div>
       <div id="snippet-list"></div>
       <div id="sidebar-footer">
         <button id="add-snippet-btn" class="text-btn">+ New snippet</button>
         <div class="footer-row">
-          <button id="import-btn" class="text-btn small">Import</button>
-          <button id="export-btn" class="text-btn small">Export</button>
+          <button id="import-btn" class="text-btn small" data-icon-inline="import">Import</button>
+          <button id="export-btn" class="text-btn small" data-icon-inline="export">Export</button>
+        </div>
+        <div id="app-brand">
+          <span class="app-brand-name">Fetch Terminal</span>
+          <span id="app-brand-version" class="app-brand-version"></span>
         </div>
       </div>
     </aside>
-
-    <button id="sidebar-toggle" class="icon-btn" title="Toggle snippets sidebar">&#9776;</button>
 
     <div id="terminals"></div>
   </div>
@@ -60,7 +55,7 @@
     <div class="modal-scrim"></div>
     <div class="modal-card history-card">
       <div class="search-field modal-search">
-        <span class="search-icon">&#128269;</span>
+        <span class="search-icon" data-icon="search"></span>
         <input id="history-search" placeholder="Search command history" autocomplete="off" />
       </div>
       <div id="history-list"></div>

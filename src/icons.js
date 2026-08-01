@@ -1,0 +1,31 @@
+// A small, self-contained icon set drawn in a minimal, single-stroke style
+// (24x24 grid, 1.6px rounded strokes) — no font files, no CDN, nothing
+// fetched at runtime. Every icon is inline SVG so the app never depends on
+// a network connection to render its UI.
+
+function svg(inner, { viewBox = '0 0 24 24', extra = '' } = {}) {
+  return `<svg viewBox="${viewBox}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" ${extra}>${inner}</svg>`;
+}
+
+const ICONS = {
+  sidebar: svg('<rect x="3" y="4" width="18" height="16" rx="3"/><line x1="9.5" y1="4" x2="9.5" y2="20"/>'),
+  pin: svg('<path d="M12 21s7-7.58 7-12a7 7 0 1 0-14 0c0 4.42 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/>', { extra: 'class="icon-pin"' }),
+  search: svg('<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'),
+  close: svg('<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>'),
+  plus: svg('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'),
+  edit: svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),
+  minimize: svg('<line x1="5" y1="12" x2="19" y2="12"/>'),
+  maximize: svg('<rect x="5" y="5" width="14" height="14" rx="2.5"/>'),
+  restore: svg('<rect x="7" y="7" width="11" height="11" rx="2"/><path d="M6 15V6a1 1 0 0 1 1-1h9"/>'),
+  closeWindow: svg('<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>'),
+  import: svg('<path d="M12 3v12"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M5 20h14"/>'),
+  export: svg('<path d="M12 21V9"/><path d="M7.5 13.5 12 9l4.5 4.5"/><path d="M5 4h14"/>'),
+  sun: svg('<circle cx="12" cy="12" r="4.2"/><line x1="12" y1="2.5" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="21.5"/><line x1="4.5" y1="12" x2="2.5" y2="12"/><line x1="21.5" y1="12" x2="19.5" y2="12"/><line x1="18.7" y1="5.3" x2="17.3" y2="6.7"/><line x1="6.7" y1="17.3" x2="5.3" y2="18.7"/><line x1="18.7" y1="18.7" x2="17.3" y2="17.3"/><line x1="6.7" y1="6.7" x2="5.3" y2="5.3"/>'),
+  moon: svg('<path d="M20.5 13.4A8.5 8.5 0 1 1 10.6 3.5a7 7 0 0 0 9.9 9.9z"/>'),
+};
+
+function icon(name) {
+  return ICONS[name] || '';
+}
+
+module.exports = { icon, ICONS };

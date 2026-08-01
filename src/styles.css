@@ -1,33 +1,40 @@
-/* Fetch Terminal — Material-style theme, drawn entirely in CSS so the app
-   looks identical regardless of the host desktop environment's toolkit. */
+/* Fetch Terminal — Material Design 3 theme, drawn entirely in local CSS/SVG
+   (no fonts, icons, or assets fetched over the network) so the app looks
+   and feels identical on any Linux desktop environment.
+
+   Theming: the app follows the OS light/dark preference by default (Electron
+   keeps `prefers-color-scheme` in sync with the desktop theme), and the
+   in-app theme toggle forces one or the other via `nativeTheme.themeSource`
+   in the main process — both paths land here, in the same two blocks. */
 
 :root {
-  /* Material Design 3 roles, dark scheme, seeded from the brand's primary
-     (#FBC711) and neutral (#10141C) colors. Surface elevations 1-5 are the
-     base surface tinted with the primary color at M3's standard dark-theme
-     overlay opacities (5/8/11/12/14%), which is how M3 signals elevation
-     in dark mode instead of drop shadows alone. */
-  --md-bg: #10141c;              /* surface (elevation 0) */
-  --md-surface: #19212b;         /* surface container */
-  --md-surface-1: #24292a;       /* surface container, elevation 1 */
-  --md-surface-2: #2b2e29;       /* surface container, elevation 2 */
-  --md-surface-3: #323328;       /* surface container, elevation 3 */
-  --md-surface-4: #343528;       /* surface container, elevation 4 */
-  --md-surface-5: #393827;       /* surface container, elevation 5 */
-  --md-outline: #626870;
-  --md-outline-variant: #434a52;
-  --md-on-surface: #e9ecef;
-  --md-on-surface-variant: #969ba1;
-  --md-primary: #fbc711;
-  --md-primary-on: #10141c;
-  --md-primary-container: #483f19;
-  --md-on-primary-container: #f8cd32;
+  /* ---- Material Design 3 roles — dark scheme (default) ----
+     A violet-to-teal accent pair replaces a flat single accent color so
+     primary surfaces (buttons, the active tab, the logotype) read as one
+     deliberate, modern gradient rather than another flat dark-mode grey.
+     Surface elevations 1-5 are the base surface tinted with the primary
+     color at M3's standard dark-theme overlay opacities (5/8/11/12/14%). */
+  --md-bg: #0b0b10;
+  --md-surface: #131218;
+  --md-surface-1: #191724;
+  --md-surface-2: #1d1a2a;
+  --md-surface-3: #201e31;
+  --md-surface-4: #211f34;
+  --md-surface-5: #242138;
+  --md-outline: #6a6970;
+  --md-outline-variant: #434249;
+  --md-on-surface: #ecebf5;
+  --md-on-surface-variant: #919098;
+  --md-primary: #8b7cff;
+  --md-primary-2: #34e7d3;
+  --md-primary-gradient: linear-gradient(135deg, var(--md-primary) 0%, var(--md-primary-2) 100%);
+  --md-primary-on: #0b0b10;
+  --md-primary-container: #2c284e;
+  --md-on-primary-container: #ada3fc;
   --md-error: #ffb4ab;
-  --md-error-container: rgba(255, 180, 171, 0.12);
+  --md-error-container: rgba(255, 180, 171, 0.14);
   --md-danger: var(--md-error);
-  --state-hover: 0.08;
-  --state-focus: 0.12;
-  --state-pressed: 0.12;
+  --md-glow: rgba(139, 124, 255, 0.35);
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -37,6 +44,36 @@
   --titlebar-height: 40px;
   --motion-fast: 120ms cubic-bezier(0.2, 0, 0, 1);
   --motion-med: 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* ---- Material Design 3 roles — light scheme ----
+       Light-mode M3 signals elevation mostly through shadow, not tint, so
+       surfaces here stay close to white with only a hint of the accent. */
+    --md-bg: #fafafc;
+    --md-surface: #ffffff;
+    --md-surface-1: #fdfcff;
+    --md-surface-2: #fbfaff;
+    --md-surface-3: #f9f8ff;
+    --md-surface-4: #f7f6ff;
+    --md-surface-5: #f6f5ff;
+    --md-outline: #bab9bc;
+    --md-outline-variant: #dfdfe0;
+    --md-on-surface: #18171f;
+    --md-on-surface-variant: #67666b;
+    --md-primary: #6a5aef;
+    --md-primary-2: #0aa899;
+    --md-primary-on: #ffffff;
+    --md-primary-container: #f1efff;
+    --md-on-primary-container: #3f3873;
+    --md-error: #ba1a1a;
+    --md-error-container: rgba(186, 26, 26, 0.1);
+    --md-glow: rgba(106, 90, 239, 0.22);
+    --elevation-1: 0 1px 2px rgba(30, 20, 60, 0.08), 0 1px 3px 1px rgba(30, 20, 60, 0.06);
+    --elevation-2: 0 2px 6px rgba(30, 20, 60, 0.1), 0 4px 10px rgba(30, 20, 60, 0.06);
+    --elevation-3: 0 4px 14px rgba(30, 20, 60, 0.14), 0 8px 22px rgba(30, 20, 60, 0.08);
+  }
 }
 
 * { box-sizing: border-box; }
@@ -50,6 +87,7 @@ html, body {
   font-family: 'Roboto', 'Ubuntu', 'Cantarell', 'Noto Sans', system-ui, sans-serif;
   font-size: 13px;
   user-select: none;
+  transition: background var(--motion-med), color var(--motion-med);
 }
 
 button {
@@ -59,6 +97,8 @@ button {
   color: inherit;
   cursor: pointer;
 }
+
+svg { display: block; width: 16px; height: 16px; }
 
 input, textarea {
   font-family: inherit;
@@ -72,7 +112,7 @@ input, textarea {
 }
 input:focus, textarea:focus {
   border-color: var(--md-primary);
-  box-shadow: 0 0 0 3px rgba(251, 199, 17, 0.15);
+  box-shadow: 0 0 0 3px var(--md-glow);
 }
 
 /* ---------- Titlebar ---------- */
@@ -89,19 +129,25 @@ input:focus, textarea:focus {
 .titlebar-drag { -webkit-app-region: drag; }
 .titlebar-drag.spacer { flex: 1; }
 
-.titlebar-left {
+.titlebar-btn {
+  margin: 5px 4px;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  color: var(--md-on-surface-variant);
-  font-weight: 500;
+  padding: 0 14px 0 4px;
   white-space: nowrap;
 }
-.app-icon {
-  color: var(--md-primary);
-  font-family: 'Roboto Mono', monospace;
-  font-size: 13px;
+.app-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  background: var(--md-primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 #tabbar {
@@ -140,18 +186,21 @@ input:focus, textarea:focus {
 }
 .tab:hover { background: var(--md-surface-2); }
 .tab.active {
-  background: var(--md-surface-1);
+  background: var(--md-surface-3);
   color: var(--md-on-surface);
+  font-weight: 500;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .tab.active::after {
   content: '';
   position: absolute;
-  left: 8px;
-  right: 8px;
+  left: 6px;
+  right: 6px;
   bottom: -1px;
-  height: 2px;
-  background: var(--md-primary);
-  border-radius: 2px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--md-primary-gradient);
+  box-shadow: 0 0 10px 0 var(--md-glow);
 }
 .tab-title {
   overflow: hidden;
@@ -173,7 +222,8 @@ input:focus, textarea:focus {
   font-size: 13px;
   line-height: 1;
 }
-.tab-close:hover { background: var(--md-surface-3); color: var(--md-on-surface); }
+.tab-close svg { width: 11px; height: 11px; }
+.tab-close:hover { background: var(--md-surface-4); color: var(--md-on-surface); }
 
 .icon-btn {
   width: 30px;
@@ -187,11 +237,14 @@ input:focus, textarea:focus {
   flex: none;
 }
 .icon-btn:hover { background: var(--md-surface-2); color: var(--md-on-surface); }
-.icon-btn.active { color: var(--md-primary); background: var(--md-primary-container); }
+.icon-btn.active {
+  color: var(--md-primary);
+  background: var(--md-primary-container);
+}
+.icon-btn.active .icon-pin { fill: currentColor; }
 
 #new-tab-btn {
   margin: 6px 6px 6px 2px;
-  font-size: 16px;
 }
 
 #window-controls {
@@ -207,8 +260,9 @@ input:focus, textarea:focus {
   color: var(--md-on-surface-variant);
   transition: background var(--motion-fast), color var(--motion-fast);
 }
+.win-btn svg { width: 13px; height: 13px; }
 .win-btn:hover { background: var(--md-surface-2); color: var(--md-on-surface); }
-.win-btn-close:hover { background: #8c1d18; color: #ffffff; }
+.win-btn-close:hover { background: #e5484d; color: #ffffff; }
 
 /* ---------- Main layout ---------- */
 
@@ -219,15 +273,6 @@ input:focus, textarea:focus {
   right: 0;
   bottom: 0;
   display: flex;
-}
-
-#sidebar-toggle {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 5;
-  background: var(--md-surface-2);
-  box-shadow: var(--elevation-1);
 }
 
 #sidebar {
@@ -271,7 +316,8 @@ input:focus, textarea:focus {
   font-size: 12.5px;
 }
 .search-field input:focus { box-shadow: none; }
-.search-icon { font-size: 12px; opacity: 0.7; }
+.search-icon { display: flex; opacity: 0.7; }
+.search-icon svg { width: 14px; height: 14px; }
 
 #snippet-list {
   flex: 1;
@@ -302,7 +348,7 @@ input:focus, textarea:focus {
   align-items: center;
   justify-content: center;
   background: var(--md-primary-container);
-  color: var(--md-primary);
+  color: var(--md-on-primary-container);
   font-size: 11px;
 }
 
@@ -338,8 +384,9 @@ input:focus, textarea:focus {
   color: var(--md-on-surface-variant);
   font-size: 12px;
 }
+.snippet-edit-btn svg { width: 13px; height: 13px; }
 .snippet-item:hover .snippet-edit-btn { display: flex; }
-.snippet-edit-btn:hover { background: var(--md-surface-3); color: var(--md-on-surface); }
+.snippet-edit-btn:hover { background: var(--md-surface-4); color: var(--md-on-surface); }
 
 .empty-state {
   color: var(--md-on-surface-variant);
@@ -368,25 +415,52 @@ input:focus, textarea:focus {
   font-size: 12px;
   font-weight: 500;
   color: var(--md-primary-on);
-  background: var(--md-primary);
+  background: var(--md-primary-gradient);
   transition: filter var(--motion-fast), box-shadow var(--motion-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
-.text-btn:hover { filter: brightness(0.94); }
+.text-btn:hover { filter: brightness(0.94); box-shadow: 0 2px 12px 0 var(--md-glow); }
 .text-btn:active { filter: brightness(0.88); }
 .text-btn.small { padding: 7px 10px; }
 .text-btn.danger { color: var(--md-error); background: var(--md-error-container); }
+.btn-icon { display: flex; }
+.btn-icon svg { width: 13px; height: 13px; }
 
 .filled-btn {
   padding: 8px 18px;
   border-radius: var(--radius-lg);
   font-size: 12.5px;
   font-weight: 500;
-  background: var(--md-primary);
+  background: var(--md-primary-gradient);
   color: var(--md-primary-on);
-  transition: filter var(--motion-fast);
+  transition: filter var(--motion-fast), box-shadow var(--motion-fast);
 }
-.filled-btn:hover { filter: brightness(0.94); }
+.filled-btn:hover { filter: brightness(0.94); box-shadow: 0 2px 12px 0 var(--md-glow); }
 .filled-btn:active { filter: brightness(0.88); }
+
+#app-brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 4px;
+}
+.app-brand-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--md-primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.app-brand-version {
+  font-size: 10px;
+  color: var(--md-on-surface-variant);
+  font-family: 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+}
 
 /* ---------- Terminals ---------- */
 
@@ -407,7 +481,7 @@ input:focus, textarea:focus {
 
 .xterm-viewport::-webkit-scrollbar { width: 10px; }
 .xterm-viewport::-webkit-scrollbar-thumb {
-  background: var(--md-surface-3);
+  background: var(--md-surface-5);
   border-radius: 6px;
 }
 .xterm-viewport::-webkit-scrollbar-track { background: transparent; }
@@ -415,7 +489,8 @@ input:focus, textarea:focus {
 .autocomplete-ghost {
   position: absolute;
   pointer-events: none;
-  color: rgba(230, 225, 230, 0.35);
+  color: var(--md-on-surface-variant);
+  opacity: 0.55;
   font-family: 'Roboto Mono', 'DejaVu Sans Mono', monospace;
   white-space: pre;
   z-index: 2;
@@ -518,7 +593,7 @@ input:focus, textarea:focus {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.history-item:hover, .history-item.selected { background: var(--md-surface-3); }
+.history-item:hover, .history-item.selected { background: var(--md-surface-4); }
 
 /* ---------- Toast ---------- */
 
@@ -527,7 +602,7 @@ input:focus, textarea:focus {
   bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--md-surface-3);
+  background: var(--md-surface-4);
   color: var(--md-on-surface);
   padding: 10px 18px;
   border-radius: var(--radius-sm);

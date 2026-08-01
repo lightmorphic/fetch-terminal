@@ -3,12 +3,17 @@
 A lightweight, open source terminal emulator for the Linux desktop, built with
 Electron. It doesn't depend on GTK or Qt, so it looks and behaves the same
 regardless of which desktop environment it runs under — its own custom,
-Material-style interface is drawn entirely in HTML/CSS.
+Material Design 3 interface is drawn entirely in local HTML/CSS/SVG. Nothing
+in the UI is ever fetched over the network: no CDN fonts, no icon fonts, no
+remote assets of any kind.
 
 ## Features
 
 - Tabs running your default shell (`$SHELL`, falling back to `/bin/bash`)
-- Custom, frameless Material-style UI (dark theme, consistent across DEs)
+- Custom, frameless Material Design 3 interface with a violet-to-teal accent,
+  a hand-drawn local icon set, and light/dark themes
+- Follows your desktop's light/dark theme by default, with a one-click toggle
+  to override it
 - Scrollable, searchable command history (`Ctrl+Shift+F`) shared across tabs
 - Inline autocomplete that suggests previously-typed commands as you type
   (accept with `Tab` or `→`)
@@ -31,11 +36,11 @@ Material-style interface is drawn entirely in HTML/CSS.
 | `Tab` / `→`         | Accept an autocomplete suggestion |
 | `Esc`               | Close an open dialog          |
 
-## Installing on Linux Mint
+## Installing on Linux
 
-There's no hosted download yet, so you build a package from source once, then
-install that package normally. Pick whichever packaging format you prefer —
-both are produced by the same `npm run dist` command.
+Fetch Terminal targets any Linux desktop, not any one distribution. There's
+no hosted download yet, so you build an AppImage from source once, then run
+it like any other AppImage.
 
 ```sh
 git clone https://github.com/fosscharlie/fetch-terminal.git
@@ -45,29 +50,26 @@ npm run dist
 ```
 
 `node-pty` is a native module, so the first `npm install` needs a working
-native build toolchain:
+native build toolchain — on Debian/Ubuntu-based distros:
 
 ```sh
 sudo apt install -y build-essential python3
 ```
 
-`npm run dist` writes its output to `dist/`. Install whichever artifact you want:
+(On other distributions, install your distro's equivalent of `gcc`/`make`
+and `python3`.)
 
-**AppImage** — no installation step, works on any distro:
-
-```sh
-chmod +x dist/*.AppImage
-./dist/*.AppImage
-```
-
-(Optional: use Mint's "AppImage Launcher" from Software Manager to add it to
-your app menu automatically.)
-
-**.deb** — installs like any native Mint/Ubuntu package, adds a menu entry:
+`npm run dist` builds `Fetch Terminal-<version>.AppImage` and automatically
+moves it into your `~/Downloads` folder. Then just:
 
 ```sh
-sudo apt install ./dist/*.deb
+chmod +x ~/Downloads/Fetch\ Terminal-*.AppImage
+~/Downloads/Fetch\ Terminal-*.AppImage
 ```
+
+Most desktop environments let you add an AppImage to your application menu
+directly (e.g. via an "AppImage Launcher"-style integration tool), or you can
+just keep launching it from `~/Downloads`.
 
 ## Development
 
@@ -79,13 +81,12 @@ npm start
 ## Packaging
 
 ```sh
-npm run dist                    # AppImage and .deb
-npm run dist -- --linux AppImage
-npm run dist -- --linux deb
+npm run dist
 ```
 
-Both are configured in the `build` section of `package.json` via
-`electron-builder`.
+Builds an AppImage only (configured in the `build` section of `package.json`
+via `electron-builder`) and moves it to `~/Downloads` via the
+`afterAllArtifactBuild` hook in `scripts/move-to-downloads.js`.
 
 ## Snippets file format
 
@@ -109,7 +110,16 @@ A snippet with a `##` heading above its code fence gets that heading as its
 custom name; a bare code fence (no heading) is imported as an unnamed
 snippet, which is displayed using its raw command text as the label.
 
+## Theming
+
+Fetch Terminal follows your desktop's light/dark preference automatically
+(Electron keeps this in sync with the OS). Click the sun/moon button in the
+titlebar to force light or dark regardless of the desktop setting — your
+choice is remembered across restarts. Every icon in the app is a local,
+hand-drawn inline SVG; none are loaded from a font or a CDN.
+
 ## Data storage
 
-Snippets and command history are stored as JSON in Electron's per-user data
-directory (typically `~/.config/Fetch Terminal/`) — nothing is sent anywhere.
+Snippets, command history, and your theme preference are stored as JSON in
+Electron's per-user data directory (typically `~/.config/Fetch Terminal/`) —
+nothing is sent anywhere.

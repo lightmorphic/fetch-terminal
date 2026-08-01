@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -7,6 +7,7 @@ const pty = require('node-pty');
 const USER_DATA = () => app.getPath('userData');
 const SNIPPETS_FILE = () => path.join(USER_DATA(), 'snippets.json');
 const HISTORY_FILE = () => path.join(USER_DATA(), 'history.json');
+const SETTINGS_FILE = () => path.join(USER_DATA(), 'settings.json');
 const HISTORY_LIMIT = 5000;
 
 let mainWindow = null;
@@ -31,7 +32,7 @@ function createWindow() {
     height: 720,
     minWidth: 560,
     minHeight: 360,
-    backgroundColor: '#1c1b1f',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#0b0b10' : '#fafafc',
     frame: false,
     show: false,
     webPreferences: {
@@ -65,7 +66,24 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(createWindow);
+function restoreThemeSource() {
+  const settings = readJson(SETTINGS_FILE(), {});
+  if (settings.themeSource === 'light' || settings.themeSource === 'dark') {
+    nativeTheme.themeSource = settings.themeSource;
+  }
+  // Otherwise leave the default 'system', which follows the desktop theme.
+}
+
+app.whenReady().then(() => {
+  restoreThemeSource();
+  createWindow();
+});
+
+ipcMain.handle('theme:set', (event, source) => {
+  if (source !== 'light' && source !== 'dark' && source !== 'system') return;
+  nativeTheme.themeSource = source;
+  writeJson(SETTINGS_FILE(), { ...readJson(SETTINGS_FILE(), {}), themeSource: source });
+});
 
 app.on('window-all-closed', () => {
   for (const proc of ptyProcesses.values()) {

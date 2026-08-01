@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-01
+
+### Changed
+
+- Full redesign, still Material Design 3 underneath but with a modern
+  violet-to-teal gradient accent replacing the flat single-color palette
+  (chosen to stand out from typical flat dark-themed dev tools).
+- Titlebar reworked: the sidebar hide/unhide toggle now lives in the tab
+  row (with a clear pressed/active state) instead of floating over the
+  terminal; the "Fetch Terminal" name moved to sit beside the minimize
+  button, rendered in the accent gradient.
+- The active tab is now clearly distinguished with a glowing gradient
+  underline and a raised background, instead of a thin single-color line.
+- Replaced every emoji/Unicode glyph in the UI with a small, consistent,
+  hand-drawn local icon set (`src/icons.js`) in a minimal single-stroke
+  style — no icon fonts, no CDN, nothing fetched over the network, ever.
+- The sidebar pin button uses a proper pin icon (filled when pinned) next
+  to the search box.
+- Added "Fetch Terminal v<version>" under the Import/Export buttons.
+- Added a light/dark theme toggle in the titlebar. The app follows the
+  desktop's theme by default (via Electron's `nativeTheme`); the toggle
+  forces light or dark and the choice is remembered across restarts. Both
+  the UI and the terminal's ANSI color theme now have full light and dark
+  variants.
+- Regenerated the app icon with the new gradient mark.
+- Packaging: dropped the `.deb` target — AppImage only, since the app now
+  targets any Linux desktop, not just Debian/Ubuntu-based ones. Added an
+  `afterAllArtifactBuild` hook (`scripts/move-to-downloads.js`) that moves
+  the built AppImage into `~/Downloads` automatically.
+
 ## [0.3.0] - 2026-08-01
 
 ### Changed
@@ -51,7 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fosscharlie/fetch-terminal/releases/tag/v0.1.0

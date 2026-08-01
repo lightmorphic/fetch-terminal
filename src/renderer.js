@@ -3,30 +3,64 @@ const { Terminal } = require('@xterm/xterm');
 const { FitAddon } = require('@xterm/addon-fit');
 const { SearchAddon } = require('@xterm/addon-search');
 const { WebLinksAddon } = require('@xterm/addon-web-links');
+const { icon } = require('./icons');
+const { version: APP_VERSION } = require('../package.json');
 
-const MATERIAL_TERMINAL_THEME = {
-  background: '#10141c',
-  foreground: '#e9ecef',
-  cursor: '#fbc711',
-  cursorAccent: '#10141c',
-  selectionBackground: 'rgba(251, 199, 17, 0.25)',
-  black: '#232d3a',
+const DARK_TERMINAL_THEME = {
+  background: '#0b0b10',
+  foreground: '#ecebf5',
+  cursor: '#8b7cff',
+  cursorAccent: '#0b0b10',
+  selectionBackground: 'rgba(139, 124, 255, 0.28)',
+  black: '#201e31',
   red: '#f2b8b5',
   green: '#b7dda8',
-  yellow: '#fbc711',
+  yellow: '#f0debe',
   blue: '#8fb8ff',
-  magenta: '#d391ff',
-  cyan: '#7fd4e0',
-  white: '#e9ecef',
-  brightBlack: '#4a5568',
+  magenta: '#c792ea',
+  cyan: '#34e7d3',
+  white: '#ecebf5',
+  brightBlack: '#57546a',
   brightRed: '#ffb4ab',
   brightGreen: '#c9f0bb',
-  brightYellow: '#ffdd55',
+  brightYellow: '#ffe8c7',
   brightBlue: '#b9d4ff',
-  brightMagenta: '#e6c2ff',
-  brightCyan: '#b8ecf2',
+  brightMagenta: '#e0c2ff',
+  brightCyan: '#7ff5e6',
   brightWhite: '#ffffff',
 };
+
+const LIGHT_TERMINAL_THEME = {
+  background: '#fafafc',
+  foreground: '#18171f',
+  cursor: '#6a5aef',
+  cursorAccent: '#fafafc',
+  selectionBackground: 'rgba(106, 90, 239, 0.2)',
+  black: '#e5e4ec',
+  red: '#b3261e',
+  green: '#2e6b3e',
+  yellow: '#8a6a00',
+  blue: '#2457c5',
+  magenta: '#7a3ea1',
+  cyan: '#0aa899',
+  white: '#18171f',
+  brightBlack: '#8f8da0',
+  brightRed: '#d3372f',
+  brightGreen: '#3e8a52',
+  brightYellow: '#a6822a',
+  brightBlue: '#3f6fe0',
+  brightMagenta: '#9457c2',
+  brightCyan: '#0ec2b0',
+  brightWhite: '#000000',
+};
+
+const THEME_MEDIA = window.matchMedia('(prefers-color-scheme: dark)');
+function isDarkMode() {
+  return THEME_MEDIA.matches;
+}
+function currentTerminalTheme() {
+  return isDarkMode() ? DARK_TERMINAL_THEME : LIGHT_TERMINAL_THEME;
+}
 
 let tabs = [];
 let activeTabId = null;
@@ -91,7 +125,7 @@ function createTab() {
     cursorBlink: true,
     allowProposedApi: true,
     scrollback: 8000,
-    theme: MATERIAL_TERMINAL_THEME,
+    theme: currentTerminalTheme(),
   });
 
   const fitAddon = new FitAddon();
@@ -189,7 +223,7 @@ function renderTabs() {
 
     const closeEl = document.createElement('span');
     closeEl.className = 'tab-close';
-    closeEl.textContent = '×';
+    closeEl.innerHTML = icon('close');
     closeEl.addEventListener('click', (event) => {
       event.stopPropagation();
       closeTab(tab.id);
@@ -354,7 +388,7 @@ function renderSnippetList(filter) {
 
     const editBtn = document.createElement('button');
     editBtn.className = 'snippet-edit-btn';
-    editBtn.textContent = '✎';
+    editBtn.innerHTML = icon('edit');
     editBtn.title = 'Edit snippet';
     editBtn.addEventListener('click', (event) => {
       event.stopPropagation();
@@ -449,6 +483,7 @@ async function importSnippets() {
 function setSidebarCollapsed(collapsed) {
   sidebarCollapsed = collapsed;
   document.getElementById('sidebar').classList.toggle('collapsed', collapsed);
+  document.getElementById('sidebar-toggle').classList.toggle('active', !collapsed);
   setTimeout(() => {
     const tab = activeTab();
     if (tab) tab.fitAddon.fit();
@@ -464,6 +499,28 @@ function togglePin() {
   document.getElementById('pin-btn').classList.toggle('active', sidebarPinned);
   if (sidebarPinned && sidebarCollapsed) setSidebarCollapsed(false);
 }
+
+// ---------- Theme (follows the desktop theme by default) ----------
+
+function updateThemeToggleIcon() {
+  const btn = document.getElementById('theme-toggle-btn');
+  btn.innerHTML = icon(isDarkMode() ? 'moon' : 'sun');
+  btn.title = isDarkMode() ? 'Switch to light theme' : 'Switch to dark theme';
+}
+
+function applyThemeToAllTerminals() {
+  const theme = currentTerminalTheme();
+  for (const tab of tabs) tab.term.options.theme = theme;
+}
+
+async function toggleTheme() {
+  await ipcRenderer.invoke('theme:set', isDarkMode() ? 'light' : 'dark');
+}
+
+THEME_MEDIA.addEventListener('change', () => {
+  updateThemeToggleIcon();
+  applyThemeToAllTerminals();
+});
 
 // ---------- Command history modal ----------
 
@@ -523,10 +580,26 @@ function insertCommand(command) {
 
 // ---------- Wiring ----------
 
+function applyIcons() {
+  document.querySelectorAll('[data-icon]').forEach((el) => {
+    el.innerHTML = icon(el.dataset.icon);
+  });
+  document.querySelectorAll('[data-icon-inline]').forEach((el) => {
+    const label = el.textContent.trim();
+    el.innerHTML = `<span class="btn-icon">${icon(el.dataset.iconInline)}</span><span>${label}</span>`;
+  });
+}
+
 function wireStaticControls() {
+  applyIcons();
+  updateThemeToggleIcon();
+  document.getElementById('sidebar-toggle').classList.add('active');
+  document.getElementById('app-brand-version').textContent = `v${APP_VERSION}`;
+
   document.getElementById('new-tab-btn').addEventListener('click', () => createTab());
   document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
   document.getElementById('pin-btn').addEventListener('click', togglePin);
+  document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
 
   document.getElementById('snippet-search').addEventListener('input', (e) => renderSnippetList(e.target.value));
   document.getElementById('add-snippet-btn').addEventListener('click', () => openSnippetModal(null));
