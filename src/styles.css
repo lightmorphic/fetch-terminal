@@ -466,18 +466,20 @@ input:focus, textarea:focus {
 
 .snippet-edit-btn {
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   color: var(--md-on-surface-variant);
   font-size: 12px;
+  opacity: 0.45;
+  transition: opacity var(--motion-fast), background var(--motion-fast), color var(--motion-fast);
 }
-.snippet-edit-btn svg { width: 13px; height: 13px; }
-.snippet-item:hover .snippet-edit-btn { display: flex; }
-.snippet-edit-btn:hover { background: var(--md-surface-4); color: var(--md-on-surface); }
+.snippet-edit-btn svg { width: 14px; height: 14px; }
+.snippet-item:hover .snippet-edit-btn { opacity: 1; }
+.snippet-edit-btn:hover { background: var(--md-surface-4); color: var(--md-on-surface); opacity: 1; }
 
 .empty-state {
   color: var(--md-on-surface-variant);
@@ -523,6 +525,7 @@ input:focus, textarea:focus {
   gap: 2px;
   max-height: 130px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .credential-row {
   display: flex;
@@ -534,6 +537,7 @@ input:focus, textarea:focus {
 .credential-row:hover { background: var(--md-surface-2); }
 .credential-name {
   flex: 1;
+  min-width: 0;
   font-size: 12.5px;
   font-weight: 500;
   overflow: hidden;
@@ -542,6 +546,11 @@ input:focus, textarea:focus {
 }
 .credential-row .icon-btn { width: 24px; height: 24px; flex: none; }
 .credential-row .icon-btn svg { width: 13px; height: 13px; }
+.credential-type-btn {
+  color: var(--md-on-primary-container);
+  background: var(--md-primary-container);
+}
+.credential-type-btn:hover { background: var(--md-primary); color: var(--md-primary-on); }
 .credential-delete-btn.armed { color: var(--md-error); background: var(--md-error-container); }
 
 .modal-note {

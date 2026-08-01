@@ -632,9 +632,9 @@ function renderCredentialList(list) {
     name.textContent = cred.name;
 
     const typeBtn = document.createElement('button');
-    typeBtn.className = 'icon-btn';
+    typeBtn.className = 'icon-btn credential-type-btn';
     typeBtn.innerHTML = icon('key');
-    typeBtn.dataset.tooltip = `Type "${cred.name}" into the active terminal`;
+    typeBtn.dataset.tooltip = 'Type into the active terminal';
     typeBtn.addEventListener('click', () => typeCredential(cred.id));
 
     const deleteBtn = document.createElement('button');
