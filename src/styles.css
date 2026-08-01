@@ -455,6 +455,7 @@ input:focus, textarea:focus {
 #snippet-list {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 4px 8px;
 }
 
@@ -466,7 +467,7 @@ input:focus, textarea:focus {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 10px;
+  padding: 9px 4px 9px 10px;
   border-radius: var(--radius-sm);
   margin-bottom: 3px;
   cursor: pointer;
