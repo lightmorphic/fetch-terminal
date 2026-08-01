@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - package.json
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build/release (defaults to package.json version)'
+        required: false
 
 permissions:
   contents: write
@@ -17,14 +22,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Read version
         id: version
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
-
-      - name: Skip if this version is already tagged
-        id: check
         run: |
-          if git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for an existing release
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -48,3 +64,26 @@ jobs:
             --target "${{ github.sha }}" \
             --title "${{ steps.version.outputs.version }}" \
             --notes-file release-notes.md
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build AppImage
+        run: npm run dist
+
+      - name: Locate build artifacts
+        id: artifacts
+        run: |
+          appimage=$(find "$HOME/Downloads" dist -iname "*.AppImage" 2>/dev/null | head -n1)
+          yml=$(find dist -iname "latest-linux.yml" 2>/dev/null | head -n1)
+          echo "appimage=$appimage" >> "$GITHUB_OUTPUT"
+          echo "yml=$yml" >> "$GITHUB_OUTPUT"
+
+      - name: Attach build artifacts to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ steps.version.outputs.version }}" \
+            "${{ steps.artifacts.outputs.appimage }}" \
+            "${{ steps.artifacts.outputs.yml }}" \
+            --clobber
