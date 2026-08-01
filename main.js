@@ -35,7 +35,12 @@ function createWindow() {
     height: 720,
     minWidth: 560,
     minHeight: 360,
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#0b0b10' : '#fafafc',
+    // Rounded corners need the OS-level window itself to be transparent
+    // (frame:false gives us no native chrome to round) — the actual
+    // background color comes from CSS on <body>, clipped to its
+    // border-radius. Requires a compositing window manager; on one
+    // without compositing, Linux/Electron will just fall back to square.
+    transparent: true,
     frame: false,
     show: false,
     webPreferences: {

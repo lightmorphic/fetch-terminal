@@ -130,6 +130,13 @@ A snippet with a `##` heading above its code fence gets that heading as its
 custom name; a bare code fence (no heading) is imported as an unnamed
 snippet, which is displayed using its raw command text as the label.
 
+The window itself has softly rounded corners and a subtle outline/shadow,
+so it reads clearly against any desktop background instead of blending
+into it — this needs your desktop to be running a compositing window
+manager (the default on GNOME, KDE, Cinnamon, and XFCE-with-compositing);
+without one it just falls back to square corners rather than breaking
+anything. Corners square off automatically while the window is maximized.
+
 ## Theming
 
 Click the sun/moon button in the titlebar to open the appearance popover.

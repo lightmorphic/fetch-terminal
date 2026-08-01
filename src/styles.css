@@ -144,6 +144,17 @@ html, body {
 body {
   position: relative;
   border: 1px solid var(--md-outline-variant);
+  border-radius: 10px;
+  box-shadow: var(--elevation-3);
+}
+/* A maximized window fills the whole screen edge-to-edge, so rounding
+   its corners would just clip content into the monitor's own corner —
+   drop the radius, border, and shadow while maximized, same as most
+   native apps do. */
+body.maximized {
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 
 button {
@@ -179,6 +190,38 @@ input:focus, textarea:focus {
   align-items: stretch;
   background: var(--md-surface);
   border-bottom: 1px solid var(--md-outline-variant);
+}
+
+/* The sidebar's own header controls (toggle/search/lock) live up here,
+   flush with the top of the window, in their own column the same width
+   as the sidebar panel below — instead of a single titlebar strip that
+   the tabs seemed to float over the top of the sidebar. */
+#sidebar-topbar {
+  /* 260px sidebar width minus the toggle button's own footprint (30px
+     icon-btn + its 4px left/right margins), so the divider lines up
+     with the sidebar panel's right edge below. */
+  width: 222px;
+  flex: none;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 0;
+  border-right: 1px solid var(--md-outline-variant);
+  transition: width var(--motion-med), padding var(--motion-med), border-color var(--motion-med);
+  -webkit-app-region: no-drag;
+}
+#sidebar-topbar.collapsed {
+  width: 0;
+  padding: 0;
+  border-right-color: transparent;
+}
+
+#terminal-topbar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
   -webkit-app-region: drag;
 }
 
@@ -420,13 +463,6 @@ input:focus, textarea:focus {
 #sidebar.collapsed {
   margin-left: -260px;
   box-shadow: none;
-}
-
-#sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 12px 8px 8px 10px;
 }
 
 .search-field {

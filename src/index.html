@@ -11,44 +11,46 @@
 
   <div id="titlebar">
     <button id="sidebar-toggle" class="icon-btn titlebar-btn" data-icon="sidebar" data-tooltip="Toggle snippets sidebar (Ctrl+Shift+B)"></button>
-    <div id="tabbar">
-      <div id="tabs"></div>
-      <button id="new-tab-btn" class="icon-btn" data-icon="plus" data-tooltip="New tab (Ctrl+Shift+T)"></button>
+    <div id="sidebar-topbar">
+      <div class="search-field">
+        <span class="search-icon" data-icon="search"></span>
+        <input id="snippet-search" placeholder="Search snippets" autocomplete="off" />
+      </div>
+      <button id="pin-btn" class="icon-btn accent-icon-btn" data-icon="unlock" data-tooltip="Keep sidebar open"></button>
     </div>
-    <div class="titlebar-drag spacer"></div>
-    <div class="titlebar-popover-anchor">
-      <button id="appearance-btn" class="icon-btn titlebar-btn" data-icon="palette" data-tooltip="Appearance"></button>
-      <div id="appearance-popover" class="popover hidden">
-        <div class="popover-scrim"></div>
-        <div class="popover-panel">
-          <div class="popover-title">Theme</div>
-          <div id="theme-mode-row" class="theme-mode-row">
-            <button class="theme-mode-btn" data-mode="light" data-icon="sun" data-tooltip="Light"></button>
-            <button class="theme-mode-btn" data-mode="dark" data-icon="moon" data-tooltip="Dark"></button>
-            <button class="theme-mode-btn" data-mode="system" data-icon="auto" data-tooltip="Auto (follows your desktop)"></button>
+    <div id="terminal-topbar">
+      <div id="tabbar">
+        <div id="tabs"></div>
+        <button id="new-tab-btn" class="icon-btn" data-icon="plus" data-tooltip="New tab (Ctrl+Shift+T)"></button>
+      </div>
+      <div class="titlebar-drag spacer"></div>
+      <div class="titlebar-popover-anchor">
+        <button id="appearance-btn" class="icon-btn titlebar-btn" data-icon="palette" data-tooltip="Appearance"></button>
+        <div id="appearance-popover" class="popover hidden">
+          <div class="popover-scrim"></div>
+          <div class="popover-panel">
+            <div class="popover-title">Theme</div>
+            <div id="theme-mode-row" class="theme-mode-row">
+              <button class="theme-mode-btn" data-mode="light" data-icon="sun" data-tooltip="Light"></button>
+              <button class="theme-mode-btn" data-mode="dark" data-icon="moon" data-tooltip="Dark"></button>
+              <button class="theme-mode-btn" data-mode="system" data-icon="auto" data-tooltip="Auto (follows your desktop)"></button>
+            </div>
+            <div class="popover-title">Accent color</div>
+            <div id="accent-swatches"></div>
           </div>
-          <div class="popover-title">Accent color</div>
-          <div id="accent-swatches"></div>
         </div>
       </div>
-    </div>
-    <div class="titlebar-brand titlebar-drag"><span class="app-title">Fetch Terminal</span></div>
-    <div id="window-controls">
-      <button id="btn-min" class="win-btn" data-icon="minimize" data-tooltip="Minimize"></button>
-      <button id="btn-max" class="win-btn" data-icon="maximize" data-tooltip="Maximize"></button>
-      <button id="btn-close" class="win-btn win-btn-close" data-icon="closeWindow" data-tooltip="Close"></button>
+      <div class="titlebar-brand titlebar-drag"><span class="app-title">Fetch Terminal</span></div>
+      <div id="window-controls">
+        <button id="btn-min" class="win-btn" data-icon="minimize" data-tooltip="Minimize"></button>
+        <button id="btn-max" class="win-btn" data-icon="maximize" data-tooltip="Maximize"></button>
+        <button id="btn-close" class="win-btn win-btn-close" data-icon="closeWindow" data-tooltip="Close"></button>
+      </div>
     </div>
   </div>
 
   <div id="main">
     <aside id="sidebar">
-      <div id="sidebar-header">
-        <div class="search-field">
-          <span class="search-icon" data-icon="search"></span>
-          <input id="snippet-search" placeholder="Search snippets" autocomplete="off" />
-        </div>
-        <button id="pin-btn" class="icon-btn accent-icon-btn" data-icon="unlock" data-tooltip="Keep sidebar open"></button>
-      </div>
       <div id="snippet-list"></div>
       <button id="add-snippet-btn" class="text-btn">+ New snippet</button>
 

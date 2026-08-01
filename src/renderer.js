@@ -790,6 +790,7 @@ async function handleResetClick() {
 function setSidebarCollapsed(collapsed) {
   sidebarCollapsed = collapsed;
   document.getElementById('sidebar').classList.toggle('collapsed', collapsed);
+  document.getElementById('sidebar-topbar').classList.toggle('collapsed', collapsed);
   document.getElementById('sidebar-toggle').classList.toggle('active', !collapsed);
   setTimeout(() => {
     const tab = activeTab();
@@ -1136,6 +1137,9 @@ function wireStaticControls() {
   document.getElementById('update-btn').addEventListener('click', handleUpdateButtonClick);
   document.getElementById('update-dot').addEventListener('click', () => ipcRenderer.invoke('update:check'));
   ipcRenderer.on('update:state', (_event, payload) => applyUpdateState(payload));
+  ipcRenderer.on('window:state', (_event, { maximized }) => {
+    document.body.classList.toggle('maximized', maximized);
+  });
 
   document.addEventListener('keydown', (e) => {
     const mod = e.ctrlKey || e.metaKey;
