@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-08-01
+
+### Changed
+
+- Sidebar header spacing tightened so the lock icon sits flush against
+  the panel's edge, with the search box filling the rest of the width
+  up to it.
+
 ## [0.6.1] - 2026-08-01
 
 ### Changed
@@ -147,7 +155,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.1...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.2...HEAD
+[0.6.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.5.1...0.6.0
 [0.5.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.5.0...0.5.1

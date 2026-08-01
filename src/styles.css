@@ -355,8 +355,8 @@ input:focus, textarea:focus {
 #sidebar-header {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 12px 10px 8px;
+  gap: 2px;
+  padding: 12px 4px 8px 10px;
 }
 
 .search-field {
