@@ -115,6 +115,21 @@ function looksLikeSsh(command) {
   return /^\s*ssh\b/i.test(command);
 }
 
+// Terminal output can come from an untrusted remote host (SSH session,
+// curl'd text, etc.), and WebLinksAddon will detect and offer to open any
+// URI-shaped text in it. shell.openExternal on an arbitrary scheme (file:,
+// a custom registered protocol, ...) has a real history as an OS-level
+// code-execution vector, not just "opens a browser" — only ever hand it
+// plain http(s) links.
+function openExternalIfHttp(url) {
+  try {
+    const scheme = new URL(url).protocol;
+    if (scheme === 'http:' || scheme === 'https:') shell.openExternal(url);
+  } catch (err) {
+    /* not a parseable URL — ignore */
+  }
+}
+
 // ---------- Tabs & terminals ----------
 
 function copySelection(tab) {
@@ -160,7 +175,7 @@ function createTab() {
 
   const fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
-  term.loadAddon(new WebLinksAddon((_event, uri) => shell.openExternal(uri)));
+  term.loadAddon(new WebLinksAddon((_event, uri) => openExternalIfHttp(uri)));
 
   term.open(pane);
   fitAddon.fit();
@@ -669,7 +684,7 @@ async function unlockVault() {
   const pin = input.value;
   const result = await ipcRenderer.invoke('vault:unlock', pin);
   if (!result || !result.ok) {
-    showToast('Wrong PIN');
+    showToast(result && result.error === 'locked-out' ? 'Too many wrong PINs — try again shortly' : 'Wrong PIN');
     input.value = '';
     input.focus();
     return;
@@ -1072,7 +1087,16 @@ function setUpdateButton({ label, action, disabled = false }) {
   btn.classList.remove('hidden');
   btn.disabled = disabled;
   btn.dataset.action = action || '';
-  btn.innerHTML = `<span class="btn-icon">${icon('update')}</span><span>${label}</span>`;
+  btn.innerHTML = '';
+  const iconSpan = document.createElement('span');
+  iconSpan.className = 'btn-icon';
+  iconSpan.innerHTML = icon('update'); // icon() only ever returns our own static SVG markup
+  const labelSpan = document.createElement('span');
+  // label can include the update's version string, which ultimately comes
+  // from GitHub release metadata — external data. textContent (not
+  // innerHTML) keeps that from ever being parsed as markup.
+  labelSpan.textContent = label;
+  btn.append(iconSpan, labelSpan);
 }
 
 function setUpdateDot(cls, tooltip) {
@@ -1190,7 +1214,13 @@ function applyIcons() {
   });
   document.querySelectorAll('[data-icon-inline]').forEach((el) => {
     const label = el.textContent.trim();
-    el.innerHTML = `<span class="btn-icon">${icon(el.dataset.iconInline)}</span><span>${label}</span>`;
+    el.innerHTML = '';
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'btn-icon';
+    iconSpan.innerHTML = icon(el.dataset.iconInline);
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = label;
+    el.append(iconSpan, labelSpan);
   });
 }
 
@@ -1245,9 +1275,6 @@ function wireStaticControls() {
   document.getElementById('update-btn').addEventListener('click', handleUpdateButtonClick);
   document.getElementById('update-dot').addEventListener('click', () => ipcRenderer.invoke('update:check'));
   ipcRenderer.on('update:state', (_event, payload) => applyUpdateState(payload));
-  ipcRenderer.on('window:state', (_event, { maximized }) => {
-    document.body.classList.toggle('maximized', maximized);
-  });
 
   document.addEventListener('keydown', (e) => {
     const mod = e.ctrlKey || e.metaKey;

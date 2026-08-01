@@ -27,6 +27,28 @@ function readJson(file, fallback) {
 function writeJson(file, data) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+  // Every file this app writes here can hold something worth keeping
+  // private on a shared machine — not just credentials.json (PIN hash +
+  // encrypted passwords), but also history.json (full shell command
+  // history) and snippets.json (can include SSH hosts/usernames) — so
+  // restrict all of them to the owning user, not just the one that
+  // obviously needed it.
+  try { fs.chmodSync(file, 0o600); } catch (err) { /* best-effort */ }
+}
+
+// Only http(s) URLs ever get handed to the OS's "open externally" handler.
+// A terminal's link detection can surface a URI printed by an untrusted
+// remote host (SSH output, curl'd text, etc.), and shell.openExternal on an
+// arbitrary scheme (file:, custom app-registered protocols, ...) has a real
+// history as an OS-level code-execution vector on top of just opening a
+// browser — restricting the scheme closes that off entirely.
+function openExternalIfHttp(url) {
+  try {
+    const scheme = new URL(url).protocol;
+    if (scheme === 'http:' || scheme === 'https:') shell.openExternal(url);
+  } catch (err) {
+    /* not a parseable URL — ignore */
+  }
 }
 
 function createWindow() {
@@ -56,17 +78,19 @@ function createWindow() {
 
   mainWindow.once('ready-to-show', () => mainWindow.show());
 
-  mainWindow.on('maximize', () => mainWindow.webContents.send('window:state', { maximized: true }));
-  mainWindow.on('unmaximize', () => mainWindow.webContents.send('window:state', { maximized: false }));
-
   // Never navigate away from the app shell; open external links in the
-  // user's default browser instead of inside the terminal window.
+  // user's default browser instead of inside the terminal window. Only
+  // http(s) links are ever handed to the OS this way — the terminal's own
+  // link detection (WebLinksAddon, in the renderer) can surface a URI from
+  // an untrusted remote host's output (SSH session, curl'd text, etc.), and
+  // shell.openExternal on an arbitrary scheme has a real history of being
+  // an OS-level code-execution vector, not just "opens a browser".
   mainWindow.webContents.on('will-navigate', (event, url) => {
     event.preventDefault();
-    shell.openExternal(url);
+    openExternalIfHttp(url);
   });
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
+    openExternalIfHttp(url);
     return { action: 'deny' };
   });
 
@@ -176,12 +200,7 @@ function readCredentialsFile() {
   return readJson(CREDENTIALS_FILE(), { pin: null, entries: [] });
 }
 function writeCredentialsFile(data) {
-  const file = CREDENTIALS_FILE();
-  writeJson(file, data);
-  // Defense in depth: this file holds the PIN hash and encrypted
-  // passwords, so restrict it to the owning user even on a shared
-  // multi-user machine, on top of writeJson's default permissions.
-  try { fs.chmodSync(file, 0o600); } catch (err) { /* best-effort */ }
+  writeJson(CREDENTIALS_FILE(), data);
 }
 function hashPin(pin, salt) {
   return crypto.scryptSync(pin, salt, 64);
@@ -227,13 +246,31 @@ ipcMain.handle('vault:setPin', (event, pin) => {
   return { ok: true };
 });
 
+// scrypt already makes each guess relatively expensive, but that only
+// throttles a single attacker thread — cheap extra insurance against
+// someone spamming vault:unlock with a wordlist via repeated IPC calls
+// (the vault PIN is documented as a walk-away deterrent, not a
+// cryptographic barrier, but there's no reason to make guessing free).
+const PIN_LOCKOUT_THRESHOLD = 5;
+const PIN_LOCKOUT_MS = 30 * 1000;
+let pinFailures = 0;
+let pinLockedUntil = 0;
+
 ipcMain.handle('vault:unlock', (event, pin) => {
+  if (Date.now() < pinLockedUntil) return { error: 'locked-out' };
   const data = readCredentialsFile();
   if (!data.pin) return { error: 'no-pin' };
   const ok = typeof pin === 'string' && pinMatches(pin, data.pin.salt, data.pin.hash);
   if (ok) {
+    pinFailures = 0;
     touchVaultActivity();
     sendVaultState();
+  } else {
+    pinFailures += 1;
+    if (pinFailures >= PIN_LOCKOUT_THRESHOLD) {
+      pinLockedUntil = Date.now() + PIN_LOCKOUT_MS;
+      pinFailures = 0;
+    }
   }
   return { ok };
 });
@@ -329,7 +366,6 @@ ipcMain.on('window:maximize-toggle', () => {
   else mainWindow.maximize();
 });
 ipcMain.on('window:close', () => mainWindow && mainWindow.close());
-ipcMain.handle('window:is-maximized', () => (mainWindow ? mainWindow.isMaximized() : false));
 
 // ---------- PTY management ----------
 

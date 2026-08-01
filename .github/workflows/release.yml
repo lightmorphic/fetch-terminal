@@ -26,11 +26,20 @@ jobs:
         with:
           node-version: 20
 
+      # Every value below that can be influenced by workflow input (the
+      # manual "version" dispatch input) or a prior step's output is passed
+      # through env: and read from the environment inside the script, never
+      # substituted directly into the run: block via ${{ }} — that
+      # substitution happens as plain text before the shell ever sees it,
+      # so an unquoted, unsanitized value there is a script-injection
+      # vector straight into a job that holds GITHUB_TOKEN.
       - name: Read version
         id: version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
         run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
           else
             echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
           fi
@@ -39,8 +48,9 @@ jobs:
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          if gh release view "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+          if gh release view "$VERSION" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -48,8 +58,10 @@ jobs:
 
       - name: Extract changelog section
         if: steps.check.outputs.exists == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          awk -v target="## [${{ steps.version.outputs.version }}]" '
+          awk -v target="## [$VERSION]" '
             index($0, target) == 1 { found=1; next }
             found && index($0, "## [") == 1 { exit }
             found { print }
@@ -59,10 +71,11 @@ jobs:
         if: steps.check.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          gh release create "${{ steps.version.outputs.version }}" \
+          gh release create "$VERSION" \
             --target "${{ github.sha }}" \
-            --title "${{ steps.version.outputs.version }}" \
+            --title "$VERSION" \
             --notes-file release-notes.md
 
       - name: Install dependencies
@@ -82,8 +95,8 @@ jobs:
       - name: Attach build artifacts to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+          APPIMAGE: ${{ steps.artifacts.outputs.appimage }}
+          YML: ${{ steps.artifacts.outputs.yml }}
         run: |
-          gh release upload "${{ steps.version.outputs.version }}" \
-            "${{ steps.artifacts.outputs.appimage }}" \
-            "${{ steps.artifacts.outputs.yml }}" \
-            --clobber
+          gh release upload "$VERSION" "$APPIMAGE" "$YML" --clobber

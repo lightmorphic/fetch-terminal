@@ -17,7 +17,6 @@ const ICONS = {
   edit: svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),
   minimize: svg('<line x1="5" y1="12" x2="19" y2="12"/>'),
   maximize: svg('<rect x="5" y="5" width="14" height="14" rx="2.5"/>'),
-  restore: svg('<rect x="7" y="7" width="11" height="11" rx="2"/><path d="M6 15V6a1 1 0 0 1 1-1h9"/>'),
   closeWindow: svg('<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>'),
   import: svg('<path d="M12 3v12"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M5 20h14"/>'),
   export: svg('<path d="M12 21V9"/><path d="M7.5 13.5 12 9l4.5 4.5"/><path d="M5 4h14"/>'),
@@ -26,7 +25,6 @@ const ICONS = {
   palette: svg('<path d="M12 3a9 9 0 1 0 0 18h.6a2 2 0 0 0 2-2 2 2 0 0 1 2-2h.6A3.8 3.8 0 0 0 21 13.2 9 9 0 0 0 12 3z"/><circle cx="7.8" cy="10.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="16.2" cy="10.2" r="1.15" fill="currentColor" stroke="none"/>'),
   check: svg('<path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>'),
   auto: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor" stroke="none"/>'),
-  key: svg('<circle cx="8" cy="15" r="3.4"/><path d="M10.4 12.6 18 5"/><path d="M15 8l2.3 2.3"/><path d="M17.7 5.3 20 7.6"/>'),
   update: svg('<path d="M12 3v10"/><path d="M7.5 9.5 12 14l4.5-4.5"/><path d="M5 20h14"/>'),
 };
 

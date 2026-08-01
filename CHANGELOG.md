@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-08-01
+
+A pre-1.0 security and code-quality pass: dependency audit, hardening, and
+dead-code cleanup, ahead of the first stable release.
+
+### Security
+
+- Bumped Electron `33.4.11` → `43.2.0` and electron-builder `25.x` → `26.15.3`,
+  closing every advisory `npm audit` flagged (13 total, one critical) —
+  the app was several Electron majors behind, each carrying its own set
+  of fixed CVEs (use-after-frees, an ASAR integrity bypass, a command-line
+  switch injection issue, and more).
+- Restricted `shell.openExternal` to `http:`/`https:` URLs only, both for
+  in-app navigation attempts and the terminal's own link detection.
+  Terminal output isn't fully trusted input (it can come from an SSH
+  session or `curl`'d text), and `shell.openExternal` on an arbitrary
+  scheme has a real history as an OS-level code-execution vector, not
+  just "opens a browser."
+- Added a 5-attempt lockout (30 seconds) on the vault PIN, on top of the
+  existing scrypt hashing and constant-time comparison — makes scripted
+  PIN guessing pointless rather than merely slow.
+- All local data files (snippets, history, settings, the credential
+  vault) are now `chmod 600`, not just the credential vault file.
+- Fixed a latent stored-XSS-shaped bug: the update button and generic
+  icon+label buttons built their markup via `innerHTML` string
+  interpolation, including the update version string — which ultimately
+  comes from GitHub release metadata, external data. Content-Security-Policy
+  already blocked inline-script execution here, but the pattern itself
+  was wrong; rebuilt both via `textContent`-based DOM construction so
+  there's nothing to inject in the first place.
+- Fixed a script-injection pattern in the release GitHub Actions workflow:
+  workflow-dispatch input and step outputs were substituted directly into
+  shell `run:` blocks via `${{ }}`, the standard vector for smuggling
+  shell metacharacters into a CI job that holds `GITHUB_TOKEN`. Every
+  such value now passes through `env:` first.
+
+### Removed
+
+- Two unused SVG icons (`key`, `restore`) that were never referenced
+  anywhere.
+- Dead window-maximize-state plumbing (`window:state` IPC broadcast, the
+  `.maximized` body class, and the unused `window:is-maximized` handler)
+  left over from the rounded-corners attempt — the CSS rule that read
+  that class no longer exists.
+
 ## [0.18.0] - 2026-08-01
 
 ### Changed
