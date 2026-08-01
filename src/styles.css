@@ -542,6 +542,7 @@ input:focus, textarea:focus {
 }
 .credential-row .icon-btn { width: 24px; height: 24px; flex: none; }
 .credential-row .icon-btn svg { width: 13px; height: 13px; }
+.credential-delete-btn.armed { color: var(--md-error); background: var(--md-error-container); }
 
 .modal-note {
   font-size: 11px;

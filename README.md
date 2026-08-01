@@ -177,6 +177,13 @@ This is deliberately **write-only**: once saved, a password can never be
 viewed, copied, or exported again through the app. There's no "reveal"
 option and no edit — only "type it" or "delete it and save a new one."
 
+Each saved password gets two small icon buttons — hover either one to see
+exactly what it does. The key icon types it into the active terminal; the
+X deletes it, and like "Reset all data," deleting requires a second click
+on "Click again to delete" (it un-arms itself after a few seconds if you
+don't follow through), so it isn't something you could trigger by
+accident.
+
 Two independent layers of protection:
 
 1. **Encrypted at rest.** Passwords are encrypted using your OS's own

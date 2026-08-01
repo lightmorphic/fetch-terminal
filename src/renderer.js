@@ -634,14 +634,28 @@ function renderCredentialList(list) {
     const typeBtn = document.createElement('button');
     typeBtn.className = 'icon-btn';
     typeBtn.innerHTML = icon('key');
-    typeBtn.title = 'Type into the active terminal';
+    typeBtn.dataset.tooltip = `Type "${cred.name}" into the active terminal`;
     typeBtn.addEventListener('click', () => typeCredential(cred.id));
 
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'icon-btn';
+    deleteBtn.className = 'icon-btn credential-delete-btn';
     deleteBtn.innerHTML = icon('close');
-    deleteBtn.title = 'Delete';
-    deleteBtn.addEventListener('click', () => deleteCredential(cred.id));
+    deleteBtn.dataset.tooltip = 'Delete';
+    let deleteConfirmTimer = null;
+    deleteBtn.addEventListener('click', () => {
+      if (!deleteBtn.classList.contains('armed')) {
+        deleteBtn.classList.add('armed');
+        deleteBtn.dataset.tooltip = 'Click again to delete';
+        clearTimeout(deleteConfirmTimer);
+        deleteConfirmTimer = setTimeout(() => {
+          deleteBtn.classList.remove('armed');
+          deleteBtn.dataset.tooltip = 'Delete';
+        }, 4000);
+        return;
+      }
+      clearTimeout(deleteConfirmTimer);
+      deleteCredential(cred.id);
+    });
 
     row.append(name, typeBtn, deleteBtn);
     container.appendChild(row);

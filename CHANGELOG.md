@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-08-01
+
+### Changed
+
+- Password vault row buttons now have clear hover tooltips explaining
+  what each does (the key icon names which password it types; the X
+  says "Delete").
+- Deleting a saved password now requires a second click on "Click
+  again to delete" (auto-reverting after a few seconds), matching the
+  "Reset all data" confirmation pattern, instead of deleting
+  immediately on the first click.
+
 ## [0.9.0] - 2026-08-01
 
 ### Added
@@ -266,7 +278,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.1...HEAD
+[0.9.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.1...0.9.0
 [0.8.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.1...0.8.0
