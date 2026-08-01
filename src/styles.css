@@ -123,28 +123,16 @@
 
 * { box-sizing: border-box; }
 
-/* html has no border-radius/overflow-clip of its own — it's the full,
-   perfectly square window rect. If it painted the same opaque background
-   as body, that background would fill the four corner slivers sitting
-   outside body's rounded rect (which IS clipped), showing up as solid
-   black squares poking past the rounded outline instead of letting the
-   transparent window punch through there. Keeping html transparent and
-   only painting the background on body (which clips to its own radius)
-   is what actually makes the corners round instead of just outlined. */
-html {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  background: transparent;
-}
-
-/* frame:false means there's no OS-drawn window border, so without this the
-   whole app edge is invisible against a similarly-dark desktop/wallpaper —
-   a plain 1px outline using the same subtle color as every other border in
-   the app (sidebar, titlebar, etc). position:relative makes body the
-   containing block for #main's position:absolute below, so #main insets
-   itself inside this border automatically instead of covering it. */
-body {
+/* Rounded window corners need real, per-pixel OS window transparency,
+   which on Linux only exists if a compositing window manager is actually
+   running — and across the range of desktops this app targets (Mint's
+   Cinnamon/Xfce/MATE spins among them), that's often off or unavailable.
+   Without it, a "transparent" window still comes back fully opaque and
+   square no matter what CSS says, so the rounded outline just draws over
+   a square backdrop rather than actually clipping it — worse than a
+   plain square window, since now it looks broken instead of just square.
+   Keeping this window plain and square avoids that entirely, everywhere. */
+html, body {
   height: 100%;
   margin: 0;
   overflow: hidden;
@@ -154,19 +142,17 @@ body {
   font-size: 13px;
   user-select: none;
   transition: background var(--motion-med), color var(--motion-med);
+}
+
+/* frame:false means there's no OS-drawn window border, so without this the
+   whole app edge is invisible against a similarly-dark desktop/wallpaper —
+   a plain 1px outline using the same subtle color as every other border in
+   the app (sidebar, titlebar, etc). position:relative makes body the
+   containing block for #main's position:absolute below, so #main insets
+   itself inside this border automatically instead of covering it. */
+body {
   position: relative;
   border: 1px solid var(--md-outline-variant);
-  border-radius: 16px;
-  box-shadow: var(--elevation-3);
-}
-/* A maximized window fills the whole screen edge-to-edge, so rounding
-   its corners would just clip content into the monitor's own corner —
-   drop the radius, border, and shadow while maximized, same as most
-   native apps do. */
-body.maximized {
-  border-radius: 0;
-  border: none;
-  box-shadow: none;
 }
 
 button {

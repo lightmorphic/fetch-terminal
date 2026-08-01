@@ -16,23 +16,6 @@ const HISTORY_LIMIT = 5000;
 let mainWindow = null;
 const ptyProcesses = new Map(); // tabId -> pty process
 
-// Electron's `transparent: true` (used for the rounded window corners —
-// see createWindow) needs both of these on Linux, or the window renders
-// fully opaque/square no matter what the CSS says:
-//   - enable-transparent-visuals gives the X11 window an alpha channel
-//     to begin with.
-//   - GPU-accelerated compositing in Chromium doesn't actually punch that
-//     alpha channel through to the window server on Linux — only the
-//     software/CPU compositing path does. Without disabling GPU
-//     compositing, you get exactly the bug reported here: a correctly
-//     rounded CSS outline drawn over a still fully opaque, still square
-//     window surface underneath it. Both must be set before the app is
-//     ready.
-if (process.platform === 'linux') {
-  app.commandLine.appendSwitch('enable-transparent-visuals');
-  app.disableHardwareAcceleration();
-}
-
 function readJson(file, fallback) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -52,18 +35,13 @@ function createWindow() {
     height: 720,
     minWidth: 560,
     minHeight: 360,
-    // Rounded corners need the OS-level window itself to be transparent
-    // (frame:false gives us no native chrome to round) — the actual
-    // background color comes from CSS on <body>, clipped to its
-    // border-radius. Requires a compositing window manager; on one
-    // without compositing, Linux/Electron will just fall back to square.
-    // `transparent: true` alone isn't enough on Linux/GTK: without an
-    // explicit alpha backgroundColor, the native surface still paints
-    // opaque black outside whatever the page itself draws, so the four
-    // corners cut off by CSS border-radius showed through as black
-    // squares poking past the rounded outline instead of the desktop.
-    transparent: true,
-    backgroundColor: '#00000000',
+    // A real per-pixel transparent window (for rounded corners) only
+    // renders correctly on Linux if a compositing window manager is
+    // actually running, which isn't reliable across the range of desktops
+    // this app targets (tried and reverted — see CHANGELOG). A plain,
+    // solid backgroundColor here just avoids a white flash before the
+    // page's own CSS paints on first load.
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#0b0b10' : '#fafafc',
     frame: false,
     show: false,
     webPreferences: {

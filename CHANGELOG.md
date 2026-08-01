@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-08-01
+
+### Changed
+
+- Reverted rounded window corners back to a plain square window. Real
+  per-pixel window transparency on Linux only works if a compositing
+  window manager is actually running, and across the range of desktops
+  this app targets — Mint's Cinnamon/Xfce/MATE spins among them — that's
+  often off or unavailable. Without it, the window comes back fully
+  opaque and square regardless of any CSS, so the rounded outline just
+  drew over a still-square backdrop rather than clipping it: worse than
+  square, since now it looked broken. `transparent: true` and the two
+  Linux command-line switches added while chasing this are removed; the
+  window is back to the exact plain, solid-background approach used
+  before this was attempted, which works identically on every desktop.
+
 ## [0.17.0] - 2026-08-01
 
 ### Fixed
