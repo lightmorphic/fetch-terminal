@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-08-01
+
+### Added
+
+- PIN-protected password vault: save a password once (encrypted via the
+  OS keyring through Electron's `safeStorage`) and click a button to
+  type it into the active terminal whenever a prompt asks for it.
+  Write-only by design — a saved password can never be viewed or
+  exported again, only used or deleted. A separate vault PIN (distinct
+  from encryption at rest, which alone doesn't stop someone else using
+  an already-unlocked computer) gates every use of the vault and
+  auto-locks after 5 minutes idle.
+- "Reset all data" button in the sidebar footer, for clearing every
+  snippet, history entry, saved password, and setting on demand — since
+  an AppImage has no uninstall hook to do this automatically when the
+  file is deleted.
+
+### Fixed
+
+- The sidebar's search box could overflow past the panel's right edge
+  and push the lock icon out past the visible border, because it was
+  missing `min-width: 0` on a flex child — a classic flexbox bug where
+  an item won't shrink below its content's natural width. No amount of
+  padding could have fixed the symptom without this.
+
 ## [0.7.1] - 2026-08-01
 
 ### Changed
@@ -204,7 +229,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.1...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.4...0.7.0
 [0.6.4]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.3...0.6.4

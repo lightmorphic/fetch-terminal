@@ -26,6 +26,7 @@ const ICONS = {
   palette: svg('<path d="M12 3a9 9 0 1 0 0 18h.6a2 2 0 0 0 2-2 2 2 0 0 1 2-2h.6A3.8 3.8 0 0 0 21 13.2 9 9 0 0 0 12 3z"/><circle cx="7.8" cy="10.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="16.2" cy="10.2" r="1.15" fill="currentColor" stroke="none"/>'),
   check: svg('<path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>'),
   auto: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor" stroke="none"/>'),
+  key: svg('<circle cx="8" cy="15" r="3.4"/><path d="M10.4 12.6 18 5"/><path d="M15 8l2.3 2.3"/><path d="M17.7 5.3 20 7.6"/>'),
   update: svg('<path d="M12 3v10"/><path d="M7.5 9.5 12 14l4.5-4.5"/><path d="M5 20h14"/>'),
 };
 

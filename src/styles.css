@@ -381,6 +381,7 @@ input:focus, textarea:focus {
 
 .search-field {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -394,6 +395,7 @@ input:focus, textarea:focus {
   background: none;
   padding: 0;
   flex: 1;
+  min-width: 0;
   font-size: 12.5px;
 }
 .search-field input:focus { box-shadow: none; }
@@ -481,6 +483,69 @@ input:focus, textarea:focus {
   line-height: 1.5;
 }
 
+#credential-section {
+  flex: none;
+  border-top: 1px solid var(--md-outline-variant);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--md-on-surface-variant);
+}
+#credential-body { display: flex; flex-direction: column; gap: 6px; }
+.vault-pin-input {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--md-outline);
+  background: var(--md-surface-2);
+  font-size: 12.5px;
+}
+.vault-pin-input:focus { border-color: var(--md-primary); }
+#credential-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 130px;
+  overflow-y: auto;
+}
+.credential-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 4px 5px 8px;
+  border-radius: var(--radius-sm);
+}
+.credential-row:hover { background: var(--md-surface-2); }
+.credential-name {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.credential-row .icon-btn { width: 24px; height: 24px; flex: none; }
+.credential-row .icon-btn svg { width: 13px; height: 13px; }
+
+.modal-note {
+  font-size: 11px;
+  color: var(--md-on-surface-variant);
+  line-height: 1.5;
+  margin: 2px 0 0;
+}
+
 #sidebar-footer {
   padding: 10px;
   border-top: 1px solid var(--md-outline-variant);
@@ -488,6 +553,15 @@ input:focus, textarea:focus {
   flex-direction: column;
   gap: 8px;
 }
+.reset-data-btn {
+  background: none;
+  box-shadow: none;
+  color: var(--md-error);
+  font-size: 10.5px;
+  padding: 4px;
+}
+.reset-data-btn:hover { background: none; box-shadow: none; text-decoration: underline; }
+.reset-data-btn:active { background: none; box-shadow: none; }
 .footer-row {
   display: flex;
   gap: 8px;

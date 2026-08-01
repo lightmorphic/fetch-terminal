@@ -50,6 +50,15 @@
         <button id="pin-btn" class="icon-btn accent-icon-btn" data-icon="unlock" title="Keep sidebar open"></button>
       </div>
       <div id="snippet-list"></div>
+
+      <div id="credential-section">
+        <div class="section-header">
+          <span class="section-title">Passwords</span>
+          <button id="vault-lock-btn" class="icon-btn hidden" data-icon="lock" title="Lock now"></button>
+        </div>
+        <div id="credential-body"></div>
+      </div>
+
       <div id="sidebar-footer">
         <button id="add-snippet-btn" class="text-btn">+ New snippet</button>
         <div class="footer-row">
@@ -64,6 +73,7 @@
           <span id="update-dot" class="update-dot" data-tooltip="Checking for updates…"></span>
           <button id="update-btn" class="update-btn hidden"></button>
         </div>
+        <button id="reset-data-btn" class="text-btn reset-data-btn" title="Delete all snippets, history, passwords, and settings">Reset all data</button>
       </div>
     </aside>
 
@@ -96,6 +106,27 @@
         <span class="spacer"></span>
         <button id="snippet-cancel-btn" class="text-btn">Cancel</button>
         <button id="snippet-save-btn" class="filled-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="credential-modal" class="modal hidden">
+    <div class="modal-scrim"></div>
+    <div class="modal-card">
+      <h3>New password</h3>
+      <label class="field-label">Name
+        <input id="credential-name-input" placeholder="e.g. sudo, prod server" autocomplete="off" />
+      </label>
+      <label class="field-label">Password
+        <input id="credential-password-input" type="password" autocomplete="new-password" />
+      </label>
+      <p class="modal-note">Stored encrypted using your OS's secure keyring. Once
+        saved, it can never be viewed or exported again through this app —
+        only used or deleted.</p>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button id="credential-cancel-btn" class="text-btn">Cancel</button>
+        <button id="credential-save-btn" class="filled-btn">Save</button>
       </div>
     </div>
   </div>

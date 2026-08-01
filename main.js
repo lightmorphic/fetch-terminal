@@ -1,7 +1,8 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, nativeTheme } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, nativeTheme, safeStorage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const crypto = require('crypto');
 const pty = require('node-pty');
 const { autoUpdater } = require('electron-updater');
 
@@ -9,6 +10,7 @@ const USER_DATA = () => app.getPath('userData');
 const SNIPPETS_FILE = () => path.join(USER_DATA(), 'snippets.json');
 const HISTORY_FILE = () => path.join(USER_DATA(), 'history.json');
 const SETTINGS_FILE = () => path.join(USER_DATA(), 'settings.json');
+const CREDENTIALS_FILE = () => path.join(USER_DATA(), 'credentials.json');
 const HISTORY_LIMIT = 5000;
 
 let mainWindow = null;
@@ -133,6 +135,135 @@ ipcMain.handle('accent:get', () => readJson(SETTINGS_FILE(), {}).accentHue);
 ipcMain.handle('accent:set', (event, hue) => {
   if (typeof hue !== 'number' || Number.isNaN(hue)) return;
   writeJson(SETTINGS_FILE(), { ...readJson(SETTINGS_FILE(), {}), accentHue: hue });
+});
+
+// Passwords are encrypted at rest via the OS keyring (safeStorage) and are
+// never sent back to the renderer once saved — only a name, never the
+// plaintext or ciphertext. "Typing" one decrypts it in this process only
+// and writes it straight to the pty; the decrypted value never crosses
+// back over IPC.
+//
+// Encryption at rest alone doesn't stop someone else who's simply sitting
+// at this already-unlocked computer from using a saved password, so every
+// credentials:* call below is also gated behind a separate vault PIN that
+// auto-locks after a few minutes idle.
+const VAULT_IDLE_MS = 5 * 60 * 1000;
+let vaultUnlockedUntil = 0;
+
+function readCredentialsFile() {
+  return readJson(CREDENTIALS_FILE(), { pin: null, entries: [] });
+}
+function writeCredentialsFile(data) {
+  writeJson(CREDENTIALS_FILE(), data);
+}
+function hashPin(pin, salt) {
+  return crypto.scryptSync(pin, salt, 64).toString('hex');
+}
+function isVaultUnlocked() {
+  return Date.now() < vaultUnlockedUntil;
+}
+function touchVaultActivity() {
+  vaultUnlockedUntil = Date.now() + VAULT_IDLE_MS;
+}
+function sendVaultState() {
+  if (mainWindow) mainWindow.webContents.send('vault:state', { unlocked: isVaultUnlocked() });
+}
+
+setInterval(() => {
+  if (vaultUnlockedUntil !== 0 && !isVaultUnlocked()) {
+    vaultUnlockedUntil = 0;
+    sendVaultState();
+  }
+}, 15000);
+
+ipcMain.handle('vault:status', () => {
+  return { hasPin: !!readCredentialsFile().pin, unlocked: isVaultUnlocked() };
+});
+
+ipcMain.handle('vault:setPin', (event, pin) => {
+  if (!pin || pin.length < 4) return { error: 'invalid' };
+  const data = readCredentialsFile();
+  if (data.pin) return { error: 'exists' };
+  const salt = crypto.randomBytes(16).toString('hex');
+  data.pin = { salt, hash: hashPin(pin, salt) };
+  writeCredentialsFile(data);
+  touchVaultActivity();
+  sendVaultState();
+  return { ok: true };
+});
+
+ipcMain.handle('vault:unlock', (event, pin) => {
+  const data = readCredentialsFile();
+  if (!data.pin) return { error: 'no-pin' };
+  const ok = hashPin(pin, data.pin.salt) === data.pin.hash;
+  if (ok) {
+    touchVaultActivity();
+    sendVaultState();
+  }
+  return { ok };
+});
+
+ipcMain.handle('vault:lock', () => {
+  vaultUnlockedUntil = 0;
+  sendVaultState();
+  return { ok: true };
+});
+
+ipcMain.handle('credentials:list', () => {
+  if (!isVaultUnlocked()) return { locked: true };
+  touchVaultActivity();
+  return { entries: readCredentialsFile().entries.map(({ id, name }) => ({ id, name })) };
+});
+
+ipcMain.handle('credentials:add', (event, { name, password }) => {
+  if (!isVaultUnlocked()) return { error: 'locked' };
+  if (!name || !password) return { error: 'invalid' };
+  if (!safeStorage.isEncryptionAvailable()) return { error: 'unavailable' };
+  const encrypted = safeStorage.encryptString(password).toString('base64');
+  const data = readCredentialsFile();
+  const entry = { id: crypto.randomUUID(), name, encrypted };
+  data.entries.push(entry);
+  writeCredentialsFile(data);
+  touchVaultActivity();
+  return { id: entry.id, name: entry.name };
+});
+
+ipcMain.handle('credentials:delete', (event, id) => {
+  if (!isVaultUnlocked()) return { error: 'locked' };
+  const data = readCredentialsFile();
+  data.entries = data.entries.filter((c) => c.id !== id);
+  writeCredentialsFile(data);
+  touchVaultActivity();
+});
+
+ipcMain.handle('credentials:type', (event, { id, tabId }) => {
+  if (!isVaultUnlocked()) return { ok: false, error: 'locked' };
+  const entry = readCredentialsFile().entries.find((c) => c.id === id);
+  const proc = ptyProcesses.get(tabId);
+  if (!entry || !proc) return { ok: false };
+  let password = safeStorage.decryptString(Buffer.from(entry.encrypted, 'base64'));
+  proc.write(password + '\r');
+  password = null;
+  touchVaultActivity();
+  return { ok: true };
+});
+
+ipcMain.handle('app:reset', async () => {
+  const { response } = await dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    buttons: ['Cancel', 'Delete Everything'],
+    defaultId: 0,
+    cancelId: 0,
+    title: 'Reset all data',
+    message: 'Delete all snippets, command history, saved passwords, and settings?',
+    detail: 'This cannot be undone. Fetch Terminal will restart with a clean slate.',
+  });
+  if (response !== 1) return { cancelled: true };
+  for (const file of [SNIPPETS_FILE(), HISTORY_FILE(), SETTINGS_FILE(), CREDENTIALS_FILE()]) {
+    try { fs.unlinkSync(file); } catch (err) { /* already gone */ }
+  }
+  app.relaunch();
+  app.exit(0);
 });
 
 app.on('window-all-closed', () => {

@@ -25,6 +25,11 @@ remote assets of any kind.
   - Pin/lock the sidebar open, or let it auto-collapse after running a snippet
   - Export/import snippets as a Markdown file for backup and sharing
 - No accounts, no built-in SSH connection manager beyond what snippets provide
+- PIN-protected password vault — save a password once, encrypted, and click
+  a button to type it into the active terminal whenever a prompt asks for
+  it; it can never be viewed or exported again through the app
+- A "Reset all data" button that wipes every snippet, history entry, saved
+  password, and setting on demand
 
 ## Keyboard shortcuts
 
@@ -156,8 +161,59 @@ quits the app, replaces the running AppImage with the new one, and restarts
 it automatically. Nothing downloads or installs without you clicking
 through both of those steps yourself.
 
+## Password vault
+
+The "Passwords" section at the bottom of the sidebar lets you save a
+password once and click a button to type it into the active terminal
+whenever something prompts for it (`sudo`, an SSH login, anything) — no
+retyping, and it automatically presses Enter for you.
+
+This is deliberately **write-only**: once saved, a password can never be
+viewed, copied, or exported again through the app. There's no "reveal"
+option and no edit — only "type it" or "delete it and save a new one."
+
+Two independent layers of protection:
+
+1. **Encrypted at rest.** Passwords are encrypted using your OS's own
+   secure keyring (via Electron's `safeStorage`, backed by the Secret
+   Service API / GNOME Keyring / KWallet), not a homemade cipher. This
+   requires a keyring service to be running — if none is available,
+   saving a password will fail with a clear message rather than silently
+   storing it in plain text.
+2. **A separate vault PIN.** Encryption at rest only protects the file on
+   disk — it does nothing to stop someone who's simply sitting at your
+   already-unlocked computer from clicking a button. So a PIN (separate
+   from any system password, never sent anywhere) gates every use of the
+   vault: adding, deleting, and typing a password all require it to be
+   unlocked first. The vault **auto-locks after 5 minutes of not being
+   used**, so walking away from the machine matters again — you'll need
+   the PIN once more to do anything with it.
+
+There's no way to recover a forgotten vault PIN short of using "Reset all
+data" (below), which deletes the saved passwords along with everything
+else.
+
+## Resetting / removing all data
+
+An AppImage has no uninstall step — deleting the file just removes the
+binary; it doesn't (and can't) run any cleanup, since nothing is executing
+anymore to do that cleanup. Anything the app saved to disk stays there
+until removed by hand.
+
+To clear everything from inside the app, click **Reset all data** at the
+bottom of the sidebar. After confirming, it deletes all snippets, command
+history, saved passwords, and settings, then restarts with a clean slate.
+
+To remove it all manually instead (e.g. after deleting the AppImage
+itself), delete the whole per-user data directory:
+
+```sh
+rm -rf ~/.config/Fetch\ Terminal/
+```
+
 ## Data storage
 
-Snippets, command history, and your theme preference are stored as JSON in
-Electron's per-user data directory (typically `~/.config/Fetch Terminal/`) —
-nothing is sent anywhere.
+Snippets, command history, your theme/appearance preferences, and the
+encrypted password vault are stored as JSON in Electron's per-user data
+directory (typically `~/.config/Fetch Terminal/`) — nothing is ever sent
+anywhere. See "Resetting / removing all data" above for how to clear it.

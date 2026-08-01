@@ -490,6 +490,202 @@ async function importSnippets() {
   showToast(added ? `Imported ${added} snippet${added === 1 ? '' : 's'}` : 'No new snippets found in that file');
 }
 
+// ---------- Passwords (encrypted, write-only, PIN-gated credentials) ----------
+//
+// Encryption at rest only protects the file on disk — it does nothing to
+// stop someone who's simply sitting at this already-unlocked computer from
+// clicking "type into terminal". A separate vault PIN gates every
+// credentials:* call in the main process, and auto-locks after a few
+// minutes idle, so walking away from the machine matters again.
+
+let vaultHasPin = false;
+let vaultUnlocked = false;
+
+async function refreshVaultStatus() {
+  const status = await ipcRenderer.invoke('vault:status');
+  vaultHasPin = !!(status && status.hasPin);
+  vaultUnlocked = !!(status && status.unlocked);
+  renderCredentialSection();
+}
+
+function renderCredentialSection() {
+  const body = document.getElementById('credential-body');
+  const lockBtn = document.getElementById('vault-lock-btn');
+  lockBtn.classList.toggle('hidden', !vaultUnlocked);
+  body.innerHTML = '';
+
+  if (!vaultHasPin) {
+    body.innerHTML = `
+      <p class="modal-note">Set a PIN to protect saved passwords from anyone
+        else who uses this computer. It's separate from any system password
+        and never leaves this device.</p>
+      <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="Choose a PIN (4+ characters)" autocomplete="off" />
+      <button id="vault-pin-submit" class="text-btn small neutral">Set PIN</button>
+    `;
+    wireVaultPinInput(setupVaultPin);
+    return;
+  }
+
+  if (!vaultUnlocked) {
+    body.innerHTML = `
+      <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="Enter PIN to unlock" autocomplete="off" />
+      <button id="vault-pin-submit" class="text-btn small neutral">Unlock</button>
+    `;
+    wireVaultPinInput(unlockVault);
+    return;
+  }
+
+  body.innerHTML = `
+    <div id="credential-list"></div>
+    <button id="add-credential-btn" class="text-btn small neutral" data-icon-inline="plus">Add password</button>
+  `;
+  applyIcons();
+  document.getElementById('add-credential-btn').addEventListener('click', openCredentialModal);
+  loadCredentials();
+}
+
+function wireVaultPinInput(onSubmit) {
+  const input = document.getElementById('vault-pin-input');
+  document.getElementById('vault-pin-submit').addEventListener('click', onSubmit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') onSubmit();
+  });
+  input.focus();
+}
+
+async function setupVaultPin() {
+  const input = document.getElementById('vault-pin-input');
+  const pin = input.value;
+  if (!pin || pin.length < 4) {
+    showToast('PIN must be at least 4 characters');
+    return;
+  }
+  const result = await ipcRenderer.invoke('vault:setPin', pin);
+  if (!result || result.error) {
+    showToast('Could not set that PIN');
+    return;
+  }
+  await refreshVaultStatus();
+}
+
+async function unlockVault() {
+  const input = document.getElementById('vault-pin-input');
+  const pin = input.value;
+  const result = await ipcRenderer.invoke('vault:unlock', pin);
+  if (!result || !result.ok) {
+    showToast('Wrong PIN');
+    input.value = '';
+    input.focus();
+    return;
+  }
+  await refreshVaultStatus();
+}
+
+async function lockVaultNow() {
+  await ipcRenderer.invoke('vault:lock');
+  await refreshVaultStatus();
+}
+
+async function loadCredentials() {
+  const result = await ipcRenderer.invoke('credentials:list');
+  if (!result || result.locked) {
+    await refreshVaultStatus();
+    return;
+  }
+  renderCredentialList(result.entries || []);
+}
+
+function renderCredentialList(list) {
+  const container = document.getElementById('credential-list');
+  container.innerHTML = '';
+  for (const cred of list) {
+    const row = document.createElement('div');
+    row.className = 'credential-row';
+
+    const name = document.createElement('span');
+    name.className = 'credential-name';
+    name.textContent = cred.name;
+
+    const typeBtn = document.createElement('button');
+    typeBtn.className = 'icon-btn';
+    typeBtn.innerHTML = icon('key');
+    typeBtn.title = 'Type into the active terminal';
+    typeBtn.addEventListener('click', () => typeCredential(cred.id));
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'icon-btn';
+    deleteBtn.innerHTML = icon('close');
+    deleteBtn.title = 'Delete';
+    deleteBtn.addEventListener('click', () => deleteCredential(cred.id));
+
+    row.append(name, typeBtn, deleteBtn);
+    container.appendChild(row);
+  }
+}
+
+async function typeCredential(id) {
+  const tab = activeTab();
+  if (!tab) {
+    showToast('Open a terminal tab first');
+    return;
+  }
+  const result = await ipcRenderer.invoke('credentials:type', { id, tabId: tab.id });
+  if (!result || !result.ok) {
+    if (result && result.error === 'locked') {
+      showToast('Vault locked — enter your PIN again');
+      await refreshVaultStatus();
+      return;
+    }
+    showToast('Could not type that password');
+  }
+  tab.term.focus();
+}
+
+async function deleteCredential(id) {
+  await ipcRenderer.invoke('credentials:delete', id);
+  await loadCredentials();
+}
+
+function openCredentialModal() {
+  document.getElementById('credential-name-input').value = '';
+  document.getElementById('credential-password-input').value = '';
+  document.getElementById('credential-modal').classList.remove('hidden');
+  document.getElementById('credential-name-input').focus();
+}
+function closeCredentialModal() {
+  document.getElementById('credential-modal').classList.add('hidden');
+}
+
+async function saveCredentialFromModal() {
+  const name = document.getElementById('credential-name-input').value.trim();
+  const password = document.getElementById('credential-password-input').value;
+  if (!name || !password) return;
+  const result = await ipcRenderer.invoke('credentials:add', { name, password });
+  document.getElementById('credential-password-input').value = '';
+  if (!result || result.error === 'unavailable') {
+    showToast("Secure storage isn't available on this system");
+    return;
+  }
+  if (result.error === 'locked') {
+    showToast('Vault locked — enter your PIN again');
+    closeCredentialModal();
+    await refreshVaultStatus();
+    return;
+  }
+  if (result.error) {
+    showToast('Could not save that password');
+    return;
+  }
+  closeCredentialModal();
+  await loadCredentials();
+}
+
+async function resetAllData() {
+  const result = await ipcRenderer.invoke('app:reset');
+  if (result && result.cancelled) return;
+  // On success the main process relaunches the app; nothing left to do here.
+}
+
 // ---------- Sidebar collapse / pin ----------
 
 function setSidebarCollapsed(collapsed) {
@@ -817,6 +1013,17 @@ function wireStaticControls() {
   document.getElementById('snippet-delete-btn').addEventListener('click', deleteSnippetFromModal);
   document.getElementById('snippet-modal').querySelector('.modal-scrim').addEventListener('click', closeSnippetModal);
 
+  document.getElementById('vault-lock-btn').addEventListener('click', lockVaultNow);
+  document.getElementById('credential-cancel-btn').addEventListener('click', closeCredentialModal);
+  document.getElementById('credential-save-btn').addEventListener('click', saveCredentialFromModal);
+  document.getElementById('credential-modal').querySelector('.modal-scrim').addEventListener('click', closeCredentialModal);
+  ipcRenderer.on('vault:state', (_event, payload) => {
+    vaultUnlocked = !!(payload && payload.unlocked);
+    renderCredentialSection();
+  });
+
+  document.getElementById('reset-data-btn').addEventListener('click', resetAllData);
+
   document.getElementById('history-search').addEventListener('input', (e) => renderHistoryList(e.target.value));
   document.getElementById('history-modal').querySelector('.modal-scrim').addEventListener('click', closeHistoryModal);
 
@@ -890,7 +1097,7 @@ function wireStaticControls() {
 
 async function bootstrap() {
   wireStaticControls();
-  await Promise.all([loadSnippets(), loadHistory(), loadAccent(), loadThemeMode()]);
+  await Promise.all([loadSnippets(), loadHistory(), loadAccent(), loadThemeMode(), refreshVaultStatus()]);
   createTab();
 }
 
