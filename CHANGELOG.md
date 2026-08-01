@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-08-01
+
+### Removed
+
+- Cut (`Ctrl+Shift+X` and the right-click "Cut" entry). In practice a
+  terminal is a real, live shell session, not an editable text buffer —
+  even with correct cursor/selection math, "cutting" from the middle of
+  a line means editing text that a real running line editor (readline,
+  zsh's zle, etc.) already owns, and every extra layer of assumptions
+  about shell/line-editor behavior is another way to get it subtly
+  wrong. Copy and Paste remain exactly as they were.
+
+### Fixed
+
+- Rounded corners still showed a hard square edge behind the rounded
+  outline: `html` and `body` shared the exact same opaque background
+  color. `body` is what actually clips to the border-radius — `html`
+  is the full, uncropped, perfectly square window rect underneath it,
+  so it painted straight through the four corner slivers that `body`'s
+  radius cuts away. Made `html` transparent and left the real background
+  only on `body`, so those slivers now show whatever's behind the window
+  instead of a flat color.
+
 ## [0.15.0] - 2026-08-01
 
 ### Fixed

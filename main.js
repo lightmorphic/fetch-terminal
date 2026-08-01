@@ -160,9 +160,6 @@ ipcMain.handle('terminal:context-menu', (event, { hasSelection }) => {
     };
     const menu = Menu.buildFromTemplate([
       { label: 'Copy', enabled: !!hasSelection, click: () => finish('copy') },
-      // A terminal selection is historical output, not editable text, so
-      // there's nothing to actually remove — Cut behaves the same as Copy.
-      { label: 'Cut', enabled: !!hasSelection, click: () => finish('cut') },
       { label: 'Paste', click: () => finish('paste') },
     ]);
     menu.popup({ window: mainWindow, callback: () => finish(null) });

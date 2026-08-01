@@ -117,73 +117,11 @@ function looksLikeSsh(command) {
 
 // ---------- Tabs & terminals ----------
 
-// A terminal selection is usually historical output that's already been
-// processed by the shell — there's no way to "delete" that after the
-// fact. But if the selection sits on the exact row the cursor is
-// currently on, it's part of the live, not-yet-submitted input line, and
-// its real column range (from xterm's own buffer, not our best-effort
-// input tracking) tells us exactly how to remove it: move the cursor to
-// the far edge of the selection, backspace away just that span, then move
-// the cursor back to where it logically belongs relative to the deleted
-// text. This works anywhere on the line, not just at the end. Anything on
-// a different row (already-scrolled-past output, or a line we can't
-// safely reason about) falls back to copy-only.
-function removeSelection(tab, term, selectionRange) {
-  if (!selectionRange) return false;
-  const { start, end } = selectionRange;
-  if (start.y !== end.y) return false;
-
-  // xterm.js's own type declarations claim these coordinates are 1-based,
-  // but the actual runtime implementation (Terminal.getSelectionPosition
-  // just forwards the internal selection model's raw [col, row] pairs
-  // untouched) returns them already 0-based, matching cursorX/cursorY/
-  // baseY exactly — so no +/-1 conversion belongs here.
-  const rowAbs = start.y;
-  const cursorRowAbs = term.buffer.active.baseY + term.buffer.active.cursorY;
-  if (rowAbs !== cursorRowAbs) return false;
-
-  const left = start.x;
-  const right = end.x;
-  const cursorCol = term.buffer.active.cursorX;
-  if (right <= left) return false;
-
-  const moveCursorColumns = (delta) => {
-    if (!delta) return;
-    const seq = delta > 0 ? '\x1b[C' : '\x1b[D';
-    ipcRenderer.send('pty:write', { tabId: tab.id, data: seq.repeat(Math.abs(delta)) });
-  };
-
-  // Where the cursor logically ends up once the selected span is gone:
-  // unchanged if the selection was entirely ahead of it, shifted left by
-  // the removed span's length if the selection was entirely behind it,
-  // and snapped to the selection's start if the cursor sat inside it.
-  const finalCol = cursorCol <= left ? cursorCol : cursorCol >= right ? cursorCol - (right - left) : left;
-
-  moveCursorColumns(right - cursorCol);
-  ipcRenderer.send('pty:write', { tabId: tab.id, data: '\x7f'.repeat(right - left) });
-  moveCursorColumns(finalCol - left);
-  // Our own inputBuffer tracking can't represent an arbitrary mid-line
-  // edit like this, so give up on the suggestion rather than show a wrong
-  // one — same as what already happens for any other cursor-moving key.
-  clearSuggestion(tab);
-  return true;
-}
-
 function copySelection(tab) {
   const term = tab.term;
   if (!term.hasSelection()) return;
   clipboard.writeText(term.getSelection());
   term.clearSelection();
-}
-
-function cutSelection(tab) {
-  const term = tab.term;
-  if (!term.hasSelection()) return;
-  const selected = term.getSelection();
-  const range = term.getSelectionPosition();
-  clipboard.writeText(selected);
-  term.clearSelection();
-  removeSelection(tab, term, range);
 }
 
 function pasteIntoTerminal(tab) {
@@ -253,8 +191,8 @@ function createTab() {
     }
   });
 
-  // Ctrl+Shift+C copies, Ctrl+Shift+V pastes — plain Ctrl+C/Ctrl+V/Ctrl+X
-  // are left completely alone, so they keep their normal terminal meaning
+  // Ctrl+Shift+C copies, Ctrl+Shift+V pastes — plain Ctrl+C/Ctrl+V are left
+  // completely alone, so they keep their normal terminal meaning
   // (interrupt, etc.) exactly as before.
   term.attachCustomKeyEventHandler((event) => {
     if (event.type !== 'keydown' || event.altKey || !event.shiftKey) return true;
@@ -270,11 +208,6 @@ function createTab() {
       copySelection(tab);
       return false;
     }
-    if (key === 'x') {
-      event.preventDefault();
-      cutSelection(tab);
-      return false;
-    }
     if (key === 'v') {
       event.preventDefault();
       pasteIntoTerminal(tab);
@@ -285,27 +218,20 @@ function createTab() {
 
   // xterm clears its own selection on mousedown (any button, including
   // right-click) before our own listeners ever see it — by the time
-  // 'contextmenu' fires, term.hasSelection() is already false, so Copy/Cut
+  // 'contextmenu' fires, term.hasSelection() is already false, so Copy
   // silently did nothing no matter what was selected. A capture-phase
   // listener on the pane runs before xterm's own bubble-phase handler on
   // its inner element, so it can snapshot the selection first.
   let rightClickSelection = '';
-  let rightClickSelectionRange = null;
   pane.addEventListener('mousedown', (event) => {
-    if (event.button === 2) {
-      rightClickSelection = term.hasSelection() ? term.getSelection() : '';
-      rightClickSelectionRange = term.hasSelection() ? term.getSelectionPosition() : null;
-    }
+    if (event.button === 2) rightClickSelection = term.hasSelection() ? term.getSelection() : '';
   }, true);
 
   pane.addEventListener('contextmenu', async (event) => {
     event.preventDefault();
     const action = await ipcRenderer.invoke('terminal:context-menu', { hasSelection: !!rightClickSelection });
-    if (action === 'copy' || action === 'cut') {
-      if (rightClickSelection) {
-        clipboard.writeText(rightClickSelection);
-        if (action === 'cut') removeSelection(tab, term, rightClickSelectionRange);
-      }
+    if (action === 'copy') {
+      if (rightClickSelection) clipboard.writeText(rightClickSelection);
       term.clearSelection();
     } else if (action === 'paste') pasteIntoTerminal(tab);
   });

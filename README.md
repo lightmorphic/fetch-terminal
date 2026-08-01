@@ -34,12 +34,10 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
   it; it can never be viewed or exported again through the app
 - A "Reset all data" button that wipes every snippet, history entry, saved
   password, and setting on demand
-- `Ctrl+Shift+C`/`Ctrl+Shift+X`/`Ctrl+Shift+V` to copy/cut/paste in the
-  terminal, plus a right-click context menu with the same three — plain
-  `Ctrl+C`, `Ctrl+X`, and `Ctrl+V` are left completely alone, so they keep
-  their normal shell meaning (interrupt, etc.). Cut actually removes the
-  text too when it's part of the current input line, anywhere in it — not
-  just at the end.
+- `Ctrl+Shift+C`/`Ctrl+Shift+V` to copy/paste in the terminal, plus a
+  right-click context menu with the same two — plain `Ctrl+C` and
+  `Ctrl+V` are left completely alone, so they keep their normal shell
+  meaning (interrupt, etc.)
 - Click anywhere on the current input line to move your cursor there and
   start typing mid-line, just like in a normal text field
 
@@ -54,11 +52,10 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
 | `Ctrl+Tab` / `+Shift` | Cycle to next/previous tab |
 | `Tab` / `→`         | Accept an autocomplete suggestion |
 | `Ctrl+Shift+C`      | Copy the terminal selection    |
-| `Ctrl+Shift+X`      | Cut — copies the selection, then removes it too if it's on the current input line (works anywhere on the line, not just at the end); otherwise behaves like copy, since already-run output can't be un-printed |
 | `Ctrl+Shift+V`      | Paste the clipboard into the terminal |
 | `Esc`               | Close an open dialog          |
 
-Right-click inside a terminal for a Copy/Cut/Paste context menu instead, if you
+Right-click inside a terminal for a Copy/Paste context menu instead, if you
 prefer that to the shortcuts.
 
 ## Installing on Linux

@@ -123,16 +123,19 @@
 
 * { box-sizing: border-box; }
 
-html, body {
+/* html has no border-radius/overflow-clip of its own — it's the full,
+   perfectly square window rect. If it painted the same opaque background
+   as body, that background would fill the four corner slivers sitting
+   outside body's rounded rect (which IS clipped), showing up as solid
+   black squares poking past the rounded outline instead of letting the
+   transparent window punch through there. Keeping html transparent and
+   only painting the background on body (which clips to its own radius)
+   is what actually makes the corners round instead of just outlined. */
+html {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: var(--md-bg);
-  color: var(--md-on-surface);
-  font-family: 'Geist', 'Roboto', 'Ubuntu', 'Cantarell', 'Noto Sans', system-ui, sans-serif;
-  font-size: 13px;
-  user-select: none;
-  transition: background var(--motion-med), color var(--motion-med);
+  background: transparent;
 }
 
 /* frame:false means there's no OS-drawn window border, so without this the
@@ -142,6 +145,15 @@ html, body {
    containing block for #main's position:absolute below, so #main insets
    itself inside this border automatically instead of covering it. */
 body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--md-bg);
+  color: var(--md-on-surface);
+  font-family: 'Geist', 'Roboto', 'Ubuntu', 'Cantarell', 'Noto Sans', system-ui, sans-serif;
+  font-size: 13px;
+  user-select: none;
+  transition: background var(--motion-med), color var(--motion-med);
   position: relative;
   border: 1px solid var(--md-outline-variant);
   border-radius: 16px;
