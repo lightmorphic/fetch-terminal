@@ -57,6 +57,13 @@ function createWindow() {
     height: 720,
     minWidth: 560,
     minHeight: 360,
+    // Not every Linux window manager's taskbar/panel/alt-tab switcher reads
+    // the icon out of an AppImage's desktop file — several fall back to
+    // asking the window itself, and without this it's Electron's own
+    // default logo. Pointing this at the same source icon used for the
+    // packaged build's icon set keeps it correct everywhere, packaged or
+    // running from source.
+    icon: path.join(__dirname, 'build', 'icons', '512x512.png'),
     // A real per-pixel transparent window (for rounded corners) only
     // renders correctly on Linux if a compositing window manager is
     // actually running, which isn't reliable across the range of desktops

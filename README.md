@@ -132,9 +132,6 @@ A snippet with a `##` heading above its code fence gets that heading as its
 custom name; a bare code fence (no heading) is imported as an unnamed
 snippet, which is displayed using its raw command text as the label.
 
-The window itself has a subtle 1px outline, so it reads clearly against
-any desktop background instead of blending into it.
-
 ## Theming
 
 Click the sun/moon button in the titlebar to open the appearance popover.
@@ -245,3 +242,14 @@ Snippets, command history, your theme/appearance preferences, and the
 encrypted password vault are stored as JSON in Electron's per-user data
 directory (typically `~/.config/Fetch Terminal/`) — nothing is ever sent
 anywhere. See "Resetting / removing all data" above for how to clear it.
+
+## License
+
+Fetch Terminal is free software, licensed under the MIT License. See the
+[LICENSE](LICENSE) file for the full text.
+
+## Disclaimer
+
+This software is provided "as is", without warranty of any kind, express
+or implied — see the [LICENSE](LICENSE) file for the exact legal terms.
+You use it entirely at your own risk.

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-08-01
+
+### Fixed
+
+- The window never set an explicit `icon`, so on window managers whose
+  taskbar/panel/alt-tab switcher doesn't read the icon out of the
+  AppImage's desktop file, it fell back to Electron's own default logo
+  instead of Fetch Terminal's icon. Pointed the `BrowserWindow` at the
+  same source icon used for the packaged build's icon set.
+
 ## [0.19.0] - 2026-08-01
 
 A pre-1.0 security and code-quality pass: dependency audit, hardening, and
