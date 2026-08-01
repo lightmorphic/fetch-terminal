@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-08-01
+
+### Fixed
+
+- Unlocking the sidebar only made it auto-collapse after running a
+  snippet — typing directly into the terminal didn't trigger it at
+  all, so an unlocked sidebar could sit open indefinitely. It now
+  collapses the moment you type anything into the terminal too, same
+  as running a snippet already did.
+
 ## [0.11.1] - 2026-08-01
 
 ### Fixed
@@ -377,7 +387,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.1...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.2...HEAD
+[0.11.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.1...0.11.2
 [0.11.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.1...0.11.0
 [0.10.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.0...0.10.1

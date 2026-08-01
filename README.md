@@ -25,8 +25,8 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
 - Collapsible sidebar of snippets — saved shell commands (including SSH
   one-liners) that run instantly in the active tab when clicked
   - Live search box at the top of the sidebar filters as you type
-  - Locked open by default; unlock it to let it auto-collapse after
-    running a snippet instead
+  - Locked open by default; unlock it to let it auto-collapse the
+    moment you type into the terminal or run a snippet instead
   - Export/import snippets as a Markdown file for backup and sharing
 - No accounts, no built-in SSH connection manager beyond what snippets provide
 - PIN-protected password vault — save a password once, encrypted, and click

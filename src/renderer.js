@@ -179,6 +179,7 @@ function createTab() {
   tabs.push(tab);
 
   term.onData((data) => {
+    if (!sidebarPinned && !sidebarCollapsed) setSidebarCollapsed(true);
     const outgoing = processUserInput(tab, data);
     if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
   });
