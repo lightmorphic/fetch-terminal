@@ -232,10 +232,14 @@ command history, saved passwords, and settings, then restarts with a clean
 slate.
 
 To remove it all manually instead (e.g. after deleting the AppImage
-itself), delete the whole per-user data directory:
+itself), delete the whole per-user data directory, plus the desktop
+entry and icon Fetch Terminal registers itself with (see "Installing on
+Linux" above):
 
 ```sh
 rm -rf ~/.config/Fetch\ Terminal/
+rm -f ~/.local/share/applications/fetch-terminal.desktop
+rm -f ~/.local/share/icons/hicolor/512x512/apps/fetch-terminal.png
 ```
 
 ## Data storage

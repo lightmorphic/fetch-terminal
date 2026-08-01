@@ -85,7 +85,10 @@ that string came from wherever you're connected to, not from this app.
 Every file this app writes to your local user-data directory (snippets,
 history, settings, the encrypted password vault) is created `chmod 600` —
 readable and writable only by your own user account, even on a shared
-multi-user machine.
+multi-user machine. The `.desktop` entry and icon it self-registers under
+`~/.local/share` (see the README) are the one deliberate exception —
+`chmod 644`, since desktop/icon-cache tooling expects those to be
+world-readable, and neither file holds anything sensitive.
 
 ### Content-Security-Policy
 
