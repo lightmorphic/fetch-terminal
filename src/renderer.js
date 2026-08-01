@@ -560,7 +560,7 @@ const ACCENT_COLORS = [
   { name: 'Purple', hue: 291 },
   { name: 'Pink', hue: 330 },
 ];
-const DEFAULT_ACCENT_HUE = 262;
+const DEFAULT_ACCENT_HUE = 217;
 let currentAccentHue = DEFAULT_ACCENT_HUE;
 
 function hsl(h, s, l) {

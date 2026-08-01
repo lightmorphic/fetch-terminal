@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.3] - 2026-08-01
+
+### Changed
+
+- Default accent color changed from Deep Purple to Blue for new
+  installs (existing saved choices are unaffected).
+
 ## [0.6.2] - 2026-08-01
 
 ### Changed
@@ -155,7 +162,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.2...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.3...HEAD
+[0.6.3]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.5.1...0.6.0
