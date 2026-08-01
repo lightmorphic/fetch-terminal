@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-08-01
+
+### Changed
+
+- Replaced the OS-native tooltip on the update status dot with a
+  modern rounded one styled in the current accent color.
+- Sidebar header spacing adjusted again: the lock icon was sitting
+  flush against the very edge of the panel with no breathing room —
+  it now has a small inset instead, with the search box still filling
+  the rest of the width up to it.
+
 ## [0.7.0] - 2026-08-01
 
 ### Changed
@@ -193,7 +204,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.1...HEAD
+[0.7.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.4...0.7.0
 [0.6.4]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.3...0.6.4
 [0.6.3]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.2...0.6.3

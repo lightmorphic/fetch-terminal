@@ -722,10 +722,10 @@ function setUpdateButton({ label, action, disabled = false }) {
   btn.innerHTML = `<span class="btn-icon">${icon('update')}</span><span>${label}</span>`;
 }
 
-function setUpdateDot(cls, title) {
+function setUpdateDot(cls, tooltip) {
   const dot = document.getElementById('update-dot');
   dot.className = `update-dot ${cls}`;
-  dot.title = title;
+  dot.dataset.tooltip = tooltip;
 }
 
 function applyUpdateState(payload) {
