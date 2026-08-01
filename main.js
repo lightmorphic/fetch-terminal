@@ -248,17 +248,9 @@ ipcMain.handle('credentials:type', (event, { id, tabId }) => {
   return { ok: true };
 });
 
-ipcMain.handle('app:reset', async () => {
-  const { response } = await dialog.showMessageBox(mainWindow, {
-    type: 'warning',
-    buttons: ['Cancel', 'Delete Everything'],
-    defaultId: 0,
-    cancelId: 0,
-    title: 'Reset all data',
-    message: 'Delete all snippets, command history, saved passwords, and settings?',
-    detail: 'This cannot be undone. Fetch Terminal will restart with a clean slate.',
-  });
-  if (response !== 1) return { cancelled: true };
+// Confirmation happens in the renderer's own two-click "Reset" / "Confirm?"
+// button, so this just does the deed once asked.
+ipcMain.handle('app:reset', () => {
   for (const file of [SNIPPETS_FILE(), HISTORY_FILE(), SETTINGS_FILE(), CREDENTIALS_FILE()]) {
     try { fs.unlinkSync(file); } catch (err) { /* already gone */ }
   }

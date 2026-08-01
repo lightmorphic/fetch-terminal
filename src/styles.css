@@ -408,6 +408,10 @@ input:focus, textarea:focus {
   padding: 4px 8px;
 }
 
+#add-snippet-btn {
+  margin: 4px 10px 8px;
+}
+
 .snippet-item {
   display: flex;
   align-items: center;
@@ -556,12 +560,19 @@ input:focus, textarea:focus {
 .reset-data-btn {
   background: none;
   box-shadow: none;
-  color: var(--md-error);
-  font-size: 10.5px;
-  padding: 4px;
+  color: var(--md-on-surface-variant);
+  opacity: 0.6;
+  font-size: 9px;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
 }
-.reset-data-btn:hover { background: none; box-shadow: none; text-decoration: underline; }
+.reset-data-btn:hover { opacity: 1; color: var(--md-error); background: none; box-shadow: none; }
 .reset-data-btn:active { background: none; box-shadow: none; }
+.reset-data-btn.armed {
+  opacity: 1;
+  color: var(--md-error);
+  background: var(--md-error-container);
+}
 .footer-row {
   display: flex;
   gap: 8px;

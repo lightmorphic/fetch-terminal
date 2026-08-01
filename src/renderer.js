@@ -1,4 +1,4 @@
-const { ipcRenderer, shell } = require('electron');
+const { ipcRenderer, shell, clipboard } = require('electron');
 const { Terminal } = require('@xterm/xterm');
 const { FitAddon } = require('@xterm/addon-fit');
 const { SearchAddon } = require('@xterm/addon-search');
@@ -170,6 +170,31 @@ function createTab() {
       tab.title = title;
       renderTabs();
     }
+  });
+
+  // Ctrl+C copies the selection (like most GUI apps) instead of sending
+  // SIGINT — but only when there's actually a selection, so it still
+  // interrupts a running command the rest of the time. Ctrl+V always pastes.
+  term.attachCustomKeyEventHandler((event) => {
+    if (event.type !== 'keydown' || event.altKey) return true;
+    const mod = event.ctrlKey || event.metaKey;
+    if (!mod || event.shiftKey) return true;
+    const key = event.key.toLowerCase();
+
+    if (key === 'c' && term.hasSelection()) {
+      clipboard.writeText(term.getSelection());
+      term.clearSelection();
+      return false;
+    }
+    if (key === 'v') {
+      const text = clipboard.readText();
+      if (text) {
+        const outgoing = processUserInput(tab, text);
+        if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
+      }
+      return false;
+    }
+    return true;
   });
 
   ipcRenderer.send('pty:spawn', { tabId: id, cols: term.cols, rows: term.rows });
@@ -680,10 +705,29 @@ async function saveCredentialFromModal() {
   await loadCredentials();
 }
 
-async function resetAllData() {
-  const result = await ipcRenderer.invoke('app:reset');
-  if (result && result.cancelled) return;
-  // On success the main process relaunches the app; nothing left to do here.
+let resetConfirmTimer = null;
+
+function disarmReset() {
+  clearTimeout(resetConfirmTimer);
+  resetConfirmTimer = null;
+  const btn = document.getElementById('reset-data-btn');
+  btn.textContent = 'Reset';
+  btn.classList.remove('armed');
+}
+
+async function handleResetClick() {
+  const btn = document.getElementById('reset-data-btn');
+  if (!btn.classList.contains('armed')) {
+    btn.textContent = 'Confirm?';
+    btn.classList.add('armed');
+    clearTimeout(resetConfirmTimer);
+    resetConfirmTimer = setTimeout(disarmReset, 4000);
+    return;
+  }
+  disarmReset();
+  await ipcRenderer.invoke('app:reset');
+  // On success the main process wipes everything and relaunches; nothing
+  // left to do here.
 }
 
 // ---------- Sidebar collapse / pin ----------
@@ -1024,7 +1068,7 @@ function wireStaticControls() {
     renderCredentialSection();
   });
 
-  document.getElementById('reset-data-btn').addEventListener('click', resetAllData);
+  document.getElementById('reset-data-btn').addEventListener('click', handleResetClick);
 
   document.getElementById('history-search').addEventListener('input', (e) => renderHistoryList(e.target.value));
   document.getElementById('history-modal').querySelector('.modal-scrim').addEventListener('click', closeHistoryModal);
