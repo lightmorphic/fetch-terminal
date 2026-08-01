@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-01
+
+First stable release. No functional changes from 0.20.2 — this marks
+the app as feature-complete and hardened for general use: tabs, snippets,
+searchable history, an encrypted/PIN-gated password vault, theming,
+self-updating, and self-registering desktop integration, all audited for
+security and dependency freshness ahead of this release (see 0.19.0's
+notes for the audit details). From here on, version numbers follow
+[Semantic Versioning](https://semver.org/) against the 1.0 baseline.
+
 ## [0.20.2] - 2026-08-01
 
 ### Changed
