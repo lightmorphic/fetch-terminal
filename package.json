@@ -6,6 +6,15 @@
   "main": "main.js",
   "license": "MIT",
   "private": true,
+  "homepage": "https://github.com/fosscharlie/fetch-terminal",
+  "author": {
+    "name": "Fetch Terminal contributors",
+    "email": "noreply@fetch-terminal.local"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fosscharlie/fetch-terminal.git"
+  },
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder"
@@ -26,17 +35,36 @@
     "productName": "Fetch Terminal",
     "files": [
       "main.js",
-      "preload.js",
       "src/**/*",
       "package.json"
     ],
+    "directories": {
+      "buildResources": "build"
+    },
     "linux": {
       "target": [
         "AppImage",
-        "deb"
+        "deb",
+        "flatpak"
       ],
       "category": "System",
-      "executableName": "fetch-terminal"
+      "executableName": "fetch-terminal",
+      "icon": "build/icons",
+      "maintainer": "Fetch Terminal contributors <noreply@fetch-terminal.local>"
+    },
+    "flatpak": {
+      "runtimeVersion": "23.08",
+      "baseVersion": "23.08",
+      "finishArgs": [
+        "--socket=wayland",
+        "--socket=x11",
+        "--share=ipc",
+        "--device=dri",
+        "--socket=pulseaudio",
+        "--filesystem=host",
+        "--share=network",
+        "--talk-name=org.freedesktop.Notifications"
+      ]
     }
   }
 }
