@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-01
+
+### Added
+
+- Rounded window corners with a subtle shadow, using window
+  transparency (needs a compositing desktop; falls back to square
+  corners otherwise, without breaking anything). Corners square off
+  automatically while maximized.
+
+### Changed
+
+- Titlebar split into two side-by-side regions instead of one bar the
+  tabs seemed to float over the sidebar's top: a left column (the same
+  width as the sidebar panel) holding the toggle/search/lock, flush
+  with the top of the window, and a right region where the tab strip
+  begins. The toggle button stays reachable outside the collapsible
+  part even when the sidebar is hidden.
+
 ## [0.10.1] - 2026-08-01
 
 ### Fixed
@@ -343,7 +361,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.1...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.0...HEAD
+[0.11.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.1...0.11.0
 [0.10.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.0...0.10.1
 [0.10.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.2...0.10.0
 [0.9.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.1...0.9.2
