@@ -37,7 +37,8 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
 - `Ctrl+Shift+C`/`Ctrl+Shift+X`/`Ctrl+Shift+V` to copy/cut/paste in the
   terminal, plus a right-click context menu with the same three — plain
   `Ctrl+C`, `Ctrl+X`, and `Ctrl+V` are left completely alone, so they keep
-  their normal shell meaning (interrupt, etc.)
+  their normal shell meaning (interrupt, etc.). Cut actually removes the
+  text too when it's still unsubmitted on the current input line.
 
 ## Keyboard shortcuts
 
@@ -50,7 +51,7 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
 | `Ctrl+Tab` / `+Shift` | Cycle to next/previous tab |
 | `Tab` / `→`         | Accept an autocomplete suggestion |
 | `Ctrl+Shift+C`      | Copy the terminal selection    |
-| `Ctrl+Shift+X`      | Cut — same as copy, since a terminal selection is historical output rather than editable text |
+| `Ctrl+Shift+X`      | Cut — copies the selection, then removes it too if it's still sitting unsubmitted on the current input line; otherwise behaves like copy, since already-run output can't be un-printed |
 | `Ctrl+Shift+V`      | Paste the clipboard into the terminal |
 | `Esc`               | Close an open dialog          |
 

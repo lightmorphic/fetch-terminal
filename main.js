@@ -16,6 +16,15 @@ const HISTORY_LIMIT = 5000;
 let mainWindow = null;
 const ptyProcesses = new Map(); // tabId -> pty process
 
+// Electron's `transparent: true` (used for the rounded window corners —
+// see createWindow) needs this switch on Linux or the window just renders
+// fully opaque/square regardless of any CSS, since the OS-level surface
+// never gets an alpha channel to begin with. Must be set before the app
+// is ready.
+if (process.platform === 'linux') {
+  app.commandLine.appendSwitch('enable-transparent-visuals');
+}
+
 function readJson(file, fallback) {
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));

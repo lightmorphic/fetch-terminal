@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-08-01
+
+### Fixed
+
+- Rounded window corners weren't appearing at all on Linux: Electron's
+  `transparent: true` needs the `--enable-transparent-visuals` Chromium
+  switch on Linux, or the window surface never gets an alpha channel and
+  renders fully opaque/square regardless of any CSS. Added the switch.
+- Right-click Copy/Cut silently did nothing on a selected terminal string:
+  xterm.js clears its own selection on `mousedown` (any button) before the
+  app's `contextmenu` listener ever runs. Fixed by snapshotting the
+  selection in a capture-phase `mousedown` listener, which runs first.
+- `Ctrl+Shift+X` / right-click Cut now actually cuts instead of just
+  copying: if the selected text is still sitting unsubmitted at the end of
+  the current input line, it's removed from the terminal (via backspaces)
+  after being copied. Historical output, mid-line text, and multi-line
+  selections still fall back to copy-only, since there's no safe way to
+  "un-print" text the shell has already processed.
+
+### Changed
+
+- Rounder corners throughout: bumped the `--radius-sm/md/lg` design
+  tokens and the window's own corner radius for a more pronounced rounded
+  look, per feedback that the previous radius was too subtle to notice.
+
 ## [0.12.0] - 2026-08-01
 
 A full security and code-quality pass: audited every IPC handler, the

@@ -117,10 +117,35 @@ function looksLikeSsh(command) {
 
 // ---------- Tabs & terminals ----------
 
-function copySelection(term) {
+// A terminal selection is usually historical output that's already been
+// processed by the shell — there's no way to "delete" that after the
+// fact. But if the selected text is exactly what's sitting at the end of
+// the current, not-yet-submitted input line (which we already track for
+// autocomplete), it really can be removed: back it out with backspaces.
+// Anything else — historical output, mid-line text, multi-line selections
+// — falls back to copy-only, rather than risk sending backspaces
+// somewhere they don't belong.
+function removeFromInputLine(tab, text) {
+  if (!text || !tab.inputBuffer.endsWith(text)) return;
+  ipcRenderer.send('pty:write', { tabId: tab.id, data: '\x7f'.repeat(text.length) });
+  tab.inputBuffer = tab.inputBuffer.slice(0, -text.length);
+  refreshSuggestion(tab);
+}
+
+function copySelection(tab) {
+  const term = tab.term;
   if (!term.hasSelection()) return;
   clipboard.writeText(term.getSelection());
   term.clearSelection();
+}
+
+function cutSelection(tab) {
+  const term = tab.term;
+  if (!term.hasSelection()) return;
+  const selected = term.getSelection();
+  clipboard.writeText(selected);
+  term.clearSelection();
+  removeFromInputLine(tab, selected);
 }
 
 function pasteIntoTerminal(tab) {
@@ -202,9 +227,14 @@ function createTab() {
     // stop the browser's native paste action from also firing on the same
     // keypress (xterm's hidden textarea has its own native 'paste' listener),
     // which was pasting everything twice. preventDefault() stops that too.
-    if (key === 'c' || key === 'x') {
+    if (key === 'c') {
       event.preventDefault();
-      copySelection(term);
+      copySelection(tab);
+      return false;
+    }
+    if (key === 'x') {
+      event.preventDefault();
+      cutSelection(tab);
       return false;
     }
     if (key === 'v') {
@@ -215,11 +245,27 @@ function createTab() {
     return true;
   });
 
+  // xterm clears its own selection on mousedown (any button, including
+  // right-click) before our own listeners ever see it — by the time
+  // 'contextmenu' fires, term.hasSelection() is already false, so Copy/Cut
+  // silently did nothing no matter what was selected. A capture-phase
+  // listener on the pane runs before xterm's own bubble-phase handler on
+  // its inner element, so it can snapshot the selection first.
+  let rightClickSelection = '';
+  pane.addEventListener('mousedown', (event) => {
+    if (event.button === 2) rightClickSelection = term.hasSelection() ? term.getSelection() : '';
+  }, true);
+
   pane.addEventListener('contextmenu', async (event) => {
     event.preventDefault();
-    const action = await ipcRenderer.invoke('terminal:context-menu', { hasSelection: term.hasSelection() });
-    if (action === 'copy' || action === 'cut') copySelection(term);
-    else if (action === 'paste') pasteIntoTerminal(tab);
+    const action = await ipcRenderer.invoke('terminal:context-menu', { hasSelection: !!rightClickSelection });
+    if (action === 'copy' || action === 'cut') {
+      if (rightClickSelection) {
+        clipboard.writeText(rightClickSelection);
+        if (action === 'cut') removeFromInputLine(tab, rightClickSelection);
+      }
+      term.clearSelection();
+    } else if (action === 'paste') pasteIntoTerminal(tab);
   });
 
   ipcRenderer.send('pty:spawn', { tabId: id, cols: term.cols, rows: term.rows });
