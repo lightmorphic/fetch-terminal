@@ -118,6 +118,19 @@ function looksLikeSsh(command) {
 
 // ---------- Tabs & terminals ----------
 
+function copySelection(term) {
+  if (!term.hasSelection()) return;
+  clipboard.writeText(term.getSelection());
+  term.clearSelection();
+}
+
+function pasteIntoTerminal(tab) {
+  const text = clipboard.readText();
+  if (!text) return;
+  const outgoing = processUserInput(tab, text);
+  if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
+}
+
 function createTab() {
   const id = genId('tab');
   const pane = document.createElement('div');
@@ -130,7 +143,7 @@ function createTab() {
   document.getElementById('terminals').appendChild(pane);
 
   const term = new Terminal({
-    fontFamily: "'Roboto Mono', 'DejaVu Sans Mono', monospace",
+    fontFamily: "'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace",
     fontSize: 14,
     lineHeight: 1.15,
     cursorBlink: true,
@@ -172,29 +185,30 @@ function createTab() {
     }
   });
 
-  // Ctrl+C copies the selection (like most GUI apps) instead of sending
-  // SIGINT — but only when there's actually a selection, so it still
-  // interrupts a running command the rest of the time. Ctrl+V always pastes.
+  // Ctrl+Shift+C copies, Ctrl+Shift+V pastes — plain Ctrl+C/Ctrl+V/Ctrl+X
+  // are left completely alone, so they keep their normal terminal meaning
+  // (interrupt, etc.) exactly as before.
   term.attachCustomKeyEventHandler((event) => {
-    if (event.type !== 'keydown' || event.altKey) return true;
-    const mod = event.ctrlKey || event.metaKey;
-    if (!mod || event.shiftKey) return true;
+    if (event.type !== 'keydown' || event.altKey || !event.shiftKey) return true;
+    if (!(event.ctrlKey || event.metaKey)) return true;
     const key = event.key.toLowerCase();
 
-    if (key === 'c' && term.hasSelection()) {
-      clipboard.writeText(term.getSelection());
-      term.clearSelection();
+    if (key === 'c') {
+      copySelection(term);
       return false;
     }
     if (key === 'v') {
-      const text = clipboard.readText();
-      if (text) {
-        const outgoing = processUserInput(tab, text);
-        if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
-      }
+      pasteIntoTerminal(tab);
       return false;
     }
     return true;
+  });
+
+  pane.addEventListener('contextmenu', async (event) => {
+    event.preventDefault();
+    const action = await ipcRenderer.invoke('terminal:context-menu', { hasSelection: term.hasSelection() });
+    if (action === 'copy') copySelection(term);
+    else if (action === 'paste') pasteIntoTerminal(tab);
   });
 
   ipcRenderer.send('pty:spawn', { tabId: id, cols: term.cols, rows: term.rows });
@@ -251,7 +265,7 @@ function renderTabs() {
   for (const tab of tabs) {
     const el = document.createElement('div');
     el.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
-    el.title = tab.title;
+    el.dataset.tooltip = tab.title;
 
     const titleEl = document.createElement('span');
     titleEl.className = 'tab-title';
@@ -426,7 +440,7 @@ function renderSnippetList(filter) {
     const editBtn = document.createElement('button');
     editBtn.className = 'snippet-edit-btn';
     editBtn.innerHTML = icon('edit');
-    editBtn.title = 'Edit snippet';
+    editBtn.dataset.tooltip = 'Edit snippet';
     editBtn.addEventListener('click', (event) => {
       event.stopPropagation();
       openSnippetModal(snippet);
@@ -565,7 +579,7 @@ function renderCredentialSection() {
     <button id="add-credential-btn" class="text-btn small neutral" data-icon-inline="plus">Add password</button>
   `;
   applyIcons();
-  document.getElementById('add-credential-btn').addEventListener('click', openCredentialModal);
+  document.getElementById('add-credential-btn').addEventListener('click', () => openCredentialModal());
   loadCredentials();
 }
 
@@ -626,38 +640,22 @@ function renderCredentialList(list) {
   for (const cred of list) {
     const row = document.createElement('div');
     row.className = 'credential-row';
+    row.addEventListener('click', () => typeCredential(cred.id));
 
     const name = document.createElement('span');
     name.className = 'credential-name';
     name.textContent = cred.name;
 
-    const typeBtn = document.createElement('button');
-    typeBtn.className = 'icon-btn credential-type-btn';
-    typeBtn.innerHTML = icon('key');
-    typeBtn.dataset.tooltip = 'Type into the active terminal';
-    typeBtn.addEventListener('click', () => typeCredential(cred.id));
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'icon-btn credential-delete-btn';
-    deleteBtn.innerHTML = icon('close');
-    deleteBtn.dataset.tooltip = 'Delete';
-    let deleteConfirmTimer = null;
-    deleteBtn.addEventListener('click', () => {
-      if (!deleteBtn.classList.contains('armed')) {
-        deleteBtn.classList.add('armed');
-        deleteBtn.dataset.tooltip = 'Click again to delete';
-        clearTimeout(deleteConfirmTimer);
-        deleteConfirmTimer = setTimeout(() => {
-          deleteBtn.classList.remove('armed');
-          deleteBtn.dataset.tooltip = 'Delete';
-        }, 4000);
-        return;
-      }
-      clearTimeout(deleteConfirmTimer);
-      deleteCredential(cred.id);
+    const editBtn = document.createElement('button');
+    editBtn.className = 'snippet-edit-btn';
+    editBtn.innerHTML = icon('edit');
+    editBtn.dataset.tooltip = 'Edit password';
+    editBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      openCredentialModal(cred);
     });
 
-    row.append(name, typeBtn, deleteBtn);
+    row.append(name, editBtn);
     container.appendChild(row);
   }
 }
@@ -685,21 +683,49 @@ async function deleteCredential(id) {
   await loadCredentials();
 }
 
-function openCredentialModal() {
-  document.getElementById('credential-name-input').value = '';
-  document.getElementById('credential-password-input').value = '';
+let editingCredentialId = null;
+let credentialDeleteConfirmTimer = null;
+
+function resetCredentialDeleteButton() {
+  clearTimeout(credentialDeleteConfirmTimer);
+  const btn = document.getElementById('credential-delete-btn');
+  btn.classList.remove('armed');
+  btn.textContent = 'Delete';
+}
+
+function openCredentialModal(cred) {
+  editingCredentialId = cred ? cred.id : null;
+  document.getElementById('credential-modal-title').textContent = cred ? 'Edit password' : 'New password';
+  document.getElementById('credential-name-input').value = cred ? cred.name : '';
+  const passwordInput = document.getElementById('credential-password-input');
+  passwordInput.value = '';
+  passwordInput.placeholder = cred ? 'Leave blank to keep the current password' : '';
+  document.getElementById('credential-delete-btn').classList.toggle('hidden', !cred);
+  resetCredentialDeleteButton();
   document.getElementById('credential-modal').classList.remove('hidden');
   document.getElementById('credential-name-input').focus();
 }
 function closeCredentialModal() {
   document.getElementById('credential-modal').classList.add('hidden');
+  editingCredentialId = null;
 }
 
 async function saveCredentialFromModal() {
   const name = document.getElementById('credential-name-input').value.trim();
   const password = document.getElementById('credential-password-input').value;
-  if (!name || !password) return;
-  const result = await ipcRenderer.invoke('credentials:add', { name, password });
+  if (!name) {
+    showToast('A name is required');
+    return;
+  }
+  if (!editingCredentialId && !password) {
+    showToast('A password is required');
+    return;
+  }
+
+  const result = editingCredentialId
+    ? await ipcRenderer.invoke('credentials:update', { id: editingCredentialId, name, password })
+    : await ipcRenderer.invoke('credentials:add', { name, password });
+
   document.getElementById('credential-password-input').value = '';
   if (!result || result.error === 'unavailable') {
     showToast("Secure storage isn't available on this system");
@@ -717,6 +743,21 @@ async function saveCredentialFromModal() {
   }
   closeCredentialModal();
   await loadCredentials();
+}
+
+async function handleCredentialDeleteClick() {
+  const btn = document.getElementById('credential-delete-btn');
+  if (!btn.classList.contains('armed')) {
+    btn.classList.add('armed');
+    btn.textContent = 'Confirm?';
+    clearTimeout(credentialDeleteConfirmTimer);
+    credentialDeleteConfirmTimer = setTimeout(resetCredentialDeleteButton, 4000);
+    return;
+  }
+  const id = editingCredentialId;
+  resetCredentialDeleteButton();
+  closeCredentialModal();
+  if (id) await deleteCredential(id);
 }
 
 let resetConfirmTimer = null;
@@ -770,7 +811,7 @@ function updatePinButton() {
   const btn = document.getElementById('pin-btn');
   btn.classList.toggle('active', sidebarPinned);
   btn.innerHTML = icon(sidebarPinned ? 'lock' : 'unlock');
-  btn.title = sidebarPinned ? 'Unlock (allow the sidebar to auto-collapse)' : 'Lock the sidebar open';
+  btn.dataset.tooltip = sidebarPinned ? 'Unlock (allow the sidebar to auto-collapse)' : 'Lock the sidebar open';
 }
 
 // ---------- Theme (follows the desktop theme by default) ----------
@@ -878,7 +919,7 @@ function renderAccentSwatches() {
     const btn = document.createElement('button');
     btn.className = 'accent-swatch' + (isSelected ? ' selected' : '');
     btn.style.background = hsl(accent.hue, 65, 55);
-    btn.title = accent.name;
+    btn.dataset.tooltip = accent.name;
     if (isSelected) btn.innerHTML = icon('check');
     btn.addEventListener('click', () => selectAccent(accent.hue));
     container.appendChild(btn);
@@ -1076,6 +1117,7 @@ function wireStaticControls() {
   document.getElementById('vault-lock-btn').addEventListener('click', lockVaultNow);
   document.getElementById('credential-cancel-btn').addEventListener('click', closeCredentialModal);
   document.getElementById('credential-save-btn').addEventListener('click', saveCredentialFromModal);
+  document.getElementById('credential-delete-btn').addEventListener('click', handleCredentialDeleteClick);
   document.getElementById('credential-modal').querySelector('.modal-scrim').addEventListener('click', closeCredentialModal);
   ipcRenderer.on('vault:state', (_event, payload) => {
     vaultUnlocked = !!(payload && payload.unlocked);
@@ -1159,6 +1201,14 @@ async function bootstrap() {
   wireStaticControls();
   await Promise.all([loadSnippets(), loadHistory(), loadAccent(), loadThemeMode(), refreshVaultStatus()]);
   createTab();
+  // Geist Mono loads from disk almost instantly, but xterm measures cell
+  // size from whatever font is active at the time — re-fit once it's
+  // actually ready so terminal columns don't end up a few pixels off.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      for (const tab of tabs) tab.fitAddon.fit();
+    });
+  }
 }
 
 bootstrap();

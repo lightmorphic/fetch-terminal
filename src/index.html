@@ -10,14 +10,14 @@
 <body>
 
   <div id="titlebar">
-    <button id="sidebar-toggle" class="icon-btn titlebar-btn" data-icon="sidebar" title="Toggle snippets sidebar (Ctrl+Shift+B)"></button>
+    <button id="sidebar-toggle" class="icon-btn titlebar-btn" data-icon="sidebar" data-tooltip="Toggle snippets sidebar (Ctrl+Shift+B)"></button>
     <div id="tabbar">
       <div id="tabs"></div>
-      <button id="new-tab-btn" class="icon-btn" data-icon="plus" title="New tab (Ctrl+Shift+T)"></button>
+      <button id="new-tab-btn" class="icon-btn" data-icon="plus" data-tooltip="New tab (Ctrl+Shift+T)"></button>
     </div>
     <div class="titlebar-drag spacer"></div>
     <div class="titlebar-popover-anchor">
-      <button id="appearance-btn" class="icon-btn titlebar-btn" data-icon="palette" title="Appearance"></button>
+      <button id="appearance-btn" class="icon-btn titlebar-btn" data-icon="palette" data-tooltip="Appearance"></button>
       <div id="appearance-popover" class="popover hidden">
         <div class="popover-scrim"></div>
         <div class="popover-panel">
@@ -34,9 +34,9 @@
     </div>
     <div class="titlebar-brand titlebar-drag"><span class="app-title">Fetch Terminal</span></div>
     <div id="window-controls">
-      <button id="btn-min" class="win-btn" data-icon="minimize" title="Minimize"></button>
-      <button id="btn-max" class="win-btn" data-icon="maximize" title="Maximize"></button>
-      <button id="btn-close" class="win-btn win-btn-close" data-icon="closeWindow" title="Close"></button>
+      <button id="btn-min" class="win-btn" data-icon="minimize" data-tooltip="Minimize"></button>
+      <button id="btn-max" class="win-btn" data-icon="maximize" data-tooltip="Maximize"></button>
+      <button id="btn-close" class="win-btn win-btn-close" data-icon="closeWindow" data-tooltip="Close"></button>
     </div>
   </div>
 
@@ -47,7 +47,7 @@
           <span class="search-icon" data-icon="search"></span>
           <input id="snippet-search" placeholder="Search snippets" autocomplete="off" />
         </div>
-        <button id="pin-btn" class="icon-btn accent-icon-btn" data-icon="unlock" title="Keep sidebar open"></button>
+        <button id="pin-btn" class="icon-btn accent-icon-btn" data-icon="unlock" data-tooltip="Keep sidebar open"></button>
       </div>
       <div id="snippet-list"></div>
       <button id="add-snippet-btn" class="text-btn">+ New snippet</button>
@@ -55,7 +55,7 @@
       <div id="credential-section">
         <div class="section-header">
           <span class="section-title">Passwords</span>
-          <button id="vault-lock-btn" class="icon-btn hidden" data-icon="lock" title="Lock now"></button>
+          <button id="vault-lock-btn" class="icon-btn hidden" data-icon="lock" data-tooltip="Lock now"></button>
         </div>
         <div id="credential-body"></div>
       </div>
@@ -67,7 +67,7 @@
           <button id="reset-data-btn" class="text-btn small neutral reset-data-btn" data-tooltip="Delete all snippets, history, passwords, and settings">Reset</button>
         </div>
         <div id="app-brand">
-          <a id="app-brand-link" class="app-brand-link" href="https://github.com/fosscharlie/fetch-terminal" title="View on GitHub">
+          <a id="app-brand-link" class="app-brand-link" href="https://github.com/fosscharlie/fetch-terminal" data-tooltip="View on GitHub">
             <span class="app-brand-name">Fetch Terminal</span>
             <span id="app-brand-version" class="app-brand-version"></span>
           </a>
@@ -113,17 +113,18 @@
   <div id="credential-modal" class="modal hidden">
     <div class="modal-scrim"></div>
     <div class="modal-card">
-      <h3>New password</h3>
+      <h3 id="credential-modal-title">New password</h3>
       <label class="field-label">Name
         <input id="credential-name-input" placeholder="e.g. sudo, prod server" autocomplete="off" />
       </label>
-      <label class="field-label">Password
+      <label class="field-label" id="credential-password-label">Password
         <input id="credential-password-input" type="password" autocomplete="new-password" />
       </label>
       <p class="modal-note">Stored encrypted using your OS's secure keyring. Once
         saved, it can never be viewed or exported again through this app —
         only used or deleted.</p>
       <div class="modal-actions">
+        <button id="credential-delete-btn" class="text-btn danger hidden">Delete</button>
         <span class="spacer"></span>
         <button id="credential-cancel-btn" class="text-btn">Cancel</button>
         <button id="credential-save-btn" class="filled-btn">Save</button>

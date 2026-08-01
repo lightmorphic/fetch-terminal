@@ -7,6 +7,45 @@
    in-app theme toggle forces one or the other via `nativeTheme.themeSource`
    in the main process — both paths land here, in the same two blocks. */
 
+/* Geist, bundled locally (SIL OFL 1.1, see src/fonts/GEIST-LICENSE.txt) —
+   loaded from disk, never a CDN or Google Fonts, so the app never needs a
+   network connection beyond checking GitHub for updates. */
+@font-face {
+  font-family: 'Geist';
+  src: url('fonts/geist-sans/Geist-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('fonts/geist-sans/Geist-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('fonts/geist-sans/Geist-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('fonts/geist-mono/GeistMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('fonts/geist-mono/GeistMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* ---- Material Design 3 roles — dark scheme (default) ----
      A genuine M3 multi-key-color scheme: a violet primary, a muted
@@ -90,7 +129,7 @@ html, body {
   overflow: hidden;
   background: var(--md-bg);
   color: var(--md-on-surface);
-  font-family: 'Roboto', 'Ubuntu', 'Cantarell', 'Noto Sans', system-ui, sans-serif;
+  font-family: 'Geist', 'Roboto', 'Ubuntu', 'Cantarell', 'Noto Sans', system-ui, sans-serif;
   font-size: 13px;
   user-select: none;
   transition: background var(--motion-med), color var(--motion-med);
@@ -455,8 +494,9 @@ input:focus, textarea:focus {
   white-space: nowrap;
 }
 .snippet-command {
-  font-family: 'Roboto Mono', 'DejaVu Sans Mono', monospace;
-  font-size: 11px;
+  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 400;
   color: var(--md-on-surface-variant);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -478,7 +518,8 @@ input:focus, textarea:focus {
   transition: opacity var(--motion-fast), background var(--motion-fast), color var(--motion-fast);
 }
 .snippet-edit-btn svg { width: 14px; height: 14px; }
-.snippet-item:hover .snippet-edit-btn { opacity: 1; }
+.snippet-item:hover .snippet-edit-btn,
+.credential-row:hover .snippet-edit-btn { opacity: 1; }
 .snippet-edit-btn:hover { background: var(--md-surface-4); color: var(--md-on-surface); opacity: 1; }
 
 .empty-state {
@@ -533,8 +574,11 @@ input:focus, textarea:focus {
   gap: 4px;
   padding: 5px 4px 5px 8px;
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--motion-fast);
 }
 .credential-row:hover { background: var(--md-surface-2); }
+.credential-row:active { background: var(--md-surface-3); }
 .credential-name {
   flex: 1;
   min-width: 0;
@@ -544,14 +588,7 @@ input:focus, textarea:focus {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.credential-row .icon-btn { width: 24px; height: 24px; flex: none; }
-.credential-row .icon-btn svg { width: 13px; height: 13px; }
-.credential-type-btn {
-  color: var(--md-on-primary-container);
-  background: var(--md-primary-container);
-}
-.credential-type-btn:hover { background: var(--md-primary); color: var(--md-primary-on); }
-.credential-delete-btn.armed { color: var(--md-error); background: var(--md-error-container); }
+#credential-delete-btn.armed { background: var(--md-error); color: #ffffff; }
 
 .modal-note {
   font-size: 11px;
@@ -636,7 +673,7 @@ input:focus, textarea:focus {
 .app-brand-version {
   font-size: 10px;
   color: var(--md-on-surface-variant);
-  font-family: 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
 }
 .app-brand-link {
   display: flex;
@@ -669,17 +706,17 @@ input:focus, textarea:focus {
   bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) translateY(4px);
-  background: var(--md-surface-5);
+  background: color-mix(in srgb, var(--md-surface-5) 85%, transparent);
+  backdrop-filter: blur(6px);
   color: var(--md-on-surface);
   border: 1px solid var(--md-outline-variant);
-  border-left: 2.5px solid var(--md-primary);
-  padding: 6px 11px;
+  padding: 5px 10px;
   border-radius: var(--radius-md);
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 500;
   line-height: 1.3;
   white-space: nowrap;
-  box-shadow: var(--elevation-3);
+  box-shadow: var(--elevation-2);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--motion-fast), transform var(--motion-fast);
@@ -741,7 +778,7 @@ input:focus, textarea:focus {
   pointer-events: none;
   color: var(--md-on-surface-variant);
   opacity: 0.55;
-  font-family: 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
   white-space: pre;
   z-index: 2;
 }
@@ -812,7 +849,7 @@ input:focus, textarea:focus {
 }
 .field-label .hint { font-weight: 400; opacity: 0.8; }
 .field-label textarea {
-  font-family: 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
   font-size: 12px;
   resize: vertical;
 }
@@ -836,7 +873,7 @@ input:focus, textarea:focus {
 .history-item {
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  font-family: 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
   font-size: 12px;
   cursor: pointer;
   overflow: hidden;

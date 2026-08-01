@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, nativeTheme, safeStorage } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, nativeTheme, safeStorage, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -130,6 +130,22 @@ ipcMain.handle('theme:set', (event, source) => {
 
 ipcMain.handle('theme:get', () => readJson(SETTINGS_FILE(), {}).themeSource || 'system');
 
+ipcMain.handle('terminal:context-menu', (event, { hasSelection }) => {
+  return new Promise((resolve) => {
+    let resolved = false;
+    const finish = (action) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(action);
+    };
+    const menu = Menu.buildFromTemplate([
+      { label: 'Copy', enabled: !!hasSelection, click: () => finish('copy') },
+      { label: 'Paste', click: () => finish('paste') },
+    ]);
+    menu.popup({ window: mainWindow, callback: () => finish(null) });
+  });
+});
+
 ipcMain.handle('accent:get', () => readJson(SETTINGS_FILE(), {}).accentHue);
 
 ipcMain.handle('accent:set', (event, hue) => {
@@ -223,6 +239,22 @@ ipcMain.handle('credentials:add', (event, { name, password }) => {
   const data = readCredentialsFile();
   const entry = { id: crypto.randomUUID(), name, encrypted };
   data.entries.push(entry);
+  writeCredentialsFile(data);
+  touchVaultActivity();
+  return { id: entry.id, name: entry.name };
+});
+
+ipcMain.handle('credentials:update', (event, { id, name, password }) => {
+  if (!isVaultUnlocked()) return { error: 'locked' };
+  if (!name) return { error: 'invalid' };
+  const data = readCredentialsFile();
+  const entry = data.entries.find((c) => c.id === id);
+  if (!entry) return { error: 'not-found' };
+  entry.name = name;
+  if (password) {
+    if (!safeStorage.isEncryptionAvailable()) return { error: 'unavailable' };
+    entry.encrypted = safeStorage.encryptString(password).toString('base64');
+  }
   writeCredentialsFile(data);
   touchVaultActivity();
   return { id: entry.id, name: entry.name };

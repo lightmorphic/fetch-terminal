@@ -3,9 +3,12 @@
 A lightweight, open source terminal emulator for the Linux desktop, built with
 Electron. It doesn't depend on GTK or Qt, so it looks and behaves the same
 regardless of which desktop environment it runs under — its own custom,
-Material Design 3 interface is drawn entirely in local HTML/CSS/SVG. Nothing
-in the UI is ever fetched over the network: no CDN fonts, no icon fonts, no
-remote assets of any kind.
+Material Design 3 interface is drawn entirely in local HTML/CSS/SVG, using
+[Geist](https://vercel.com/font) (bundled directly in the app, SIL Open Font
+License). Nothing in the UI is ever fetched over the network: no CDN fonts,
+no icon fonts, no remote assets of any kind. The only network access the app
+ever makes at all is checking GitHub for a new release (see "Updates" below)
+— nothing else talks to the internet.
 
 ## Features
 
@@ -31,8 +34,10 @@ remote assets of any kind.
   it; it can never be viewed or exported again through the app
 - A "Reset all data" button that wipes every snippet, history entry, saved
   password, and setting on demand
-- Standard `Ctrl+C`/`Ctrl+V` copy and paste in the terminal, without giving
-  up `Ctrl+C` as an interrupt signal
+- `Ctrl+Shift+C`/`Ctrl+Shift+V` to copy/paste in the terminal, plus a
+  right-click context menu with Copy/Paste — plain `Ctrl+C`, `Ctrl+V`, and
+  `Ctrl+X` are left completely alone, so they keep their normal shell
+  meaning (interrupt, etc.)
 
 ## Keyboard shortcuts
 
@@ -44,9 +49,12 @@ remote assets of any kind.
 | `Ctrl+Shift+B`      | Toggle the snippets sidebar  |
 | `Ctrl+Tab` / `+Shift` | Cycle to next/previous tab |
 | `Tab` / `→`         | Accept an autocomplete suggestion |
-| `Ctrl+C`            | Copy the selection (only when there is one — otherwise sends the usual interrupt signal) |
-| `Ctrl+V`            | Paste the clipboard           |
+| `Ctrl+Shift+C`      | Copy the terminal selection    |
+| `Ctrl+Shift+V`      | Paste the clipboard into the terminal |
 | `Esc`               | Close an open dialog          |
+
+Right-click inside a terminal for a Copy/Paste context menu instead, if you
+prefer that to the shortcuts.
 
 ## Installing on Linux
 
@@ -169,20 +177,20 @@ through both of those steps yourself.
 ## Password vault
 
 The "Passwords" section at the bottom of the sidebar lets you save a
-password once and click a button to type it into the active terminal
-whenever something prompts for it (`sudo`, an SSH login, anything) — no
-retyping, and it automatically presses Enter for you.
+password once and click its row (just like clicking a snippet) to type it
+into the active terminal whenever something prompts for it (`sudo`, an SSH
+login, anything) — no retyping, and it automatically presses Enter for you.
 
 This is deliberately **write-only**: once saved, a password can never be
 viewed, copied, or exported again through the app. There's no "reveal"
-option and no edit — only "type it" or "delete it and save a new one."
+option — the pencil icon on each row only lets you rename it or overwrite
+it with a new password (leave the password field blank to keep the current
+one), never see the existing value.
 
-Each saved password gets two small icon buttons — hover either one to see
-exactly what it does. The key icon types it into the active terminal; the
-X deletes it, and like "Reset all data," deleting requires a second click
-on "Click again to delete" (it un-arms itself after a few seconds if you
-don't follow through), so it isn't something you could trigger by
-accident.
+Deleting lives inside that same edit view rather than on the row itself,
+and like "Reset all data," requires a second click on "Confirm?" (it
+un-arms itself after a few seconds if you don't follow through), so it
+isn't something you could trigger by accident.
 
 Two independent layers of protection:
 
