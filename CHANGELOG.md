@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-08-01
+
+### Fixed
+
+- Mid-line cut still didn't work in 0.14.0: xterm.js's own TypeScript
+  declarations claim `getSelectionPosition()` returns 1-based
+  coordinates, but the actual implementation returns them already
+  0-based. The extra `-1` conversion silently made the row comparison
+  fail every time, so cut never actually removed anything, anywhere on
+  the line — verified end-to-end against a real shell and fixed.
+
+### Added
+
+- Click anywhere on the current input line to move the cursor there
+  (like clicking to place your cursor in any normal text field), instead
+  of only being able to type at the end of the line. Works by sending
+  exactly enough Left/Right arrow keypresses to walk the shell's own
+  line editor to the clicked column.
+
 ## [0.14.0] - 2026-08-01
 
 ### Fixed

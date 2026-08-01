@@ -40,6 +40,8 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
   their normal shell meaning (interrupt, etc.). Cut actually removes the
   text too when it's part of the current input line, anywhere in it — not
   just at the end.
+- Click anywhere on the current input line to move your cursor there and
+  start typing mid-line, just like in a normal text field
 
 ## Keyboard shortcuts
 

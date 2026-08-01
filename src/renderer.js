@@ -133,12 +133,17 @@ function removeSelection(tab, term, selectionRange) {
   const { start, end } = selectionRange;
   if (start.y !== end.y) return false;
 
-  const rowAbs = start.y - 1;
+  // xterm.js's own type declarations claim these coordinates are 1-based,
+  // but the actual runtime implementation (Terminal.getSelectionPosition
+  // just forwards the internal selection model's raw [col, row] pairs
+  // untouched) returns them already 0-based, matching cursorX/cursorY/
+  // baseY exactly — so no +/-1 conversion belongs here.
+  const rowAbs = start.y;
   const cursorRowAbs = term.buffer.active.baseY + term.buffer.active.cursorY;
   if (rowAbs !== cursorRowAbs) return false;
 
-  const left = start.x - 1;
-  const right = end.x - 1;
+  const left = start.x;
+  const right = end.x;
   const cursorCol = term.buffer.active.cursorX;
   if (right <= left) return false;
 
@@ -303,6 +308,30 @@ function createTab() {
       }
       term.clearSelection();
     } else if (action === 'paste') pasteIntoTerminal(tab);
+  });
+
+  // Click-to-position: a real terminal has no concept of "move the
+  // cursor here", since the cursor's actual position is owned by the
+  // shell's line editor, not us — but we can fake it the way other
+  // terminal emulators do, by sending exactly enough Left/Right arrow
+  // keys to walk the shell's own cursor from where it is to where the
+  // click landed. Only meaningful on the current input row and only for
+  // a plain click (not the end of a drag-selection, which already has
+  // its own handling above).
+  pane.addEventListener('mouseup', (event) => {
+    if (event.button !== 0 || term.hasSelection()) return;
+    const rect = pane.getBoundingClientRect();
+    const cell = getCellSize(term);
+    const col = Math.floor((event.clientX - rect.left) / cell.width);
+    const row = Math.floor((event.clientY - rect.top) / cell.height);
+    const clickedRowAbs = term.buffer.active.viewportY + row;
+    const cursorRowAbs = term.buffer.active.baseY + term.buffer.active.cursorY;
+    if (clickedRowAbs !== cursorRowAbs) return;
+    const delta = col - term.buffer.active.cursorX;
+    if (!delta) return;
+    const seq = delta > 0 ? '\x1b[C' : '\x1b[D';
+    ipcRenderer.send('pty:write', { tabId: tab.id, data: seq.repeat(Math.abs(delta)) });
+    clearSuggestion(tab);
   });
 
   ipcRenderer.send('pty:spawn', { tabId: id, cols: term.cols, rows: term.rows });
