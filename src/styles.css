@@ -2,18 +2,32 @@
    looks identical regardless of the host desktop environment's toolkit. */
 
 :root {
-  --md-bg: #10141c;
-  --md-surface: #19212b;
-  --md-surface-1: #1e2733;
-  --md-surface-2: #232d3a;
-  --md-surface-3: #2a3542;
-  --md-outline: #34404e;
+  /* Material Design 3 roles, dark scheme, seeded from the brand's primary
+     (#FBC711) and neutral (#10141C) colors. Surface elevations 1-5 are the
+     base surface tinted with the primary color at M3's standard dark-theme
+     overlay opacities (5/8/11/12/14%), which is how M3 signals elevation
+     in dark mode instead of drop shadows alone. */
+  --md-bg: #10141c;              /* surface (elevation 0) */
+  --md-surface: #19212b;         /* surface container */
+  --md-surface-1: #24292a;       /* surface container, elevation 1 */
+  --md-surface-2: #2b2e29;       /* surface container, elevation 2 */
+  --md-surface-3: #323328;       /* surface container, elevation 3 */
+  --md-surface-4: #343528;       /* surface container, elevation 4 */
+  --md-surface-5: #393827;       /* surface container, elevation 5 */
+  --md-outline: #626870;
+  --md-outline-variant: #434a52;
   --md-on-surface: #e9ecef;
-  --md-on-surface-variant: #9ba7b4;
+  --md-on-surface-variant: #969ba1;
   --md-primary: #fbc711;
   --md-primary-on: #10141c;
-  --md-primary-container: #3a3018;
-  --md-danger: #f2b8b5;
+  --md-primary-container: #483f19;
+  --md-on-primary-container: #f8cd32;
+  --md-error: #ffb4ab;
+  --md-error-container: rgba(255, 180, 171, 0.12);
+  --md-danger: var(--md-error);
+  --state-hover: 0.08;
+  --state-focus: 0.12;
+  --state-pressed: 0.12;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -68,7 +82,7 @@ input:focus, textarea:focus {
   display: flex;
   align-items: stretch;
   background: var(--md-surface);
-  border-bottom: 1px solid var(--md-outline);
+  border-bottom: 1px solid var(--md-outline-variant);
   -webkit-app-region: drag;
 }
 
@@ -220,7 +234,7 @@ input:focus, textarea:focus {
   width: 260px;
   flex: none;
   background: var(--md-surface);
-  border-right: 1px solid var(--md-outline);
+  border-right: 1px solid var(--md-outline-variant);
   display: flex;
   flex-direction: column;
   transition: margin-left var(--motion-med), box-shadow var(--motion-med);
@@ -337,7 +351,7 @@ input:focus, textarea:focus {
 
 #sidebar-footer {
   padding: 10px;
-  border-top: 1px solid var(--md-outline);
+  border-top: 1px solid var(--md-outline-variant);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -353,13 +367,14 @@ input:focus, textarea:focus {
   border-radius: var(--radius-lg);
   font-size: 12px;
   font-weight: 500;
-  color: var(--md-primary);
-  background: var(--md-primary-container);
-  transition: filter var(--motion-fast);
+  color: var(--md-primary-on);
+  background: var(--md-primary);
+  transition: filter var(--motion-fast), box-shadow var(--motion-fast);
 }
-.text-btn:hover { filter: brightness(1.15); }
+.text-btn:hover { filter: brightness(0.94); }
+.text-btn:active { filter: brightness(0.88); }
 .text-btn.small { padding: 7px 10px; }
-.text-btn.danger { color: var(--md-danger); background: rgba(242, 184, 181, 0.12); }
+.text-btn.danger { color: var(--md-error); background: var(--md-error-container); }
 
 .filled-btn {
   padding: 8px 18px;
@@ -370,7 +385,8 @@ input:focus, textarea:focus {
   color: var(--md-primary-on);
   transition: filter var(--motion-fast);
 }
-.filled-btn:hover { filter: brightness(1.08); }
+.filled-btn:hover { filter: brightness(0.94); }
+.filled-btn:active { filter: brightness(0.88); }
 
 /* ---------- Terminals ---------- */
 
@@ -443,8 +459,8 @@ input:focus, textarea:focus {
   width: 460px;
   max-width: calc(100% - 40px);
   max-height: calc(100% - 130px);
-  background: var(--md-surface-1);
-  border: 1px solid var(--md-outline);
+  background: var(--md-surface-3);
+  border: 1px solid var(--md-outline-variant);
   border-radius: var(--radius-md);
   box-shadow: var(--elevation-3);
   padding: 18px 18px 14px;

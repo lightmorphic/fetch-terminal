@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-01
+
+### Changed
+
+- Rebuilt the theme on proper Material Design 3 dark-scheme tokens: `primary`
+  (`#FBC711`)/`on-primary`, `primary-container`/`on-primary-container`,
+  `outline`/`outline-variant`, and `error`/`error-container` roles, plus
+  surface elevation levels 1-5 tinted with the primary color at M3's
+  standard dark-theme overlay opacities (5/8/11/12/14%) instead of flat
+  surface colors.
+- Filled buttons (New snippet, Import, Export, Save) now use a solid
+  `#FBC711` fill with dark text, matching Material's Filled Button style;
+  destructive actions keep the distinct error/tonal treatment Material
+  reserves for them.
+
 ## [0.2.0] - 2026-08-01
 
 ### Changed
@@ -36,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fosscharlie/fetch-terminal/releases/tag/v0.1.0
