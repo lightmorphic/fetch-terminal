@@ -944,13 +944,15 @@ function applyUpdateState(payload) {
       setUpdateButton({ label: 'Restart & install update', action: 'install' });
       setUpdateDot('available', `Update ready to install: v${payload.version}`);
       break;
-    case 'error':
+    case 'error': {
       if (btn.dataset.action === 'downloading') {
         showToast('Update failed to download');
       }
       btn.classList.add('hidden');
-      setUpdateDot('error', 'Update check failed (click to retry)');
+      const detail = payload.message ? `: ${payload.message}` : '';
+      setUpdateDot('error', `Update check failed${detail} (click to retry)`);
       break;
+    }
     case 'not-available':
       btn.classList.add('hidden');
       setUpdateDot('up-to-date', `You're on the latest version, v${APP_VERSION} (click to re-check)`);

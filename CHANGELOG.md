@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-08-01
+
+### Fixed
+
+- The update status dot's error tooltip always showed a generic "Update
+  check failed" with no detail, even though the actual reason (network
+  error, rate limit, etc.) was already available — it just wasn't
+  passed through to the tooltip. Now shown inline so a failed check is
+  actually diagnosable from the UI instead of a dead end.
+
 ## [0.8.0] - 2026-08-01
 
 ### Added
@@ -229,7 +239,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.1...HEAD
+[0.8.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.4...0.7.0
