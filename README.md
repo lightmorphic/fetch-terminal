@@ -43,7 +43,7 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
 
 | Shortcut           | Action                       |
 | ------------------ | ---------------------------- |
-| `Ctrl+Shift+T`      | New tab                      |
+| `Ctrl+Shift+T`      | New tab (up to 4 at once — the "+" button disables past that) |
 | `Ctrl+Shift+W`      | Close active tab             |
 | `Ctrl+Shift+F`      | Search command history       |
 | `Ctrl+Shift+B`      | Toggle the snippets sidebar  |

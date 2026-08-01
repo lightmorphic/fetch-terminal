@@ -7,9 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.11.0] - 2026-08-01
+## [0.11.1] - 2026-08-01
+
+### Fixed
+
+- Tooltips could get silently clipped by the sidebar's scrolling
+  panels — any tooltip nested inside an `overflow: hidden`/`auto`
+  container gets cut off the moment it needs to extend past that
+  container's edge or top, which a CSS-only tooltip can't avoid.
+  Tooltips are now rendered at the document level and positioned in
+  JS, so they're never clipped regardless of which panel they're
+  triggered from, and flip below instead of above when there isn't
+  room.
 
 ### Added
+
+- Capped tabs at 4 open at once — a 5th tab was starting to get
+  visually cut off by the titlebar's brand/logo area. The "+" new-tab
+  button disables itself (with an explanatory tooltip) once the limit
+  is reached.
 
 - Rounded window corners with a subtle shadow, using window
   transparency (needs a compositing desktop; falls back to square
@@ -361,7 +377,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.1...HEAD
+[0.11.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.0...0.11.1
 [0.11.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.1...0.11.0
 [0.10.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.0...0.10.1
 [0.10.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.2...0.10.0

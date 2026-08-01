@@ -131,7 +131,13 @@ function pasteIntoTerminal(tab) {
   if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
 }
 
+const MAX_TABS = 4;
+
 function createTab() {
+  if (tabs.length >= MAX_TABS) {
+    showToast(`Maximum of ${MAX_TABS} tabs open at once`);
+    return null;
+  }
   const id = genId('tab');
   const pane = document.createElement('div');
   pane.className = 'terminal-pane';
@@ -283,6 +289,14 @@ function renderTabs() {
     el.addEventListener('click', () => setActiveTab(tab.id));
     container.appendChild(el);
   }
+  updateNewTabButtonState();
+}
+
+function updateNewTabButtonState() {
+  const btn = document.getElementById('new-tab-btn');
+  const atLimit = tabs.length >= MAX_TABS;
+  btn.disabled = atLimit;
+  btn.dataset.tooltip = atLimit ? `Maximum of ${MAX_TABS} tabs open` : 'New tab (Ctrl+Shift+T)';
 }
 
 function activeTab() {
@@ -1074,6 +1088,57 @@ async function handleUpdateButtonClick() {
   }
 }
 
+// ---------- Tooltips (rendered at the document level, positioned via JS,
+// so they're never clipped by a scrolling/overflow:hidden ancestor like
+// the snippet or password lists) ----------
+
+function initGlobalTooltip() {
+  const tip = document.createElement('div');
+  tip.id = 'global-tooltip';
+  document.body.appendChild(tip);
+  let currentEl = null;
+
+  function reposition(el) {
+    const rect = el.getBoundingClientRect();
+    const tipRect = tip.getBoundingClientRect();
+    let top = rect.top - tipRect.height - 8;
+    let left = rect.left + rect.width / 2 - tipRect.width / 2;
+    if (top < 4) top = rect.bottom + 8;
+    top = Math.min(top, window.innerHeight - tipRect.height - 4);
+    left = Math.max(4, Math.min(left, window.innerWidth - tipRect.width - 4));
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
+  }
+
+  function show(el) {
+    if (!el.dataset.tooltip) return;
+    currentEl = el;
+    tip.textContent = el.dataset.tooltip;
+    tip.classList.add('visible');
+    reposition(el);
+  }
+  function hide(el) {
+    if (el && el !== currentEl) return;
+    currentEl = null;
+    tip.classList.remove('visible');
+  }
+
+  document.addEventListener('mouseover', (e) => {
+    const el = e.target.closest('[data-tooltip]');
+    if (el) show(el);
+  });
+  document.addEventListener('mouseout', (e) => hide(e.target.closest('[data-tooltip]')));
+  // Tooltip text can change while still hovered (e.g. the update dot
+  // mid-check) — cheap to just re-sync on every mousemove rather than
+  // wire a change listener onto every possible tooltip source.
+  document.addEventListener('mousemove', () => {
+    if (currentEl && currentEl.dataset.tooltip !== tip.textContent) {
+      tip.textContent = currentEl.dataset.tooltip;
+      reposition(currentEl);
+    }
+  });
+}
+
 // ---------- Wiring ----------
 
 function applyIcons() {
@@ -1202,6 +1267,7 @@ function wireStaticControls() {
 }
 
 async function bootstrap() {
+  initGlobalTooltip();
   wireStaticControls();
   await Promise.all([loadSnippets(), loadHistory(), loadAccent(), loadThemeMode(), refreshVaultStatus()]);
   createTab();

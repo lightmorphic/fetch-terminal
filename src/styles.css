@@ -410,6 +410,8 @@ input:focus, textarea:focus {
   flex: none;
 }
 .icon-btn:hover { background: var(--md-surface-2); color: var(--md-on-surface); }
+.icon-btn:disabled { opacity: 0.35; cursor: default; }
+.icon-btn:disabled:hover { background: none; color: var(--md-on-surface-variant); }
 .icon-btn.active {
   color: var(--md-primary);
   background: var(--md-primary-container);
@@ -747,13 +749,14 @@ input:focus, textarea:focus {
 .update-dot.error { background: var(--md-on-surface-variant); }
 
 /* Modern rounded tooltip, replacing the OS-native title attribute look */
-[data-tooltip] { position: relative; }
-[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
+/* Rendered at the document level (not nested inside the hovered element)
+   and positioned in JS via getBoundingClientRect — a tooltip nested
+   inside a scrolling/overflow:hidden sidebar panel gets silently
+   clipped by that ancestor the moment it needs to extend past the
+   panel's edge or top, which is exactly what a CSS-only ::after
+   tooltip can't avoid. */
+#global-tooltip {
+  position: fixed;
   background: color-mix(in srgb, var(--md-surface-5) 85%, transparent);
   backdrop-filter: blur(6px);
   color: var(--md-on-surface);
@@ -767,13 +770,10 @@ input:focus, textarea:focus {
   box-shadow: var(--elevation-2);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--motion-fast), transform var(--motion-fast);
-  z-index: 30;
+  transition: opacity var(--motion-fast);
+  z-index: 9999;
 }
-[data-tooltip]:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+#global-tooltip.visible { opacity: 1; }
 
 .update-btn {
   flex-basis: 100%;
