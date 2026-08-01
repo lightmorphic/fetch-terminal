@@ -369,9 +369,10 @@ function renderSnippetList(filter) {
     const item = document.createElement('div');
     item.className = 'snippet-item' + (snippet.name ? '' : ' unnamed');
 
-    const icon = document.createElement('div');
-    icon.className = 'snippet-icon';
-    icon.textContent = looksLikeSsh(snippet.command) ? '→' : '$';
+    const isRemote = looksLikeSsh(snippet.command);
+    const iconEl = document.createElement('div');
+    iconEl.className = 'snippet-icon' + (isRemote ? ' remote' : '');
+    iconEl.textContent = isRemote ? '→' : '$';
 
     const text = document.createElement('div');
     text.className = 'snippet-text';
@@ -395,7 +396,7 @@ function renderSnippetList(filter) {
       openSnippetModal(snippet);
     });
 
-    item.append(icon, text, editBtn);
+    item.append(iconEl, text, editBtn);
     item.addEventListener('click', () => runSnippet(snippet));
     listEl.appendChild(item);
   }

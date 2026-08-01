@@ -9,11 +9,10 @@
 
 :root {
   /* ---- Material Design 3 roles — dark scheme (default) ----
-     A violet-to-teal accent pair replaces a flat single accent color so
-     primary surfaces (buttons, the active tab, the logotype) read as one
-     deliberate, modern gradient rather than another flat dark-mode grey.
-     Surface elevations 1-5 are the base surface tinted with the primary
-     color at M3's standard dark-theme overlay opacities (5/8/11/12/14%). */
+     A genuine M3 multi-key-color scheme: a violet primary, a muted
+     violet-grey secondary, and a warm coral tertiary used sparingly (for
+     SSH snippets) — all flat, tonal colors. No gradients, no glows; that's
+     not how Material renders color, however "modern" it might look. */
   --md-bg: #0b0b10;
   --md-surface: #131218;
   --md-surface-1: #191724;
@@ -25,16 +24,19 @@
   --md-outline-variant: #434249;
   --md-on-surface: #ecebf5;
   --md-on-surface-variant: #919098;
-  --md-primary: #8b7cff;
-  --md-primary-2: #34e7d3;
-  --md-primary-gradient: linear-gradient(135deg, var(--md-primary) 0%, var(--md-primary-2) 100%);
-  --md-primary-on: #0b0b10;
-  --md-primary-container: #2c284e;
-  --md-on-primary-container: #ada3fc;
+  --md-primary: #b7a9ff;
+  --md-primary-on: #22195c;
+  --md-primary-container: #3a3070;
+  --md-on-primary-container: #e3ddff;
+  --md-secondary: #c9c2db;
+  --md-secondary-container: #46445a;
+  --md-on-secondary-container: #e5dff6;
+  --md-tertiary: #ffb59d;
+  --md-tertiary-container: #4a3735;
+  --md-on-tertiary-container: #fcbdaa;
   --md-error: #ffb4ab;
   --md-error-container: rgba(255, 180, 171, 0.14);
   --md-danger: var(--md-error);
-  --md-glow: rgba(139, 124, 255, 0.35);
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -62,14 +64,18 @@
     --md-outline-variant: #dfdfe0;
     --md-on-surface: #18171f;
     --md-on-surface-variant: #67666b;
-    --md-primary: #6a5aef;
-    --md-primary-2: #0aa899;
+    --md-primary: #5c4cb8;
     --md-primary-on: #ffffff;
-    --md-primary-container: #f1efff;
-    --md-on-primary-container: #3f3873;
+    --md-primary-container: #e5e2f4;
+    --md-on-primary-container: #403581;
+    --md-secondary: #5d5a72;
+    --md-secondary-container: #e8e8eb;
+    --md-on-secondary-container: #3c3a4a;
+    --md-tertiary: #8f4c2e;
+    --md-tertiary-container: #f4e7e2;
+    --md-on-tertiary-container: #74361e;
     --md-error: #ba1a1a;
     --md-error-container: rgba(186, 26, 26, 0.1);
-    --md-glow: rgba(106, 90, 239, 0.22);
     --elevation-1: 0 1px 2px rgba(30, 20, 60, 0.08), 0 1px 3px 1px rgba(30, 20, 60, 0.06);
     --elevation-2: 0 2px 6px rgba(30, 20, 60, 0.1), 0 4px 10px rgba(30, 20, 60, 0.06);
     --elevation-3: 0 4px 14px rgba(30, 20, 60, 0.14), 0 8px 22px rgba(30, 20, 60, 0.08);
@@ -112,7 +118,7 @@ input, textarea {
 }
 input:focus, textarea:focus {
   border-color: var(--md-primary);
-  box-shadow: 0 0 0 3px var(--md-glow);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--md-primary) 22%, transparent);
 }
 
 /* ---------- Titlebar ---------- */
@@ -144,10 +150,7 @@ input:focus, textarea:focus {
   font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.1px;
-  background: var(--md-primary-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--md-primary);
 }
 
 #tabbar {
@@ -199,8 +202,7 @@ input:focus, textarea:focus {
   bottom: -1px;
   height: 3px;
   border-radius: 3px 3px 0 0;
-  background: var(--md-primary-gradient);
-  box-shadow: 0 0 10px 0 var(--md-glow);
+  background: var(--md-primary);
 }
 .tab-title {
   overflow: hidden;
@@ -351,6 +353,10 @@ input:focus, textarea:focus {
   color: var(--md-on-primary-container);
   font-size: 11px;
 }
+.snippet-icon.remote {
+  background: var(--md-tertiary-container);
+  color: var(--md-on-tertiary-container);
+}
 
 .snippet-text {
   flex: 1;
@@ -415,17 +421,18 @@ input:focus, textarea:focus {
   font-size: 12px;
   font-weight: 500;
   color: var(--md-primary-on);
-  background: var(--md-primary-gradient);
+  background: var(--md-primary);
   transition: filter var(--motion-fast), box-shadow var(--motion-fast);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  box-shadow: var(--elevation-1);
 }
-.text-btn:hover { filter: brightness(0.94); box-shadow: 0 2px 12px 0 var(--md-glow); }
-.text-btn:active { filter: brightness(0.88); }
+.text-btn:hover { filter: brightness(0.96); box-shadow: var(--elevation-2); }
+.text-btn:active { filter: brightness(0.9); box-shadow: var(--elevation-1); }
 .text-btn.small { padding: 7px 10px; }
-.text-btn.danger { color: var(--md-error); background: var(--md-error-container); }
+.text-btn.danger { color: var(--md-error); background: var(--md-error-container); box-shadow: none; }
 .btn-icon { display: flex; }
 .btn-icon svg { width: 13px; height: 13px; }
 
@@ -434,12 +441,13 @@ input:focus, textarea:focus {
   border-radius: var(--radius-lg);
   font-size: 12.5px;
   font-weight: 500;
-  background: var(--md-primary-gradient);
+  background: var(--md-primary);
   color: var(--md-primary-on);
   transition: filter var(--motion-fast), box-shadow var(--motion-fast);
+  box-shadow: var(--elevation-1);
 }
-.filled-btn:hover { filter: brightness(0.94); box-shadow: 0 2px 12px 0 var(--md-glow); }
-.filled-btn:active { filter: brightness(0.88); }
+.filled-btn:hover { filter: brightness(0.96); box-shadow: var(--elevation-2); }
+.filled-btn:active { filter: brightness(0.9); box-shadow: var(--elevation-1); }
 
 #app-brand {
   display: flex;
@@ -451,10 +459,7 @@ input:focus, textarea:focus {
 .app-brand-name {
   font-size: 11.5px;
   font-weight: 600;
-  background: var(--md-primary-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--md-primary);
 }
 .app-brand-version {
   font-size: 10px;

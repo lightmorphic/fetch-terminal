@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-08-01
+
+### Fixed
+
+- Dropped the gradient/glow styling from 0.4.0 — gradients and colored
+  glow shadows aren't part of Material Design's visual language, however
+  modern they looked. Replaced with a genuine flat Material Design 3
+  multi-key-color scheme: a violet primary, a muted violet-grey secondary,
+  and a warm coral tertiary (used for the SSH snippet badge). Buttons, the
+  active tab indicator, and the brand text are now solid colors; button
+  hover/active states use M3's elevation-based feedback instead of a
+  colored glow. Regenerated the app icon as a flat solid mark to match.
+
 ## [0.4.0] - 2026-08-01
 
 ### Changed
@@ -81,7 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.1.0...v0.2.0
