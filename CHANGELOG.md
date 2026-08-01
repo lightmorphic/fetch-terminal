@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.19.2] - 2026-08-01
+
+### Fixed
+
+- The 0.19.1 icon fix had no effect in the actual packaged AppImage:
+  `build/icons` was never listed in `package.json`'s `build.files`, so it
+  never got bundled into the app at all — the `BrowserWindow`'s `icon`
+  option was pointing at a path that simply doesn't exist once packaged,
+  and silently fell back to the default logo. Added `build/icons/**/*`
+  to `files` so the icon actually ships with the app.
+
 ## [0.19.1] - 2026-08-01
 
 ### Fixed
