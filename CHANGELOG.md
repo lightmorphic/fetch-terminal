@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-08-01
+
+### Fixed
+
+- The snippet edit (pencil) icon was `display: none` until a
+  pixel-perfect hover, which removed it from layout entirely — it's
+  now always present at low opacity (full opacity on hover) so it
+  always reserves its own space and the command text can never render
+  where it sits.
+- The password list's horizontal scrollbar: `#credential-list` had
+  `overflow-y: auto` with no explicit `overflow-x`, and CSS silently
+  promotes a `visible` axis to `auto` when the other axis isn't
+  `visible` — set `overflow-x: hidden` explicitly.
+
+### Changed
+
+- The password row's "type into terminal" (key) button now has a
+  filled colored background at rest instead of a bare icon, so it
+  reads clearly as a button.
+
 ## [0.9.1] - 2026-08-01
 
 ### Changed
@@ -278,7 +298,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.1...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.2...HEAD
+[0.9.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.1...0.9.0
 [0.8.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.0...0.8.1
