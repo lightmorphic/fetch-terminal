@@ -135,6 +135,17 @@ html, body {
   transition: background var(--motion-med), color var(--motion-med);
 }
 
+/* frame:false means there's no OS-drawn window border, so without this the
+   whole app edge is invisible against a similarly-dark desktop/wallpaper —
+   a plain 1px outline using the same subtle color as every other border in
+   the app (sidebar, titlebar, etc). position:relative makes body the
+   containing block for #main's position:absolute below, so #main insets
+   itself inside this border automatically instead of covering it. */
+body {
+  position: relative;
+  border: 1px solid var(--md-outline-variant);
+}
+
 button {
   font-family: inherit;
   border: none;
