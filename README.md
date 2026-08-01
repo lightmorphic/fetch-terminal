@@ -115,8 +115,16 @@ snippet, which is displayed using its raw command text as the label.
 Fetch Terminal follows your desktop's light/dark preference automatically
 (Electron keeps this in sync with the OS). Click the sun/moon button in the
 titlebar to force light or dark regardless of the desktop setting — your
-choice is remembered across restarts. Every icon in the app is a local,
-hand-drawn inline SVG; none are loaded from a font or a CDN.
+choice is remembered across restarts.
+
+Click the palette button in the titlebar to pick an accent color from 10
+Material Design hues (Purple, Indigo, Blue, Cyan, Teal, Green, Amber,
+Orange, Red, Pink). The whole app re-themes instantly — buttons, the active
+tab indicator, icons, and the terminal's cursor/selection color — and your
+choice is remembered across restarts.
+
+Every icon in the app is a local, hand-drawn inline SVG; none are loaded
+from a font or a CDN.
 
 ## Data storage
 

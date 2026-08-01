@@ -59,7 +59,13 @@ function isDarkMode() {
   return THEME_MEDIA.matches;
 }
 function currentTerminalTheme() {
-  return isDarkMode() ? DARK_TERMINAL_THEME : LIGHT_TERMINAL_THEME;
+  const base = isDarkMode() ? DARK_TERMINAL_THEME : LIGHT_TERMINAL_THEME;
+  const hue = typeof currentAccentHue === 'number' ? currentAccentHue : DEFAULT_ACCENT_HUE;
+  return {
+    ...base,
+    cursor: isDarkMode() ? hsl(hue, 85, 78) : hsl(hue, 55, 42),
+    selectionBackground: isDarkMode() ? hsla(hue, 85, 78, 0.28) : hsla(hue, 55, 42, 0.2),
+  };
 }
 
 let tabs = [];
@@ -520,8 +526,105 @@ async function toggleTheme() {
 
 THEME_MEDIA.addEventListener('change', () => {
   updateThemeToggleIcon();
-  applyThemeToAllTerminals();
+  applyAccent(currentAccentHue);
 });
+
+// ---------- Accent color (10 Material Design hues) ----------
+
+const ACCENT_COLORS = [
+  { name: 'Purple', hue: 262 },
+  { name: 'Indigo', hue: 231 },
+  { name: 'Blue', hue: 217 },
+  { name: 'Cyan', hue: 190 },
+  { name: 'Teal', hue: 174 },
+  { name: 'Green', hue: 142 },
+  { name: 'Amber', hue: 45 },
+  { name: 'Orange', hue: 27 },
+  { name: 'Red', hue: 355 },
+  { name: 'Pink', hue: 330 },
+];
+const DEFAULT_ACCENT_HUE = 262;
+let currentAccentHue = DEFAULT_ACCENT_HUE;
+
+function hsl(h, s, l) {
+  return `hsl(${h} ${s}% ${l}%)`;
+}
+function hsla(h, s, l, a) {
+  return `hsl(${h} ${s}% ${l}% / ${a})`;
+}
+
+// Approximates Material Design 3's HCT tonal palettes with plain HSL math:
+// a light, low-contrast tone for dark-scheme roles, a deeper saturated tone
+// for light-scheme roles, and a hue offset for the tertiary accent.
+function applyAccent(hue) {
+  currentAccentHue = hue;
+  const tertiaryHue = (hue + 60) % 360;
+  const root = document.documentElement.style;
+  if (isDarkMode()) {
+    root.setProperty('--md-primary', hsl(hue, 85, 78));
+    root.setProperty('--md-primary-on', hsl(hue, 45, 18));
+    root.setProperty('--md-primary-container', hsl(hue, 40, 26));
+    root.setProperty('--md-on-primary-container', hsl(hue, 80, 90));
+    root.setProperty('--md-secondary', hsl(hue, 15, 78));
+    root.setProperty('--md-secondary-container', hsl(hue, 20, 28));
+    root.setProperty('--md-on-secondary-container', hsl(hue, 25, 90));
+    root.setProperty('--md-tertiary', hsl(tertiaryHue, 70, 78));
+    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 45, 26));
+    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 70, 88));
+  } else {
+    root.setProperty('--md-primary', hsl(hue, 55, 42));
+    root.setProperty('--md-primary-on', '#ffffff');
+    root.setProperty('--md-primary-container', hsl(hue, 60, 92));
+    root.setProperty('--md-on-primary-container', hsl(hue, 55, 26));
+    root.setProperty('--md-secondary', hsl(hue, 10, 40));
+    root.setProperty('--md-secondary-container', hsl(hue, 15, 90));
+    root.setProperty('--md-on-secondary-container', hsl(hue, 15, 26));
+    root.setProperty('--md-tertiary', hsl(tertiaryHue, 45, 38));
+    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 55, 90));
+    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 45, 26));
+  }
+  applyThemeToAllTerminals();
+  renderAccentSwatches();
+}
+
+function renderAccentSwatches() {
+  const container = document.getElementById('accent-swatches');
+  if (!container) return;
+  container.innerHTML = '';
+  for (const accent of ACCENT_COLORS) {
+    const isSelected = accent.hue === currentAccentHue;
+    const btn = document.createElement('button');
+    btn.className = 'accent-swatch' + (isSelected ? ' selected' : '');
+    btn.style.background = hsl(accent.hue, 65, 55);
+    btn.title = accent.name;
+    if (isSelected) btn.innerHTML = icon('check');
+    btn.addEventListener('click', () => selectAccent(accent.hue));
+    container.appendChild(btn);
+  }
+}
+
+async function selectAccent(hue) {
+  applyAccent(hue);
+  await ipcRenderer.invoke('accent:set', hue);
+  closeAccentPopover();
+}
+
+function openAccentPopover() {
+  document.getElementById('accent-popover').classList.remove('hidden');
+}
+function closeAccentPopover() {
+  document.getElementById('accent-popover').classList.add('hidden');
+}
+function toggleAccentPopover() {
+  const popover = document.getElementById('accent-popover');
+  if (popover.classList.contains('hidden')) openAccentPopover();
+  else closeAccentPopover();
+}
+
+async function loadAccent() {
+  const hue = await ipcRenderer.invoke('accent:get');
+  applyAccent(typeof hue === 'number' ? hue : DEFAULT_ACCENT_HUE);
+}
 
 // ---------- Command history modal ----------
 
@@ -601,6 +704,11 @@ function wireStaticControls() {
   document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
   document.getElementById('pin-btn').addEventListener('click', togglePin);
   document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
+  document.getElementById('accent-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleAccentPopover();
+  });
+  document.getElementById('accent-popover').querySelector('.popover-scrim').addEventListener('click', closeAccentPopover);
 
   document.getElementById('snippet-search').addEventListener('input', (e) => renderSnippetList(e.target.value));
   document.getElementById('add-snippet-btn').addEventListener('click', () => openSnippetModal(null));
@@ -655,6 +763,9 @@ function wireStaticControls() {
       } else if (!document.getElementById('snippet-modal').classList.contains('hidden')) {
         closeSnippetModal();
         e.preventDefault();
+      } else if (!document.getElementById('accent-popover').classList.contains('hidden')) {
+        closeAccentPopover();
+        e.preventDefault();
       }
     }
   }, true);
@@ -678,7 +789,7 @@ function wireStaticControls() {
 
 async function bootstrap() {
   wireStaticControls();
-  await Promise.all([loadSnippets(), loadHistory()]);
+  await Promise.all([loadSnippets(), loadHistory(), loadAccent()]);
   createTab();
 }
 

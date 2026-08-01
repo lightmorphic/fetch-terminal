@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-01
+
+### Added
+
+- Accent color picker: a palette button in the titlebar opens a popover
+  with 10 Material Design colors (Purple, Indigo, Blue, Cyan, Teal, Green,
+  Amber, Orange, Red, Pink). Picking one re-themes the whole app instantly
+  — buttons, the active tab indicator, icons, and the terminal's cursor/
+  selection color — with correctly-computed light and dark tonal variants
+  for each hue. The choice is remembered across restarts.
+
 ## [0.4.1] - 2026-08-01
 
 ### Fixed
@@ -94,7 +105,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/fosscharlie/fetch-terminal/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.2.0...v0.3.0

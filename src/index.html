@@ -16,6 +16,16 @@
       <button id="new-tab-btn" class="icon-btn" data-icon="plus" title="New tab (Ctrl+Shift+T)"></button>
     </div>
     <div class="titlebar-drag spacer"></div>
+    <div class="titlebar-popover-anchor">
+      <button id="accent-btn" class="icon-btn titlebar-btn" data-icon="palette" title="Accent color"></button>
+      <div id="accent-popover" class="popover hidden">
+        <div class="popover-scrim"></div>
+        <div class="popover-panel">
+          <div class="popover-title">Accent color</div>
+          <div id="accent-swatches"></div>
+        </div>
+      </div>
+    </div>
     <button id="theme-toggle-btn" class="icon-btn titlebar-btn" data-icon="moon" title="Toggle light / dark theme"></button>
     <div class="titlebar-brand titlebar-drag"><span class="app-title">Fetch Terminal</span></div>
     <div id="window-controls">

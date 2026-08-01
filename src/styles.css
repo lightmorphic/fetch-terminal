@@ -140,6 +140,64 @@ input:focus, textarea:focus {
   -webkit-app-region: no-drag;
 }
 
+.titlebar-popover-anchor {
+  position: relative;
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+
+.popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 25;
+}
+.popover.hidden { display: none; }
+.popover-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+.popover-panel {
+  position: relative;
+  z-index: 1;
+  margin-top: 6px;
+  width: 216px;
+  background: var(--md-surface-3);
+  border: 1px solid var(--md-outline-variant);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-3);
+  padding: 12px;
+  animation: modal-in var(--motion-med);
+}
+.popover-title {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--md-on-surface-variant);
+  margin-bottom: 10px;
+}
+#accent-swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.accent-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: transform var(--motion-fast), border-color var(--motion-fast);
+}
+.accent-swatch:hover { transform: scale(1.1); }
+.accent-swatch.selected { border-color: var(--md-on-surface); }
+.accent-swatch svg { width: 14px; height: 14px; }
+
 .titlebar-brand {
   display: flex;
   align-items: center;

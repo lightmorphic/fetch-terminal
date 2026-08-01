@@ -85,6 +85,13 @@ ipcMain.handle('theme:set', (event, source) => {
   writeJson(SETTINGS_FILE(), { ...readJson(SETTINGS_FILE(), {}), themeSource: source });
 });
 
+ipcMain.handle('accent:get', () => readJson(SETTINGS_FILE(), {}).accentHue);
+
+ipcMain.handle('accent:set', (event, hue) => {
+  if (typeof hue !== 'number' || Number.isNaN(hue)) return;
+  writeJson(SETTINGS_FILE(), { ...readJson(SETTINGS_FILE(), {}), accentHue: hue });
+});
+
 app.on('window-all-closed', () => {
   for (const proc of ptyProcesses.values()) {
     try { proc.kill(); } catch (err) { /* already gone */ }
