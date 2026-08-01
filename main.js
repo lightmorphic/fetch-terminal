@@ -49,7 +49,13 @@ function createWindow() {
     // background color comes from CSS on <body>, clipped to its
     // border-radius. Requires a compositing window manager; on one
     // without compositing, Linux/Electron will just fall back to square.
+    // `transparent: true` alone isn't enough on Linux/GTK: without an
+    // explicit alpha backgroundColor, the native surface still paints
+    // opaque black outside whatever the page itself draws, so the four
+    // corners cut off by CSS border-radius showed through as black
+    // squares poking past the rounded outline instead of the desktop.
     transparent: true,
+    backgroundColor: '#00000000',
     frame: false,
     show: false,
     webPreferences: {

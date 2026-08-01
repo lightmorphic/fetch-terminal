@@ -119,17 +119,49 @@ function looksLikeSsh(command) {
 
 // A terminal selection is usually historical output that's already been
 // processed by the shell — there's no way to "delete" that after the
-// fact. But if the selected text is exactly what's sitting at the end of
-// the current, not-yet-submitted input line (which we already track for
-// autocomplete), it really can be removed: back it out with backspaces.
-// Anything else — historical output, mid-line text, multi-line selections
-// — falls back to copy-only, rather than risk sending backspaces
-// somewhere they don't belong.
-function removeFromInputLine(tab, text) {
-  if (!text || !tab.inputBuffer.endsWith(text)) return;
-  ipcRenderer.send('pty:write', { tabId: tab.id, data: '\x7f'.repeat(text.length) });
-  tab.inputBuffer = tab.inputBuffer.slice(0, -text.length);
-  refreshSuggestion(tab);
+// fact. But if the selection sits on the exact row the cursor is
+// currently on, it's part of the live, not-yet-submitted input line, and
+// its real column range (from xterm's own buffer, not our best-effort
+// input tracking) tells us exactly how to remove it: move the cursor to
+// the far edge of the selection, backspace away just that span, then move
+// the cursor back to where it logically belongs relative to the deleted
+// text. This works anywhere on the line, not just at the end. Anything on
+// a different row (already-scrolled-past output, or a line we can't
+// safely reason about) falls back to copy-only.
+function removeSelection(tab, term, selectionRange) {
+  if (!selectionRange) return false;
+  const { start, end } = selectionRange;
+  if (start.y !== end.y) return false;
+
+  const rowAbs = start.y - 1;
+  const cursorRowAbs = term.buffer.active.baseY + term.buffer.active.cursorY;
+  if (rowAbs !== cursorRowAbs) return false;
+
+  const left = start.x - 1;
+  const right = end.x - 1;
+  const cursorCol = term.buffer.active.cursorX;
+  if (right <= left) return false;
+
+  const moveCursorColumns = (delta) => {
+    if (!delta) return;
+    const seq = delta > 0 ? '\x1b[C' : '\x1b[D';
+    ipcRenderer.send('pty:write', { tabId: tab.id, data: seq.repeat(Math.abs(delta)) });
+  };
+
+  // Where the cursor logically ends up once the selected span is gone:
+  // unchanged if the selection was entirely ahead of it, shifted left by
+  // the removed span's length if the selection was entirely behind it,
+  // and snapped to the selection's start if the cursor sat inside it.
+  const finalCol = cursorCol <= left ? cursorCol : cursorCol >= right ? cursorCol - (right - left) : left;
+
+  moveCursorColumns(right - cursorCol);
+  ipcRenderer.send('pty:write', { tabId: tab.id, data: '\x7f'.repeat(right - left) });
+  moveCursorColumns(finalCol - left);
+  // Our own inputBuffer tracking can't represent an arbitrary mid-line
+  // edit like this, so give up on the suggestion rather than show a wrong
+  // one — same as what already happens for any other cursor-moving key.
+  clearSuggestion(tab);
+  return true;
 }
 
 function copySelection(tab) {
@@ -143,9 +175,10 @@ function cutSelection(tab) {
   const term = tab.term;
   if (!term.hasSelection()) return;
   const selected = term.getSelection();
+  const range = term.getSelectionPosition();
   clipboard.writeText(selected);
   term.clearSelection();
-  removeFromInputLine(tab, selected);
+  removeSelection(tab, term, range);
 }
 
 function pasteIntoTerminal(tab) {
@@ -252,8 +285,12 @@ function createTab() {
   // listener on the pane runs before xterm's own bubble-phase handler on
   // its inner element, so it can snapshot the selection first.
   let rightClickSelection = '';
+  let rightClickSelectionRange = null;
   pane.addEventListener('mousedown', (event) => {
-    if (event.button === 2) rightClickSelection = term.hasSelection() ? term.getSelection() : '';
+    if (event.button === 2) {
+      rightClickSelection = term.hasSelection() ? term.getSelection() : '';
+      rightClickSelectionRange = term.hasSelection() ? term.getSelectionPosition() : null;
+    }
   }, true);
 
   pane.addEventListener('contextmenu', async (event) => {
@@ -262,7 +299,7 @@ function createTab() {
     if (action === 'copy' || action === 'cut') {
       if (rightClickSelection) {
         clipboard.writeText(rightClickSelection);
-        if (action === 'cut') removeFromInputLine(tab, rightClickSelection);
+        if (action === 'cut') removeSelection(tab, term, rightClickSelectionRange);
       }
       term.clearSelection();
     } else if (action === 'paste') pasteIntoTerminal(tab);

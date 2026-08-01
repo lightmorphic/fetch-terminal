@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-08-01
+
+### Fixed
+
+- Rounded corners still showed black squares poking out past the rounded
+  outline: `transparent: true` alone isn't enough on Linux/GTK — without
+  an explicit alpha `backgroundColor` on the `BrowserWindow`, the native
+  surface paints opaque black anywhere the page's own CSS doesn't
+  explicitly cover, including the four corners clipped off by
+  `border-radius`. Added `backgroundColor: '#00000000'`.
+- Cut could previously only remove text from the very end of the current
+  input line (an exact-suffix check against the app's own best-effort
+  input tracking). Rewrote it to read xterm's real selection and cursor
+  positions directly: it now cuts anywhere on the current input line, not
+  just the end, by moving the cursor to the selection, backspacing away
+  exactly that span, and returning the cursor to its correct logical
+  position afterward. Selections on any other row (already-run output)
+  still fall back to copy-only, since that can't be safely un-printed.
+
 ## [0.13.0] - 2026-08-01
 
 ### Fixed
