@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Fetch Terminal</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+<link rel="stylesheet" href="../node_modules/@xterm/xterm/css/xterm.css" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div id="titlebar">
+    <div class="titlebar-left titlebar-drag">
+      <span class="app-icon">&gt;_</span>
+      <span class="app-title">Fetch Terminal</span>
+    </div>
+    <div id="tabbar">
+      <div id="tabs"></div>
+      <button id="new-tab-btn" class="icon-btn" title="New tab (Ctrl+T)">+</button>
+    </div>
+    <div class="titlebar-drag spacer"></div>
+    <div id="window-controls">
+      <button id="btn-min" class="win-btn" title="Minimize">
+        <svg viewBox="0 0 10 10" width="10" height="10"><rect x="0" y="9" width="10" height="1" fill="currentColor"/></svg>
+      </button>
+      <button id="btn-max" class="win-btn" title="Maximize">
+        <svg viewBox="0 0 10 10" width="10" height="10"><rect x="0.5" y="0.5" width="9" height="9" fill="none" stroke="currentColor"/></svg>
+      </button>
+      <button id="btn-close" class="win-btn win-btn-close" title="Close">
+        <svg viewBox="0 0 10 10" width="10" height="10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="main">
+    <aside id="sidebar">
+      <div id="sidebar-header">
+        <div class="search-field">
+          <span class="search-icon">&#128269;</span>
+          <input id="snippet-search" placeholder="Search snippets" autocomplete="off" />
+        </div>
+        <button id="pin-btn" class="icon-btn" title="Keep sidebar open">&#128204;</button>
+      </div>
+      <div id="snippet-list"></div>
+      <div id="sidebar-footer">
+        <button id="add-snippet-btn" class="text-btn">+ New snippet</button>
+        <div class="footer-row">
+          <button id="import-btn" class="text-btn small">Import</button>
+          <button id="export-btn" class="text-btn small">Export</button>
+        </div>
+      </div>
+    </aside>
+
+    <button id="sidebar-toggle" class="icon-btn" title="Toggle snippets sidebar">&#9776;</button>
+
+    <div id="terminals"></div>
+  </div>
+
+  <div id="history-modal" class="modal hidden">
+    <div class="modal-scrim"></div>
+    <div class="modal-card history-card">
+      <div class="search-field modal-search">
+        <span class="search-icon">&#128269;</span>
+        <input id="history-search" placeholder="Search command history" autocomplete="off" />
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <div id="snippet-modal" class="modal hidden">
+    <div class="modal-scrim"></div>
+    <div class="modal-card">
+      <h3 id="snippet-modal-title">New snippet</h3>
+      <label class="field-label">Name <span class="hint">(optional — falls back to the command)</span>
+        <input id="snippet-name-input" placeholder="e.g. Deploy prod" autocomplete="off" />
+      </label>
+      <label class="field-label">Command
+        <textarea id="snippet-command-input" rows="3" placeholder="e.g. ssh user@example.com"></textarea>
+      </label>
+      <div class="modal-actions">
+        <button id="snippet-delete-btn" class="text-btn danger hidden">Delete</button>
+        <span class="spacer"></span>
+        <button id="snippet-cancel-btn" class="text-btn">Cancel</button>
+        <button id="snippet-save-btn" class="filled-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

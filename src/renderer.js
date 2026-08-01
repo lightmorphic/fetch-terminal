@@ -1,0 +1,611 @@
+const { ipcRenderer, shell } = require('electron');
+const { Terminal } = require('@xterm/xterm');
+const { FitAddon } = require('@xterm/addon-fit');
+const { SearchAddon } = require('@xterm/addon-search');
+const { WebLinksAddon } = require('@xterm/addon-web-links');
+
+const MATERIAL_TERMINAL_THEME = {
+  background: '#131316',
+  foreground: '#e6e1e6',
+  cursor: '#d0bcff',
+  cursorAccent: '#131316',
+  selectionBackground: 'rgba(208, 188, 255, 0.25)',
+  black: '#28242e',
+  red: '#f2b8b5',
+  green: '#b7dda8',
+  yellow: '#f0debe',
+  blue: '#a8c8ff',
+  magenta: '#d0bcff',
+  cyan: '#9fd0dc',
+  white: '#e6e1e6',
+  brightBlack: '#5a5560',
+  brightRed: '#ffb4ab',
+  brightGreen: '#c9f0bb',
+  brightYellow: '#ffe8c7',
+  brightBlue: '#c2dbff',
+  brightMagenta: '#e6d9ff',
+  brightCyan: '#c2ecf5',
+  brightWhite: '#ffffff',
+};
+
+let tabs = [];
+let activeTabId = null;
+let tabCounter = 0;
+let history = [];
+let snippets = [];
+let sidebarPinned = false;
+let sidebarCollapsed = false;
+let editingSnippetId = null;
+let toastTimer = null;
+
+// ---------- Helpers ----------
+
+function genId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function getCellSize(term) {
+  try {
+    const dims = term._core._renderService.dimensions.css.cell;
+    if (dims && dims.width && dims.height) return { width: dims.width, height: dims.height };
+  } catch (err) {
+    /* fall through to the estimate below */
+  }
+  const fontSize = (term.options && term.options.fontSize) || 14;
+  return { width: fontSize * 0.6, height: fontSize * 1.2 };
+}
+
+function showToast(message) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.remove('hidden');
+  requestAnimationFrame(() => el.classList.add('visible'));
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.classList.remove('visible');
+    setTimeout(() => el.classList.add('hidden'), 220);
+  }, 2600);
+}
+
+function looksLikeSsh(command) {
+  return /^\s*ssh\b/i.test(command);
+}
+
+// ---------- Tabs & terminals ----------
+
+function createTab() {
+  const id = genId('tab');
+  const pane = document.createElement('div');
+  pane.className = 'terminal-pane';
+
+  const ghost = document.createElement('div');
+  ghost.className = 'autocomplete-ghost';
+  pane.appendChild(ghost);
+
+  document.getElementById('terminals').appendChild(pane);
+
+  const term = new Terminal({
+    fontFamily: "'Roboto Mono', 'DejaVu Sans Mono', monospace",
+    fontSize: 14,
+    lineHeight: 1.15,
+    cursorBlink: true,
+    allowProposedApi: true,
+    scrollback: 8000,
+    theme: MATERIAL_TERMINAL_THEME,
+  });
+
+  const fitAddon = new FitAddon();
+  term.loadAddon(fitAddon);
+  term.loadAddon(new SearchAddon());
+  term.loadAddon(new WebLinksAddon((_event, uri) => shell.openExternal(uri)));
+
+  term.open(pane);
+  fitAddon.fit();
+
+  const tab = {
+    id,
+    term,
+    fitAddon,
+    pane,
+    ghostEl: ghost,
+    inputBuffer: '',
+    suggestion: null,
+    title: 'Shell',
+  };
+  tabs.push(tab);
+
+  term.onData((data) => {
+    const outgoing = processUserInput(tab, data);
+    if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
+  });
+  term.onCursorMove(() => renderGhost(tab));
+  term.onResize(({ cols, rows }) => ipcRenderer.send('pty:resize', { tabId: tab.id, cols, rows }));
+  term.onTitleChange((title) => {
+    if (title) {
+      tab.title = title;
+      renderTabs();
+    }
+  });
+
+  ipcRenderer.send('pty:spawn', { tabId: id, cols: term.cols, rows: term.rows });
+
+  setActiveTab(id);
+  renderTabs();
+  return tab;
+}
+
+function closeTab(id) {
+  const idx = tabs.findIndex((t) => t.id === id);
+  if (idx === -1) return;
+  const [tab] = tabs.splice(idx, 1);
+  ipcRenderer.send('pty:kill', { tabId: id });
+  tab.term.dispose();
+  tab.pane.remove();
+
+  if (tabs.length === 0) {
+    createTab();
+    return;
+  }
+  if (activeTabId === id) {
+    const next = tabs[idx] || tabs[idx - 1];
+    setActiveTab(next.id);
+  }
+  renderTabs();
+}
+
+function setActiveTab(id) {
+  activeTabId = id;
+  for (const tab of tabs) {
+    const isActive = tab.id === id;
+    tab.pane.classList.toggle('active', isActive);
+    if (isActive) {
+      requestAnimationFrame(() => {
+        tab.fitAddon.fit();
+        tab.term.focus();
+      });
+    }
+  }
+  renderTabs();
+}
+
+function cycleTab(direction) {
+  if (tabs.length < 2) return;
+  const idx = tabs.findIndex((t) => t.id === activeTabId);
+  const next = (idx + direction + tabs.length) % tabs.length;
+  setActiveTab(tabs[next].id);
+}
+
+function renderTabs() {
+  const container = document.getElementById('tabs');
+  container.innerHTML = '';
+  for (const tab of tabs) {
+    const el = document.createElement('div');
+    el.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
+    el.title = tab.title;
+
+    const titleEl = document.createElement('span');
+    titleEl.className = 'tab-title';
+    titleEl.textContent = tab.title;
+
+    const closeEl = document.createElement('span');
+    closeEl.className = 'tab-close';
+    closeEl.textContent = '×';
+    closeEl.addEventListener('click', (event) => {
+      event.stopPropagation();
+      closeTab(tab.id);
+    });
+
+    el.append(titleEl, closeEl);
+    el.addEventListener('click', () => setActiveTab(tab.id));
+    container.appendChild(el);
+  }
+}
+
+function activeTab() {
+  return tabs.find((t) => t.id === activeTabId) || null;
+}
+
+// ---------- Command capture & autocomplete ----------
+
+function findHistorySuggestion(prefix) {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const command = history[i].command;
+    if (command.length > prefix.length && command.startsWith(prefix)) return command;
+  }
+  return null;
+}
+
+function refreshSuggestion(tab) {
+  tab.suggestion = tab.inputBuffer ? findHistorySuggestion(tab.inputBuffer) : null;
+  renderGhost(tab);
+}
+
+function clearSuggestion(tab) {
+  tab.suggestion = null;
+  renderGhost(tab);
+}
+
+function renderGhost(tab) {
+  const el = tab.ghostEl;
+  const remainder = tab.suggestion ? tab.suggestion.slice(tab.inputBuffer.length) : '';
+  if (!remainder) {
+    el.style.display = 'none';
+    return;
+  }
+  el.textContent = remainder;
+  const cell = getCellSize(tab.term);
+  const cursorX = tab.term.buffer.active.cursorX;
+  const cursorY = tab.term.buffer.active.cursorY;
+  el.style.left = `${cursorX * cell.width}px`;
+  el.style.top = `${cursorY * cell.height}px`;
+  el.style.display = 'block';
+}
+
+function commitLine(tab) {
+  const command = tab.inputBuffer.trim();
+  tab.inputBuffer = '';
+  clearSuggestion(tab);
+  if (command) {
+    ipcRenderer.invoke('history:add', command).then((updated) => {
+      history = updated;
+    });
+  }
+}
+
+// Returns the data that should actually be written to the pty, having
+// interpreted it against our best-effort model of the current input line.
+function processUserInput(tab, data) {
+  if (data === '\r' || data === '\n') {
+    commitLine(tab);
+    return data;
+  }
+  if (data === '\x7f' || data === '\b') {
+    tab.inputBuffer = tab.inputBuffer.slice(0, -1);
+    refreshSuggestion(tab);
+    return data;
+  }
+  if (data === '\x03') {
+    tab.inputBuffer = '';
+    clearSuggestion(tab);
+    return data;
+  }
+  if (data === '\t') {
+    if (tab.suggestion) {
+      const remainder = tab.suggestion.slice(tab.inputBuffer.length);
+      tab.inputBuffer = tab.suggestion;
+      clearSuggestion(tab);
+      return remainder;
+    }
+    return data;
+  }
+  if (data.charCodeAt(0) === 27) {
+    // Right arrow accepts the suggestion (like a shell's inline autosuggest);
+    // any other escape sequence is cursor movement we don't try to model.
+    if ((data === '\x1b[C' || data === '\x1bOC') && tab.suggestion) {
+      const remainder = tab.suggestion.slice(tab.inputBuffer.length);
+      tab.inputBuffer = tab.suggestion;
+      clearSuggestion(tab);
+      return remainder;
+    }
+    clearSuggestion(tab);
+    return data;
+  }
+  if (/[\x00-\x08\x0b-\x1f]/.test(data)) {
+    // Other control sequences (Ctrl+A/E/K/W, etc.) move or edit the line in
+    // ways we don't track; drop the suggestion rather than show something wrong.
+    clearSuggestion(tab);
+    return data;
+  }
+  tab.inputBuffer += data;
+  refreshSuggestion(tab);
+  return data;
+}
+
+// ---------- Snippets sidebar ----------
+
+async function loadSnippets() {
+  snippets = await ipcRenderer.invoke('snippets:load');
+  renderSnippetList(document.getElementById('snippet-search').value);
+}
+
+async function persistSnippets() {
+  await ipcRenderer.invoke('snippets:save', snippets);
+}
+
+function renderSnippetList(filter) {
+  const listEl = document.getElementById('snippet-list');
+  listEl.innerHTML = '';
+
+  if (!snippets.length) {
+    listEl.innerHTML = '<div class="empty-state">No snippets yet.<br>Click "+ New snippet" to save your first shell command.</div>';
+    return;
+  }
+
+  const q = (filter || '').trim().toLowerCase();
+  const filtered = !q
+    ? snippets
+    : snippets.filter((s) => (s.name && s.name.toLowerCase().includes(q)) || s.command.toLowerCase().includes(q));
+
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="empty-state">No snippets match your search.</div>';
+    return;
+  }
+
+  for (const snippet of filtered) {
+    const item = document.createElement('div');
+    item.className = 'snippet-item' + (snippet.name ? '' : ' unnamed');
+
+    const icon = document.createElement('div');
+    icon.className = 'snippet-icon';
+    icon.textContent = looksLikeSsh(snippet.command) ? '→' : '$';
+
+    const text = document.createElement('div');
+    text.className = 'snippet-text';
+    if (snippet.name) {
+      const nameEl = document.createElement('div');
+      nameEl.className = 'snippet-name';
+      nameEl.textContent = snippet.name;
+      text.appendChild(nameEl);
+    }
+    const cmdEl = document.createElement('div');
+    cmdEl.className = 'snippet-command';
+    cmdEl.textContent = snippet.command;
+    text.appendChild(cmdEl);
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'snippet-edit-btn';
+    editBtn.textContent = '✎';
+    editBtn.title = 'Edit snippet';
+    editBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      openSnippetModal(snippet);
+    });
+
+    item.append(icon, text, editBtn);
+    item.addEventListener('click', () => runSnippet(snippet));
+    listEl.appendChild(item);
+  }
+}
+
+function runSnippet(snippet) {
+  const tab = activeTab();
+  if (!tab) return;
+  ipcRenderer.send('pty:write', { tabId: tab.id, data: snippet.command + '\r' });
+  if (!sidebarPinned) setSidebarCollapsed(true);
+}
+
+function openSnippetModal(snippet) {
+  editingSnippetId = snippet ? snippet.id : null;
+  document.getElementById('snippet-modal-title').textContent = snippet ? 'Edit snippet' : 'New snippet';
+  document.getElementById('snippet-name-input').value = snippet && snippet.name ? snippet.name : '';
+  document.getElementById('snippet-command-input').value = snippet ? snippet.command : '';
+  document.getElementById('snippet-delete-btn').classList.toggle('hidden', !snippet);
+  document.getElementById('snippet-modal').classList.remove('hidden');
+  document.getElementById('snippet-command-input').focus();
+}
+
+function closeSnippetModal() {
+  document.getElementById('snippet-modal').classList.add('hidden');
+  editingSnippetId = null;
+}
+
+async function saveSnippetFromModal() {
+  const name = document.getElementById('snippet-name-input').value.trim();
+  const command = document.getElementById('snippet-command-input').value.trim();
+  if (!command) {
+    showToast('A command is required');
+    return;
+  }
+  if (editingSnippetId) {
+    const existing = snippets.find((s) => s.id === editingSnippetId);
+    if (existing) {
+      existing.name = name || null;
+      existing.command = command;
+    }
+  } else {
+    snippets.push({ id: genId('snippet'), name: name || null, command });
+  }
+  await persistSnippets();
+  closeSnippetModal();
+  renderSnippetList(document.getElementById('snippet-search').value);
+}
+
+async function deleteSnippetFromModal() {
+  if (!editingSnippetId) return;
+  snippets = snippets.filter((s) => s.id !== editingSnippetId);
+  await persistSnippets();
+  closeSnippetModal();
+  renderSnippetList(document.getElementById('snippet-search').value);
+}
+
+async function exportSnippets() {
+  if (!snippets.length) {
+    showToast('No snippets to export yet');
+    return;
+  }
+  const result = await ipcRenderer.invoke('snippets:export', snippets);
+  if (result.ok) showToast(`Exported to ${result.path}`);
+}
+
+async function importSnippets() {
+  const result = await ipcRenderer.invoke('snippets:import');
+  if (!result.ok) return;
+  const incoming = result.snippets || [];
+  let added = 0;
+  for (const s of incoming) {
+    const isDuplicate = snippets.some((existing) => existing.command === s.command && existing.name === s.name);
+    if (!isDuplicate) {
+      snippets.push(s);
+      added += 1;
+    }
+  }
+  await persistSnippets();
+  renderSnippetList(document.getElementById('snippet-search').value);
+  showToast(added ? `Imported ${added} snippet${added === 1 ? '' : 's'}` : 'No new snippets found in that file');
+}
+
+// ---------- Sidebar collapse / pin ----------
+
+function setSidebarCollapsed(collapsed) {
+  sidebarCollapsed = collapsed;
+  document.getElementById('sidebar').classList.toggle('collapsed', collapsed);
+  setTimeout(() => {
+    const tab = activeTab();
+    if (tab) tab.fitAddon.fit();
+  }, 240);
+}
+
+function toggleSidebar() {
+  setSidebarCollapsed(!sidebarCollapsed);
+}
+
+function togglePin() {
+  sidebarPinned = !sidebarPinned;
+  document.getElementById('pin-btn').classList.toggle('active', sidebarPinned);
+  if (sidebarPinned && sidebarCollapsed) setSidebarCollapsed(false);
+}
+
+// ---------- Command history modal ----------
+
+async function loadHistory() {
+  history = await ipcRenderer.invoke('history:load');
+}
+
+function openHistoryModal() {
+  const modal = document.getElementById('history-modal');
+  modal.classList.remove('hidden');
+  const search = document.getElementById('history-search');
+  search.value = '';
+  renderHistoryList('');
+  search.focus();
+}
+
+function closeHistoryModal() {
+  document.getElementById('history-modal').classList.add('hidden');
+}
+
+function renderHistoryList(filter) {
+  const listEl = document.getElementById('history-list');
+  listEl.innerHTML = '';
+  const q = (filter || '').trim().toLowerCase();
+  const items = history
+    .slice()
+    .reverse()
+    .filter((h) => !q || h.command.toLowerCase().includes(q));
+
+  if (!items.length) {
+    listEl.innerHTML = '<div class="empty-state">No matching commands.</div>';
+    return;
+  }
+
+  for (const entry of items.slice(0, 300)) {
+    const el = document.createElement('div');
+    el.className = 'history-item';
+    el.textContent = entry.command;
+    el.addEventListener('click', () => {
+      insertCommand(entry.command);
+      closeHistoryModal();
+    });
+    listEl.appendChild(el);
+  }
+}
+
+function insertCommand(command) {
+  const tab = activeTab();
+  if (!tab) return;
+  // Clear whatever's on the current input line, then type the command without
+  // pressing Enter, so the user can review or edit it before running it.
+  ipcRenderer.send('pty:write', { tabId: tab.id, data: '\x15' + command });
+  tab.inputBuffer = command;
+  clearSuggestion(tab);
+  tab.term.focus();
+}
+
+// ---------- Wiring ----------
+
+function wireStaticControls() {
+  document.getElementById('new-tab-btn').addEventListener('click', () => createTab());
+  document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+  document.getElementById('pin-btn').addEventListener('click', togglePin);
+
+  document.getElementById('snippet-search').addEventListener('input', (e) => renderSnippetList(e.target.value));
+  document.getElementById('add-snippet-btn').addEventListener('click', () => openSnippetModal(null));
+  document.getElementById('export-btn').addEventListener('click', exportSnippets);
+  document.getElementById('import-btn').addEventListener('click', importSnippets);
+
+  document.getElementById('snippet-cancel-btn').addEventListener('click', closeSnippetModal);
+  document.getElementById('snippet-save-btn').addEventListener('click', saveSnippetFromModal);
+  document.getElementById('snippet-delete-btn').addEventListener('click', deleteSnippetFromModal);
+  document.getElementById('snippet-modal').querySelector('.modal-scrim').addEventListener('click', closeSnippetModal);
+
+  document.getElementById('history-search').addEventListener('input', (e) => renderHistoryList(e.target.value));
+  document.getElementById('history-modal').querySelector('.modal-scrim').addEventListener('click', closeHistoryModal);
+
+  document.getElementById('btn-min').addEventListener('click', () => ipcRenderer.send('window:minimize'));
+  document.getElementById('btn-max').addEventListener('click', () => ipcRenderer.send('window:maximize-toggle'));
+  document.getElementById('btn-close').addEventListener('click', () => ipcRenderer.send('window:close'));
+
+  document.addEventListener('keydown', (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    const key = e.key.toLowerCase();
+
+    if (mod && e.shiftKey && key === 't') {
+      e.preventDefault(); e.stopPropagation();
+      createTab();
+      return;
+    }
+    if (mod && e.shiftKey && key === 'w') {
+      e.preventDefault(); e.stopPropagation();
+      if (activeTabId) closeTab(activeTabId);
+      return;
+    }
+    if (mod && e.shiftKey && (key === 'h' || key === 'f')) {
+      e.preventDefault(); e.stopPropagation();
+      openHistoryModal();
+      return;
+    }
+    if (mod && e.shiftKey && key === 'b') {
+      e.preventDefault(); e.stopPropagation();
+      toggleSidebar();
+      return;
+    }
+    if (mod && key === 'tab') {
+      e.preventDefault(); e.stopPropagation();
+      cycleTab(e.shiftKey ? -1 : 1);
+      return;
+    }
+    if (key === 'escape') {
+      if (!document.getElementById('history-modal').classList.contains('hidden')) {
+        closeHistoryModal();
+        e.preventDefault();
+      } else if (!document.getElementById('snippet-modal').classList.contains('hidden')) {
+        closeSnippetModal();
+        e.preventDefault();
+      }
+    }
+  }, true);
+
+  ipcRenderer.on('pty:data', (_event, { tabId, data }) => {
+    const tab = tabs.find((t) => t.id === tabId);
+    if (tab) tab.term.write(data);
+  });
+
+  ipcRenderer.on('pty:exit', (_event, { tabId }) => {
+    const tab = tabs.find((t) => t.id === tabId);
+    if (tab) tab.term.write('\r\n\x1b[90m[process exited]\x1b[0m\r\n');
+  });
+
+  const resizeObserver = new ResizeObserver(() => {
+    const tab = activeTab();
+    if (tab) tab.fitAddon.fit();
+  });
+  resizeObserver.observe(document.getElementById('terminals'));
+}
+
+async function bootstrap() {
+  wireStaticControls();
+  await Promise.all([loadSnippets(), loadHistory()]);
+  createTab();
+}
+
+bootstrap();
