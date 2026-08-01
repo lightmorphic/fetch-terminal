@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-01
+
+### Changed
+
+- Reworked the color palette to a navy-and-gold theme (`#10141C` background,
+  `#19212B` surfaces, `#FBC711` accent), replacing the original purple
+  Material palette across the UI, the terminal's ANSI color theme, and the
+  generated app icon.
+
 ## [0.1.0] - 2026-08-01
 
 ### Added
@@ -27,5 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/fosscharlie/fetch-terminal/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fosscharlie/fetch-terminal/releases/tag/v0.1.0

@@ -2,17 +2,17 @@
    looks identical regardless of the host desktop environment's toolkit. */
 
 :root {
-  --md-bg: #131316;
-  --md-surface: #1c1b1f;
-  --md-surface-1: #221f26;
-  --md-surface-2: #28242e;
-  --md-surface-3: #2f2a37;
-  --md-outline: #3a3640;
-  --md-on-surface: #e6e1e6;
-  --md-on-surface-variant: #a8a2ab;
-  --md-primary: #d0bcff;
-  --md-primary-on: #38294f;
-  --md-primary-container: #4a3a68;
+  --md-bg: #10141c;
+  --md-surface: #19212b;
+  --md-surface-1: #1e2733;
+  --md-surface-2: #232d3a;
+  --md-surface-3: #2a3542;
+  --md-outline: #34404e;
+  --md-on-surface: #e9ecef;
+  --md-on-surface-variant: #9ba7b4;
+  --md-primary: #fbc711;
+  --md-primary-on: #10141c;
+  --md-primary-container: #3a3018;
   --md-danger: #f2b8b5;
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -58,7 +58,7 @@ input, textarea {
 }
 input:focus, textarea:focus {
   border-color: var(--md-primary);
-  box-shadow: 0 0 0 3px rgba(208, 188, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(251, 199, 17, 0.15);
 }
 
 /* ---------- Titlebar ---------- */
