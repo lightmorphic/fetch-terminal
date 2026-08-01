@@ -35,7 +35,7 @@ Material-style interface is drawn entirely in HTML/CSS.
 
 There's no hosted download yet, so you build a package from source once, then
 install that package normally. Pick whichever packaging format you prefer —
-all three are produced by the same `npm run dist` command.
+both are produced by the same `npm run dist` command.
 
 ```sh
 git clone https://github.com/fosscharlie/fetch-terminal.git
@@ -69,22 +69,6 @@ your app menu automatically.)
 sudo apt install ./dist/*.deb
 ```
 
-**Flatpak** — sandboxed, updates independently of your system packages.
-Building it requires `flatpak-builder` and the Electron/freedesktop runtimes,
-which are a larger one-time download:
-
-```sh
-sudo apt install -y flatpak flatpak-builder
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08 org.electronjs.Electron2.BaseApp//23.08
-
-npm run dist -- --linux flatpak
-
-flatpak install --user ./dist/*.flatpak
-```
-
-Launch it from your app menu, or with `flatpak run cx.charlie.fetchterminal`.
-
 ## Development
 
 ```sh
@@ -95,13 +79,12 @@ npm start
 ## Packaging
 
 ```sh
-npm run dist                    # AppImage, .deb, and flatpak (see above for flatpak prerequisites)
+npm run dist                    # AppImage and .deb
 npm run dist -- --linux AppImage
 npm run dist -- --linux deb
-npm run dist -- --linux flatpak
 ```
 
-All three are configured in the `build` section of `package.json` via
+Both are configured in the `build` section of `package.json` via
 `electron-builder`.
 
 ## Snippets file format

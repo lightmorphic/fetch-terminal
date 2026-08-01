@@ -23,8 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   one-liners, that run instantly in the active tab when clicked. Includes a
   live filter box, a pin/lock to keep the sidebar open, and Markdown
   export/import for backup and sharing.
-- Packaging via `electron-builder`: AppImage, `.deb`, and Flatpak targets,
-  with a generated application icon.
+- Packaging via `electron-builder`: AppImage and `.deb` targets, with a
+  generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
 [Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/v0.1.0...HEAD
