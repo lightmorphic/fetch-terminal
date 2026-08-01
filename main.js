@@ -17,12 +17,20 @@ let mainWindow = null;
 const ptyProcesses = new Map(); // tabId -> pty process
 
 // Electron's `transparent: true` (used for the rounded window corners —
-// see createWindow) needs this switch on Linux or the window just renders
-// fully opaque/square regardless of any CSS, since the OS-level surface
-// never gets an alpha channel to begin with. Must be set before the app
-// is ready.
+// see createWindow) needs both of these on Linux, or the window renders
+// fully opaque/square no matter what the CSS says:
+//   - enable-transparent-visuals gives the X11 window an alpha channel
+//     to begin with.
+//   - GPU-accelerated compositing in Chromium doesn't actually punch that
+//     alpha channel through to the window server on Linux — only the
+//     software/CPU compositing path does. Without disabling GPU
+//     compositing, you get exactly the bug reported here: a correctly
+//     rounded CSS outline drawn over a still fully opaque, still square
+//     window surface underneath it. Both must be set before the app is
+//     ready.
 if (process.platform === 'linux') {
   app.commandLine.appendSwitch('enable-transparent-visuals');
+  app.disableHardwareAcceleration();
 }
 
 function readJson(file, fallback) {

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-08-01
+
+### Fixed
+
+- Rounded corners were still square underneath: `enable-transparent-visuals`
+  gives the window an alpha channel, but on Linux, Chromium's
+  GPU-accelerated compositing path doesn't actually deliver that alpha to
+  the window server — only its software/CPU compositing path does.
+  Without disabling GPU compositing, the CSS border-radius outline drew
+  correctly while the window surface underneath it stayed fully opaque
+  and square. Added `app.disableHardwareAcceleration()` alongside the
+  existing switch (Linux only).
+
 ## [0.16.0] - 2026-08-01
 
 ### Removed
