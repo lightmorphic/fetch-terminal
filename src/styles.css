@@ -369,10 +369,6 @@ input:focus, textarea:focus {
   border-radius: var(--radius-lg);
   padding: 6px 12px;
 }
-.search-field.search-field-short {
-  flex: none;
-  width: 175px;
-}
 .search-field input {
   border: none;
   background: none;
@@ -537,6 +533,27 @@ input:focus, textarea:focus {
   color: var(--md-on-surface-variant);
   font-family: 'Roboto Mono', 'DejaVu Sans Mono', monospace;
 }
+.app-brand-link {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  text-decoration: none;
+}
+.app-brand-link:hover .app-brand-name,
+.app-brand-link:hover .app-brand-version { text-decoration: underline; }
+
+.update-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--md-on-surface-variant);
+  cursor: pointer;
+  transition: background var(--motion-fast);
+}
+.update-dot.checking { background: var(--md-on-surface-variant); opacity: 0.6; }
+.update-dot.up-to-date { background: #5cc37e; }
+.update-dot.available { background: var(--md-error); }
+.update-dot.error { background: var(--md-on-surface-variant); }
 
 .update-btn {
   flex-basis: 100%;

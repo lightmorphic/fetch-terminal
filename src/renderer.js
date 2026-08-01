@@ -711,12 +711,22 @@ function setUpdateButton({ label, action, disabled = false }) {
   btn.innerHTML = `<span class="btn-icon">${icon('update')}</span><span>${label}</span>`;
 }
 
+function setUpdateDot(cls, title) {
+  const dot = document.getElementById('update-dot');
+  dot.className = `update-dot ${cls}`;
+  dot.title = title;
+}
+
 function applyUpdateState(payload) {
   const btn = document.getElementById('update-btn');
   switch (payload.state) {
+    case 'checking':
+      setUpdateDot('checking', 'Checking for updates…');
+      break;
     case 'available':
       latestUpdateVersion = payload.version;
       setUpdateButton({ label: `Update to v${payload.version}`, action: 'download' });
+      setUpdateDot('available', `Update available: v${payload.version} (click to re-check)`);
       break;
     case 'downloading': {
       const pct = Math.round(payload.percent || 0);
@@ -725,15 +735,19 @@ function applyUpdateState(payload) {
     }
     case 'downloaded':
       setUpdateButton({ label: 'Restart & install update', action: 'install' });
+      setUpdateDot('available', `Update ready to install: v${payload.version}`);
       break;
     case 'error':
       if (btn.dataset.action === 'downloading') {
         showToast('Update failed to download');
       }
       btn.classList.add('hidden');
+      setUpdateDot('error', 'Update check failed (click to retry)');
       break;
-    case 'checking':
     case 'not-available':
+      btn.classList.add('hidden');
+      setUpdateDot('up-to-date', `You're on the latest version, v${APP_VERSION} (click to re-check)`);
+      break;
     default:
       btn.classList.add('hidden');
       break;
@@ -798,6 +812,7 @@ function wireStaticControls() {
   document.getElementById('btn-close').addEventListener('click', () => ipcRenderer.send('window:close'));
 
   document.getElementById('update-btn').addEventListener('click', handleUpdateButtonClick);
+  document.getElementById('update-dot').addEventListener('click', () => ipcRenderer.invoke('update:check'));
   ipcRenderer.on('update:state', (_event, payload) => applyUpdateState(payload));
 
   document.addEventListener('keydown', (e) => {

@@ -38,7 +38,7 @@
   <div id="main">
     <aside id="sidebar">
       <div id="sidebar-header">
-        <div class="search-field search-field-short">
+        <div class="search-field">
           <span class="search-icon" data-icon="search"></span>
           <input id="snippet-search" placeholder="Search snippets" autocomplete="off" />
         </div>
@@ -52,8 +52,11 @@
           <button id="export-btn" class="text-btn small neutral" data-icon-inline="export">Export</button>
         </div>
         <div id="app-brand">
-          <span class="app-brand-name">Fetch Terminal</span>
-          <span id="app-brand-version" class="app-brand-version"></span>
+          <a id="app-brand-link" class="app-brand-link" href="https://github.com/fosscharlie/fetch-terminal" title="View on GitHub">
+            <span class="app-brand-name">Fetch Terminal</span>
+            <span id="app-brand-version" class="app-brand-version"></span>
+          </a>
+          <span id="update-dot" class="update-dot" title="Checking for updates…"></span>
           <button id="update-btn" class="update-btn hidden"></button>
         </div>
       </div>

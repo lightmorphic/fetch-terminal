@@ -88,15 +88,16 @@ autoUpdater.on('error', (err) => sendUpdateState('error', { message: err == null
 autoUpdater.on('download-progress', (progress) => sendUpdateState('downloading', { percent: progress.percent }));
 autoUpdater.on('update-downloaded', (info) => sendUpdateState('downloaded', { version: info.version }));
 
-ipcMain.handle('update:check', async () => {
-  if (!app.isPackaged) return { state: 'not-available' };
-  try {
-    sendUpdateState('checking');
-    await autoUpdater.checkForUpdates();
-  } catch (err) {
-    sendUpdateState('error', { message: err.message });
+function runUpdateCheck() {
+  sendUpdateState('checking');
+  if (!app.isPackaged) {
+    sendUpdateState('not-available');
+    return;
   }
-});
+  autoUpdater.checkForUpdates().catch((err) => sendUpdateState('error', { message: err.message }));
+}
+
+ipcMain.handle('update:check', () => runUpdateCheck());
 
 ipcMain.handle('update:download', async () => {
   try {
@@ -113,11 +114,7 @@ ipcMain.handle('update:install', () => {
 app.whenReady().then(() => {
   restoreThemeSource();
   createWindow();
-  if (app.isPackaged) {
-    mainWindow.once('ready-to-show', () => {
-      autoUpdater.checkForUpdates().catch((err) => sendUpdateState('error', { message: err.message }));
-    });
-  }
+  mainWindow.once('ready-to-show', runUpdateCheck);
 });
 
 ipcMain.handle('theme:set', (event, source) => {
