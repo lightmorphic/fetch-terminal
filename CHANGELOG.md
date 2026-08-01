@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-01
+
+### Added
+
+- Geist (SIL Open Font License) bundled directly in the app as the UI and
+  monospace font, replacing Roboto/Roboto Mono. Loaded from local files
+  only — no CDN, no Google Fonts, no network dependency of any kind
+  beyond checking GitHub for updates.
+- Right-click context menu in the terminal (Copy/Paste).
+- A subtle 1px outline around the whole app window, using the same
+  outline color as the sidebar/titlebar dividers — with `frame: false`
+  there's no OS-drawn window border, so without this the app edge was
+  invisible against a similarly dark desktop.
+
+### Changed
+
+- Copy/paste shortcuts moved to `Ctrl+Shift+C`/`Ctrl+Shift+V`. Plain
+  `Ctrl+C`, `Ctrl+V`, and `Ctrl+X` are untouched now and always keep
+  their normal terminal meaning (interrupt, etc.) — the previous
+  behavior (`Ctrl+C` copying when there was a selection) is reverted.
+- Tooltips app-wide redesigned: removed the accent-colored border
+  from the last pass and converted every remaining native
+  browser tooltip to the same style, so the whole app is now
+  consistent — a small translucent panel with a subtle outline,
+  rather than a solid highlight-colored box.
+- Password rows: click the row itself to type the password into the
+  active terminal (same interaction as clicking a snippet), instead of
+  a separate "type" button. The pencil icon (same style as the snippet
+  editor) opens an edit view to rename it or set a new password
+  (existing password still can't be viewed — only replaced). Delete
+  moved into that edit view, keeping its two-click confirmation.
+- Snippet command text now matches the name's font size instead of
+  being smaller; the name stays bold, the command stays regular weight.
+
 ## [0.9.2] - 2026-08-01
 
 ### Fixed
@@ -298,7 +332,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.2...HEAD
+[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.0...HEAD
+[0.10.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.2...0.10.0
 [0.9.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.1...0.9.0
