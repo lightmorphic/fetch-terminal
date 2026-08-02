@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-08-02
+
+### Fixed
+
+- The 1.3.1 fix only corrected the ghost's position, not its size: the
+  ghost div never had its own `font-size`/`line-height`, so it fell
+  back to the app's default 13px UI font instead of the terminal's
+  actual 14px font at a 1.15 line-height. That mismatch left the
+  suggestion floating visibly above the real line even once its
+  top-left corner was in the right place. It now reads the terminal's
+  own font size and cell height on every render and matches them
+  exactly, so the ghost sits on the same baseline as what you typed.
+
 ## [1.3.1] - 2026-08-02
 
 ### Fixed

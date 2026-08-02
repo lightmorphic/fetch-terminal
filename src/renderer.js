@@ -392,6 +392,16 @@ function renderGhost(tab) {
   const cell = getCellSize(tab.term);
   const cursorX = tab.term.buffer.active.cursorX;
   const cursorY = tab.term.buffer.active.cursorY;
+  // The ghost div never matched xterm's own font metrics: it was falling
+  // back to the app's default 13px UI font instead of the terminal's 14px
+  // font-size / 1.15 line-height, so even with the correct top/left the
+  // glyphs inside sat in a differently-sized line box and looked shifted
+  // up off the real text line. Match them explicitly, every render, so it
+  // can't drift from the live terminal's own settings.
+  const fontSize = (tab.term.options && tab.term.options.fontSize) || 14;
+  el.style.fontSize = `${fontSize}px`;
+  el.style.lineHeight = `${cell.height}px`;
+  el.style.height = `${cell.height}px`;
   // The ghost is a direct child of .terminal-pane, which is where xterm's
   // own rendered text is inset by the pane's own padding (its containing
   // block for position:absolute is the pane's padding box, not its content
