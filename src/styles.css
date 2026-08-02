@@ -502,10 +502,10 @@ input:focus, textarea:focus {
 .snippet-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 4px 9px 10px;
+  gap: 6px;
+  padding: 6px 4px 6px 10px;
   border-radius: var(--radius-sm);
-  margin-bottom: 3px;
+  margin-bottom: 1px;
   cursor: pointer;
   transition: background var(--motion-fast), transform var(--motion-fast);
   position: relative;
@@ -569,6 +569,30 @@ input:focus, textarea:focus {
 .snippet-item:hover .snippet-edit-btn,
 .credential-row:hover .snippet-edit-btn { opacity: 1; }
 .snippet-edit-btn:hover { background: var(--md-surface-4); color: var(--md-on-surface); opacity: 1; }
+
+.snippet-pin-btn {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-on-surface-variant);
+  opacity: 0.35;
+  transition: opacity var(--motion-fast), background var(--motion-fast), color var(--motion-fast);
+}
+.snippet-pin-btn svg { width: 14px; height: 14px; }
+.snippet-item:hover .snippet-pin-btn { opacity: 1; }
+.snippet-pin-btn:hover { background: var(--md-surface-4); color: var(--md-on-surface); opacity: 1; }
+/* A pinned snippet's pin stays visible (and accent-colored) even when
+   not hovered — otherwise there'd be no way to tell it's pinned without
+   mousing over every row. */
+.snippet-pin-btn.pinned {
+  color: var(--md-primary);
+  opacity: 1;
+}
+.snippet-pin-btn.pinned:hover { background: var(--md-primary-container); color: var(--md-primary); }
 
 .empty-state {
   color: var(--md-on-surface-variant);
@@ -818,6 +842,31 @@ input:focus, textarea:focus {
   border-radius: 6px;
 }
 .xterm-viewport::-webkit-scrollbar-track { background: transparent; }
+
+/* Same subtle, themed scrollbar for every other scrolling list in the
+   app (snippets, passwords, history), instead of each platform's own
+   default scrollbar. Firefox doesn't support ::-webkit-scrollbar at all;
+   scrollbar-color/width is its equivalent. */
+#snippet-list, #credential-list, #history-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--md-surface-5) transparent;
+}
+#snippet-list::-webkit-scrollbar,
+#credential-list::-webkit-scrollbar,
+#history-list::-webkit-scrollbar {
+  width: 8px;
+}
+#snippet-list::-webkit-scrollbar-thumb,
+#credential-list::-webkit-scrollbar-thumb,
+#history-list::-webkit-scrollbar-thumb {
+  background: var(--md-surface-5);
+  border-radius: 6px;
+}
+#snippet-list::-webkit-scrollbar-track,
+#credential-list::-webkit-scrollbar-track,
+#history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
 
 .autocomplete-ghost {
   position: absolute;

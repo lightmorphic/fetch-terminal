@@ -28,6 +28,7 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
   that's really a prefix — e.g. `sudo apt install ` — meant to be
   finished by hand rather than run as-is)
   - Live search box at the top of the sidebar filters as you type
+  - Pin up to 3 snippets to the top of the list
   - Locked open by default; unlock it to let it auto-collapse the
     moment you type into the terminal or run a snippet instead
   - Export/import snippets as a Markdown file for backup and sharing

@@ -487,7 +487,11 @@ function renderSnippetList(filter) {
     return;
   }
 
-  for (const snippet of filtered) {
+  // Pinned snippets float to the top; Array#sort is stable, so within each
+  // group (pinned / not) everything keeps its existing relative order.
+  const ordered = [...filtered].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+  for (const snippet of ordered) {
     const item = document.createElement('div');
     item.className = 'snippet-item' + (snippet.name ? '' : ' unnamed');
 
@@ -509,6 +513,15 @@ function renderSnippetList(filter) {
     cmdEl.textContent = snippet.command;
     text.appendChild(cmdEl);
 
+    const pinBtn = document.createElement('button');
+    pinBtn.className = 'snippet-pin-btn' + (snippet.pinned ? ' pinned' : '');
+    pinBtn.innerHTML = icon('pin');
+    pinBtn.dataset.tooltip = snippet.pinned ? 'Unpin' : `Pin to top (up to ${MAX_PINNED_SNIPPETS})`;
+    pinBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleSnippetPin(snippet);
+    });
+
     const editBtn = document.createElement('button');
     editBtn.className = 'snippet-edit-btn';
     editBtn.innerHTML = icon('edit');
@@ -518,11 +531,23 @@ function renderSnippetList(filter) {
       openSnippetModal(snippet);
     });
 
-    item.append(iconEl, text, editBtn);
+    item.append(iconEl, text, pinBtn, editBtn);
     item.dataset.tooltip = 'Click to run — Ctrl+Click to type it without pressing Enter';
     item.addEventListener('click', (event) => runSnippet(snippet, event));
     listEl.appendChild(item);
   }
+}
+
+const MAX_PINNED_SNIPPETS = 3;
+
+async function toggleSnippetPin(snippet) {
+  if (!snippet.pinned && snippets.filter((s) => s.pinned).length >= MAX_PINNED_SNIPPETS) {
+    showToast(`You can pin up to ${MAX_PINNED_SNIPPETS} snippets`);
+    return;
+  }
+  snippet.pinned = !snippet.pinned;
+  await persistSnippets();
+  renderSnippetList(document.getElementById('snippet-search').value);
 }
 
 function runSnippet(snippet, event) {

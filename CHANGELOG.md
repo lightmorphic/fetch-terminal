@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-08-02
+
+### Added
+
+- Pin up to 3 snippets to the top of the sidebar list, via a pin icon
+  on each row. Pinned snippets stay accent-colored and visible even
+  without hovering; unpinned ones keep their relative order beneath
+  them. Trying to pin a fourth shows a toast rather than silently
+  failing or bumping one off.
+
+### Changed
+
+- A themed, subtly-colored scrollbar (matching the terminal's own)
+  now appears on the snippets, passwords, and history lists instead
+  of the platform's default one.
+- Tightened the vertical spacing on snippet rows so more fit on
+  screen at once without scrolling.
+
 ## [1.2.0] - 2026-08-02
 
 ### Added
