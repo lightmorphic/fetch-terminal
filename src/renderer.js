@@ -543,6 +543,11 @@ function runSnippet(snippet, event) {
     tab.inputBuffer += snippet.command;
     refreshSuggestion(tab);
   }
+  // Clicking a snippet takes focus away from the terminal (it's a sidebar
+  // click), so without this the cursor just blinks there uninteractively
+  // until the user clicks back into it themselves — whether or not Enter
+  // was pressed, the whole point is to keep typing right away.
+  tab.term.focus();
   if (!sidebarPinned) setSidebarCollapsed(true);
 }
 

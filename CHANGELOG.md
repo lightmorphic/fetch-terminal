@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-08-02
+
+### Fixed
+
+- Clicking a snippet (either running it immediately or, with Ctrl+Click,
+  typing it without submitting) left the terminal unfocused, since the
+  click itself lands in the sidebar — you had to click into the terminal
+  yourself before you could keep typing. It now focuses the terminal
+  automatically, so you can start typing the rest of the command right
+  away either way.
+
 ## [1.1.0] - 2026-08-01
 
 ### Added
