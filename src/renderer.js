@@ -392,8 +392,18 @@ function renderGhost(tab) {
   const cell = getCellSize(tab.term);
   const cursorX = tab.term.buffer.active.cursorX;
   const cursorY = tab.term.buffer.active.cursorY;
-  el.style.left = `${cursorX * cell.width}px`;
-  el.style.top = `${cursorY * cell.height}px`;
+  // The ghost is a direct child of .terminal-pane, which is where xterm's
+  // own rendered text is inset by the pane's own padding (its containing
+  // block for position:absolute is the pane's padding box, not its content
+  // box) — without adding that back in, the ghost sits padding-top/-left
+  // pixels above and to the left of the real cursor cell instead of right
+  // on top of it. Read it live rather than hardcoding it so this can't
+  // drift out of sync with the CSS again.
+  const paneStyle = getComputedStyle(tab.pane);
+  const offsetLeft = parseFloat(paneStyle.paddingLeft) || 0;
+  const offsetTop = parseFloat(paneStyle.paddingTop) || 0;
+  el.style.left = `${offsetLeft + cursorX * cell.width}px`;
+  el.style.top = `${offsetTop + cursorY * cell.height}px`;
   el.style.display = 'block';
 }
 

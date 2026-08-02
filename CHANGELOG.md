@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-08-02
+
+### Fixed
+
+- The autocomplete ghost suggestion rendered above and to the left of
+  where you were actually typing, instead of right after it on the
+  same line. It's a direct child of `.terminal-pane`, and for an
+  absolutely positioned element that's the pane's *padding box* (not
+  its content box) — so it needed the pane's own padding added back in
+  to land on the real cursor cell. Reproduced the exact misalignment
+  and verified the fix against a real xterm.js instance before
+  shipping.
+
 ## [1.3.0] - 2026-08-02
 
 ### Added
