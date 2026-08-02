@@ -509,7 +509,24 @@ ipcMain.on('pty:kill', (event, { tabId }) => {
 
 // ---------- Snippets ----------
 
-ipcMain.handle('snippets:load', () => readJson(SNIPPETS_FILE(), []));
+// A blank sidebar with a "+ New snippet" button and nothing else doesn't
+// show what a snippet actually is — one small, obviously-safe example
+// (that also happens to be genuinely useful) makes the feature self
+// explanatory. Seeded once, only if snippets.json has never existed yet
+// (a fresh install, or right after "Reset all data"), and written to disk
+// immediately so it's a completely normal snippet from then on — editing
+// or deleting it behaves exactly like any snippet the user created
+// themselves, and it won't come back on its own once it's gone.
+const DEFAULT_SNIPPETS = [{ id: 'default-clear', name: 'Clear', command: 'clear' }];
+
+ipcMain.handle('snippets:load', () => {
+  const file = SNIPPETS_FILE();
+  if (!fs.existsSync(file)) {
+    writeJson(file, DEFAULT_SNIPPETS);
+    return DEFAULT_SNIPPETS;
+  }
+  return readJson(file, []);
+});
 
 ipcMain.handle('snippets:save', (event, snippets) => {
   writeJson(SNIPPETS_FILE(), snippets);

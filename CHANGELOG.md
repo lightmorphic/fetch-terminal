@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-02
+
+### Added
+
+- A single default snippet, "Clear" (runs `clear`), on first launch — a
+  blank sidebar with just a "+ New snippet" button doesn't show what a
+  snippet actually is. It's a completely normal snippet from the start:
+  edit or delete it like any other, and it won't come back on its own
+  once it's gone (though it does reappear after "Reset all data," same
+  as a fresh install).
+
 ## [1.1.1] - 2026-08-02
 
 ### Fixed
