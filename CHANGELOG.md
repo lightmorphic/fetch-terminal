@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-01
+
+### Added
+
+- `Ctrl+Click` (or `Cmd+Click`) on a snippet types it into the terminal
+  without pressing Enter, instead of running it immediately — useful for
+  a snippet that's really a prefix (`sudo apt install `) meant to be
+  finished by hand. A plain click still runs it right away as before.
+
 ## [1.0.0] - 2026-08-01
 
 First stable release. No functional changes from 0.20.2 — this marks

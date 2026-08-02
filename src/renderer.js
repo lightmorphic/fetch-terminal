@@ -519,15 +519,30 @@ function renderSnippetList(filter) {
     });
 
     item.append(iconEl, text, editBtn);
-    item.addEventListener('click', () => runSnippet(snippet));
+    item.dataset.tooltip = 'Click to run — Ctrl+Click to type it without pressing Enter';
+    item.addEventListener('click', (event) => runSnippet(snippet, event));
     listEl.appendChild(item);
   }
 }
 
-function runSnippet(snippet) {
+function runSnippet(snippet, event) {
   const tab = activeTab();
   if (!tab) return;
-  ipcRenderer.send('pty:write', { tabId: tab.id, data: snippet.command + '\r' });
+  // Ctrl/Cmd+Click types the snippet without submitting it — useful for a
+  // snippet that's really a prefix (e.g. "sudo apt install ") meant to be
+  // finished by hand rather than run as-is. Keep tab.inputBuffer in sync
+  // either way, the same as every other way text reaches the terminal, so
+  // autocomplete and history stay correct for whatever happens next.
+  const withEnter = !(event && (event.ctrlKey || event.metaKey));
+  if (withEnter) {
+    ipcRenderer.send('pty:write', { tabId: tab.id, data: snippet.command + '\r' });
+    tab.inputBuffer = '';
+    clearSuggestion(tab);
+  } else {
+    ipcRenderer.send('pty:write', { tabId: tab.id, data: snippet.command });
+    tab.inputBuffer += snippet.command;
+    refreshSuggestion(tab);
+  }
   if (!sidebarPinned) setSidebarCollapsed(true);
 }
 

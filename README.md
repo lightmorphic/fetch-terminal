@@ -24,6 +24,9 @@ ever makes at all is checking GitHub for a new release (see "Updates" below)
   (accept with `Tab` or `→`)
 - Collapsible sidebar of snippets — saved shell commands (including SSH
   one-liners) that run instantly in the active tab when clicked
+  (`Ctrl+Click` types it without pressing Enter, handy for a snippet
+  that's really a prefix — e.g. `sudo apt install ` — meant to be
+  finished by hand rather than run as-is)
   - Live search box at the top of the sidebar filters as you type
   - Locked open by default; unlock it to let it auto-collapse the
     moment you type into the terminal or run a snippet instead
