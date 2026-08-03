@@ -412,8 +412,14 @@ function renderGhost(tab) {
   const paneStyle = getComputedStyle(tab.pane);
   const offsetLeft = parseFloat(paneStyle.paddingLeft) || 0;
   const offsetTop = parseFloat(paneStyle.paddingTop) || 0;
+  // The math above lands the ghost exactly on the real cursor cell in
+  // every reproduction we've tried, on every DPI scale factor — but on at
+  // least one real display it still reads about a pixel low. That's font
+  // hinting/antialiasing, not the geometry, so it isn't something the
+  // formula above can account for; nudge it down by a hair to compensate.
+  const GHOST_VERTICAL_NUDGE = 1;
   el.style.left = `${offsetLeft + cursorX * cell.width}px`;
-  el.style.top = `${offsetTop + cursorY * cell.height}px`;
+  el.style.top = `${offsetTop + cursorY * cell.height + GHOST_VERTICAL_NUDGE}px`;
   el.style.display = 'block';
 }
 

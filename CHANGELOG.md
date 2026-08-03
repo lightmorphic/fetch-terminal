@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-08-03
+
+### Fixed
+
+- The ghost suggestion still read about a pixel too high on at least
+  one real display even after 1.3.2's font-metric fix. The position
+  math checks out exactly against a real xterm.js instance across
+  several DPI scale factors, so the remainder looks like font
+  hinting/antialiasing rather than a geometry bug — nudged the ghost
+  down by a pixel to compensate.
+
 ## [1.3.2] - 2026-08-02
 
 ### Fixed
