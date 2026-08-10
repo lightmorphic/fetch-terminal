@@ -17,6 +17,7 @@ const SITE_ICONS = {
   palette: svg('<path d="M12 3a9 9 0 1 0 0 18h.6a2 2 0 0 0 2-2 2 2 0 0 1 2-2h.6A3.8 3.8 0 0 0 21 13.2 9 9 0 0 0 12 3z"/><circle cx="7.8" cy="10.2" r="1.15" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="16.2" cy="10.2" r="1.15" fill="currentColor" stroke="none"/>'),
   dollar: '$',
   arrow: '→',
+  externalLink: svg('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><line x1="10" y1="14" x2="21" y2="3"/>'),
 };
 
 document.querySelectorAll('[data-icon]').forEach((el) => {

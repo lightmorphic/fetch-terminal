@@ -540,6 +540,20 @@ h1 {
   color: var(--ink-dim);
 }
 
+.features-credit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 48px;
+  font-size: 0.82rem;
+  color: var(--ink-dim);
+  opacity: 0.75;
+  transition: opacity 150ms ease;
+}
+.features-credit:hover { opacity: 1; }
+.features-credit img { display: block; height: 25px; width: auto; }
+
 /* ---------- Footer ---------- */
 
 .site-footer {
@@ -563,6 +577,9 @@ h1 {
 }
 .site-footer-sponsor:hover { opacity: 1; }
 .site-footer-sponsor img { display: block; height: 25px; width: auto; }
+
+.external-link-icon { display: block; width: 12px; height: 12px; }
+.external-link-icon svg { width: 100%; height: 100%; }
 
 /* ---------- Responsive ---------- */
 
