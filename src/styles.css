@@ -495,10 +495,6 @@ input:focus, textarea:focus {
   padding: 4px 8px;
 }
 
-#add-snippet-btn {
-  margin: 4px 10px 8px;
-}
-
 .snippet-item {
   display: flex;
   align-items: center;
@@ -636,49 +632,43 @@ input:focus, textarea:focus {
   flex-direction: column;
   gap: 4px;
 }
-.section-header {
+.credential-header-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
 }
 .section-title {
+  flex: none;
   font-size: 10.5px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--md-on-surface-variant);
 }
-.section-actions {
+.credential-controls {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 2px;
+  justify-content: flex-end;
+  gap: 4px;
 }
-.section-actions .icon-btn {
+.credential-controls .icon-btn {
+  flex: none;
   width: 22px;
   height: 22px;
 }
-.section-actions .icon-btn svg { width: 13px; height: 13px; }
-#credential-body { display: flex; flex-direction: column; gap: 4px; }
-.vault-pin-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.credential-controls .icon-btn svg { width: 13px; height: 13px; }
 .vault-pin-input {
   flex: 1;
   min-width: 0;
-  padding: 6px 10px;
-  border-radius: var(--radius-md);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--md-outline);
   background: var(--md-surface-2);
-  font-size: 12.5px;
+  font-size: 11px;
 }
 .vault-pin-input:focus { border-color: var(--md-primary); }
-.vault-pin-row .icon-btn {
-  flex: none;
-  width: 28px;
-  height: 28px;
-}
 #credential-list {
   display: flex;
   flex-direction: column;
@@ -780,8 +770,13 @@ input:focus, textarea:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
   padding-top: 4px;
+}
+.app-brand-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .app-brand-name {
   font-size: 11.5px;
@@ -802,25 +797,20 @@ input:focus, textarea:focus {
 .app-brand-link:hover .app-brand-name,
 .app-brand-link:hover .app-brand-version { text-decoration: underline; }
 
-.app-brand-sub {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 .lightmorphic-credit {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
-  border-radius: var(--radius-lg);
-  background: var(--md-surface-4);
+  gap: 3px;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
   color: var(--md-on-surface-variant);
-  font-size: 10px;
+  font-size: 8px;
   text-decoration: none;
-  transition: background var(--motion-fast), color var(--motion-fast);
+  opacity: 0.75;
+  transition: opacity var(--motion-fast), color var(--motion-fast);
 }
-.lightmorphic-credit:hover { background: var(--md-surface-5); color: var(--md-on-surface); }
-.lightmorphic-credit img { display: block; height: 12px; width: auto; }
+.lightmorphic-credit:hover { opacity: 1; color: var(--md-on-surface); }
+.lightmorphic-credit img { display: block; height: 9px; width: auto; }
 
 .update-dot {
   position: relative;

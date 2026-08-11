@@ -16,6 +16,7 @@
         <span class="search-icon" data-icon="search"></span>
         <input id="snippet-search" placeholder="Search snippets" autocomplete="off" />
       </div>
+      <button id="add-snippet-btn" class="icon-btn" data-icon="plus" data-tooltip="New snippet"></button>
       <button id="pin-btn" class="icon-btn accent-icon-btn" data-icon="unlock" data-tooltip="Keep sidebar open"></button>
     </div>
     <div id="terminal-topbar">
@@ -53,17 +54,13 @@
   <div id="main">
     <aside id="sidebar">
       <div id="snippet-list"></div>
-      <button id="add-snippet-btn" class="text-btn">+ New snippet</button>
 
       <div id="credential-section">
-        <div class="section-header">
+        <div class="credential-header-row">
           <span class="section-title">Passwords</span>
-          <div class="section-actions">
-            <button id="add-credential-btn" class="icon-btn hidden" data-icon="plus" data-tooltip="Add password"></button>
-            <button id="vault-lock-btn" class="icon-btn hidden" data-icon="lock" data-tooltip="Lock now"></button>
-          </div>
+          <div id="credential-controls" class="credential-controls"></div>
         </div>
-        <div id="credential-body"></div>
+        <div id="credential-list"></div>
       </div>
 
       <div id="sidebar-footer">
@@ -73,17 +70,17 @@
           <button id="reset-data-btn" class="text-btn small neutral reset-data-btn" data-tooltip="Delete all snippets, history, passwords, and settings">Reset</button>
         </div>
         <div id="app-brand">
-          <a id="app-brand-link" class="app-brand-link" href="https://github.com/lightmorphic/fetch-terminal" data-tooltip="View on GitHub">
-            <span class="app-brand-name">Fetch Terminal</span>
-            <span id="app-brand-version" class="app-brand-version"></span>
-          </a>
-          <div class="app-brand-sub">
-            <a id="lightmorphic-credit" class="lightmorphic-credit" href="https://lightmorphic.co.uk" data-tooltip="lightmorphic.co.uk">
-              <span>Created by</span>
-              <img src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="70" height="14" />
+          <div class="app-brand-top">
+            <a id="app-brand-link" class="app-brand-link" href="https://github.com/lightmorphic/fetch-terminal" data-tooltip="View on GitHub">
+              <span class="app-brand-name">Fetch Terminal</span>
+              <span id="app-brand-version" class="app-brand-version"></span>
             </a>
             <span id="update-dot" class="update-dot" data-tooltip="Checking for updates…"></span>
           </div>
+          <a id="lightmorphic-credit" class="lightmorphic-credit" href="https://lightmorphic.co.uk" data-tooltip="lightmorphic.co.uk">
+            <span>Created by</span>
+            <img src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="48" height="10" />
+          </a>
           <button id="update-btn" class="update-btn hidden"></button>
         </div>
       </div>
