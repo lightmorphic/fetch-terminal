@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-08-11
+
+### Added
+
+- A "Created by Lightmorphic" credit under the app name in the sidebar
+  footer, linking to lightmorphic.co.uk, with the existing update-status
+  dot moved alongside it (green once you're on the latest version).
+
 ## [1.4.0] - 2026-08-11
 
 ### Added
