@@ -502,8 +502,8 @@ input:focus, textarea:focus {
 .snippet-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 4px 6px 10px;
+  gap: 4px;
+  padding: 3px 4px 3px 4px;
   border-radius: var(--radius-sm);
   margin-bottom: 1px;
   cursor: pointer;
@@ -512,18 +512,37 @@ input:focus, textarea:focus {
 }
 .snippet-item:hover { background: var(--md-surface-2); }
 .snippet-item:active { transform: scale(0.98); background: var(--md-surface-3); }
+.snippet-item.dragging { opacity: 0.4; }
+.snippet-item.drag-over-top { box-shadow: inset 0 2px 0 var(--md-primary); }
+.snippet-item.drag-over-bottom { box-shadow: inset 0 -2px 0 var(--md-primary); }
+
+.snippet-grip {
+  flex: none;
+  width: 12px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-on-surface-variant);
+  opacity: 0;
+  cursor: grab;
+  transition: opacity var(--motion-fast);
+}
+.snippet-grip svg { width: 12px; height: 12px; }
+.snippet-item:hover .snippet-grip { opacity: 0.45; }
+.snippet-item.dragging .snippet-grip { cursor: grabbing; }
 
 .snippet-icon {
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--md-primary-container);
   color: var(--md-on-primary-container);
-  font-size: 11px;
+  font-size: 10.5px;
 }
 .snippet-icon.remote {
   background: var(--md-tertiary-container);
@@ -533,17 +552,24 @@ input:focus, textarea:focus {
 .snippet-text {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
 }
 .snippet-name {
-  font-size: 12.5px;
+  flex: none;
+  max-width: 45%;
+  font-size: 12px;
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .snippet-command {
+  flex: 1;
+  min-width: 0;
   font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 400;
   color: var(--md-on-surface-variant);
   overflow: hidden;
@@ -554,8 +580,8 @@ input:focus, textarea:focus {
 
 .snippet-edit-btn {
   flex: none;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -565,15 +591,15 @@ input:focus, textarea:focus {
   opacity: 0.45;
   transition: opacity var(--motion-fast), background var(--motion-fast), color var(--motion-fast);
 }
-.snippet-edit-btn svg { width: 14px; height: 14px; }
+.snippet-edit-btn svg { width: 13px; height: 13px; }
 .snippet-item:hover .snippet-edit-btn,
 .credential-row:hover .snippet-edit-btn { opacity: 1; }
 .snippet-edit-btn:hover { background: var(--md-surface-4); color: var(--md-on-surface); opacity: 1; }
 
 .snippet-pin-btn {
   flex: none;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -582,7 +608,7 @@ input:focus, textarea:focus {
   opacity: 0.35;
   transition: opacity var(--motion-fast), background var(--motion-fast), color var(--motion-fast);
 }
-.snippet-pin-btn svg { width: 14px; height: 14px; }
+.snippet-pin-btn svg { width: 13px; height: 13px; }
 .snippet-item:hover .snippet-pin-btn { opacity: 1; }
 .snippet-pin-btn:hover { background: var(--md-surface-4); color: var(--md-on-surface); opacity: 1; }
 /* A pinned snippet's pin stays visible (and accent-colored) even when
@@ -605,10 +631,10 @@ input:focus, textarea:focus {
 #credential-section {
   flex: none;
   border-top: 1px solid var(--md-outline-variant);
-  padding: 8px 10px;
+  padding: 6px 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 .section-header {
   display: flex;
@@ -622,16 +648,37 @@ input:focus, textarea:focus {
   letter-spacing: 0.05em;
   color: var(--md-on-surface-variant);
 }
-#credential-body { display: flex; flex-direction: column; gap: 6px; }
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.section-actions .icon-btn {
+  width: 22px;
+  height: 22px;
+}
+.section-actions .icon-btn svg { width: 13px; height: 13px; }
+#credential-body { display: flex; flex-direction: column; gap: 4px; }
+.vault-pin-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .vault-pin-input {
-  width: 100%;
-  padding: 7px 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
   border-radius: var(--radius-md);
   border: 1px solid var(--md-outline);
   background: var(--md-surface-2);
   font-size: 12.5px;
 }
 .vault-pin-input:focus { border-color: var(--md-primary); }
+.vault-pin-row .icon-btn {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
 #credential-list {
   display: flex;
   flex-direction: column;

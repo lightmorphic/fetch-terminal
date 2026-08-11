@@ -142,7 +142,27 @@ function copySelection(tab) {
 function pasteIntoTerminal(tab) {
   const text = clipboard.readText();
   if (!text) return;
-  const outgoing = processUserInput(tab, text);
+  const lines = text.split(/\r\n|\r|\n/);
+  // A trailing newline in the clipboard (common when copying a whole
+  // script) splits into a trailing empty string — drop it so it doesn't
+  // become a phantom blank line queued after the real last line.
+  if (lines.length > 1 && lines[lines.length - 1] === '') lines.pop();
+
+  if (lines.length <= 1) {
+    const outgoing = processUserInput(tab, text);
+    if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
+    return;
+  }
+
+  // A multi-line paste used to reach the shell with every embedded newline
+  // intact, which the shell reads as an Enter keypress — so the whole
+  // script ran unattended the instant it was pasted, line by line, with no
+  // chance to review or stop it. Instead, type only the first line and
+  // queue the rest: each further line only gets typed in (still not run)
+  // once the user presses Enter on the one before it, so a multi-line
+  // paste behaves like typing it by hand one line at a time.
+  tab.pasteQueue = lines.slice(1);
+  const outgoing = processUserInput(tab, lines[0]);
   if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
 }
 
@@ -188,6 +208,7 @@ function createTab() {
     ghostEl: ghost,
     inputBuffer: '',
     suggestion: null,
+    pasteQueue: null,
     title: 'Shell',
   };
   tabs.push(tab);
@@ -423,6 +444,21 @@ function renderGhost(tab) {
   el.style.display = 'block';
 }
 
+// Sends the same thing a user typing "clear" and pressing Enter would —
+// rather than xterm's own term.clear(), which only clears the local
+// scrollback buffer and does nothing to whatever the shell itself thinks
+// is on screen (so a remote SSH session, for instance, would look
+// unchanged the moment it next redrew anything).
+function clearActiveTerminal() {
+  const tab = activeTab();
+  if (!tab) return;
+  ipcRenderer.send('pty:write', { tabId: tab.id, data: 'clear\r' });
+  tab.inputBuffer = '';
+  tab.pasteQueue = null;
+  clearSuggestion(tab);
+  tab.term.focus();
+}
+
 function commitLine(tab) {
   const command = tab.inputBuffer.trim();
   tab.inputBuffer = '';
@@ -439,7 +475,15 @@ function commitLine(tab) {
 function processUserInput(tab, data) {
   if (data === '\r' || data === '\n') {
     commitLine(tab);
-    return data;
+    let outgoing = data;
+    if (tab.pasteQueue && tab.pasteQueue.length) {
+      const nextLine = tab.pasteQueue.shift();
+      if (!tab.pasteQueue.length) tab.pasteQueue = null;
+      tab.inputBuffer = nextLine;
+      refreshSuggestion(tab);
+      outgoing += nextLine;
+    }
+    return outgoing;
   }
   if (data === '\x7f' || data === '\b') {
     tab.inputBuffer = tab.inputBuffer.slice(0, -1);
@@ -448,6 +492,7 @@ function processUserInput(tab, data) {
   }
   if (data === '\x03') {
     tab.inputBuffer = '';
+    tab.pasteQueue = null;
     clearSuggestion(tab);
     return data;
   }
@@ -517,9 +562,24 @@ function renderSnippetList(filter) {
   // group (pinned / not) everything keeps its existing relative order.
   const ordered = [...filtered].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
+  // Dragging to reorder rewrites the underlying `snippets` array by index,
+  // which only means what the user sees while every snippet is visible and
+  // in its normal pinned-then-unpinned order — with a search filter active
+  // the list is a subset in a different order, so a drag there would move
+  // the wrong item. Simplest correct fix: only allow it unfiltered.
+  const reorderable = !q;
+
   for (const snippet of ordered) {
     const item = document.createElement('div');
     item.className = 'snippet-item' + (snippet.name ? '' : ' unnamed');
+    item.draggable = reorderable;
+
+    const gripEl = document.createElement('span');
+    gripEl.className = 'snippet-grip';
+    if (reorderable) {
+      gripEl.innerHTML = icon('grip');
+      gripEl.dataset.tooltip = 'Drag to reorder';
+    }
 
     const isRemote = looksLikeSsh(snippet.command);
     const iconEl = document.createElement('div');
@@ -529,12 +589,12 @@ function renderSnippetList(filter) {
     const text = document.createElement('div');
     text.className = 'snippet-text';
     if (snippet.name) {
-      const nameEl = document.createElement('div');
+      const nameEl = document.createElement('span');
       nameEl.className = 'snippet-name';
       nameEl.textContent = snippet.name;
       text.appendChild(nameEl);
     }
-    const cmdEl = document.createElement('div');
+    const cmdEl = document.createElement('span');
     cmdEl.className = 'snippet-command';
     cmdEl.textContent = snippet.command;
     text.appendChild(cmdEl);
@@ -557,11 +617,57 @@ function renderSnippetList(filter) {
       openSnippetModal(snippet);
     });
 
-    item.append(iconEl, text, pinBtn, editBtn);
+    item.append(gripEl, iconEl, text, pinBtn, editBtn);
     item.dataset.tooltip = 'Click to run — Ctrl+Click to type it without pressing Enter';
     item.addEventListener('click', (event) => runSnippet(snippet, event));
+
+    if (reorderable) {
+      item.addEventListener('dragstart', (event) => {
+        dragSnippetId = snippet.id;
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', snippet.id);
+        item.classList.add('dragging');
+      });
+      item.addEventListener('dragover', (event) => {
+        if (!dragSnippetId || dragSnippetId === snippet.id) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        const before = event.clientY - item.getBoundingClientRect().top < item.offsetHeight / 2;
+        item.classList.toggle('drag-over-top', before);
+        item.classList.toggle('drag-over-bottom', !before);
+      });
+      item.addEventListener('dragleave', () => {
+        item.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+      item.addEventListener('drop', (event) => {
+        event.preventDefault();
+        const before = event.clientY - item.getBoundingClientRect().top < item.offsetHeight / 2;
+        reorderSnippet(dragSnippetId, snippet.id, before);
+      });
+      item.addEventListener('dragend', () => {
+        dragSnippetId = null;
+        listEl.querySelectorAll('.snippet-item').forEach((el) => {
+          el.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+        });
+      });
+    }
+
     listEl.appendChild(item);
   }
+}
+
+let dragSnippetId = null;
+
+async function reorderSnippet(draggedId, targetId, before) {
+  if (!draggedId || draggedId === targetId) return;
+  const fromIdx = snippets.findIndex((s) => s.id === draggedId);
+  if (fromIdx === -1) return;
+  const [moved] = snippets.splice(fromIdx, 1);
+  let toIdx = snippets.findIndex((s) => s.id === targetId);
+  if (toIdx === -1) toIdx = snippets.length;
+  snippets.splice(before ? toIdx : toIdx + 1, 0, moved);
+  await persistSnippets();
+  renderSnippetList(document.getElementById('snippet-search').value);
 }
 
 const MAX_PINNED_SNIPPETS = 3;
@@ -692,37 +798,35 @@ async function refreshVaultStatus() {
 
 function renderCredentialSection() {
   const body = document.getElementById('credential-body');
-  const lockBtn = document.getElementById('vault-lock-btn');
-  lockBtn.classList.toggle('hidden', !vaultUnlocked);
+  document.getElementById('vault-lock-btn').classList.toggle('hidden', !vaultUnlocked);
+  document.getElementById('add-credential-btn').classList.toggle('hidden', !vaultUnlocked);
   body.innerHTML = '';
 
   if (!vaultHasPin) {
     body.innerHTML = `
-      <p class="modal-note">Set a PIN to protect saved passwords from anyone
-        else who uses this computer. It's separate from any system password
-        and never leaves this device.</p>
-      <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="Choose a PIN (4+ characters)" autocomplete="off" />
-      <button id="vault-pin-submit" class="text-btn small neutral">Set PIN</button>
+      <div class="vault-pin-row">
+        <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="Choose a PIN (4+ characters)" autocomplete="off" data-tooltip="Protects saved passwords from anyone else who uses this computer — separate from any system password, never leaves this device" />
+        <button id="vault-pin-submit" class="icon-btn accent-icon-btn" data-icon="check" data-tooltip="Set PIN"></button>
+      </div>
     `;
+    applyIcons();
     wireVaultPinInput(setupVaultPin);
     return;
   }
 
   if (!vaultUnlocked) {
     body.innerHTML = `
-      <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="Enter PIN to unlock" autocomplete="off" />
-      <button id="vault-pin-submit" class="text-btn small neutral">Unlock</button>
+      <div class="vault-pin-row">
+        <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="Enter PIN to unlock" autocomplete="off" />
+        <button id="vault-pin-submit" class="icon-btn accent-icon-btn" data-icon="unlock" data-tooltip="Unlock"></button>
+      </div>
     `;
+    applyIcons();
     wireVaultPinInput(unlockVault);
     return;
   }
 
-  body.innerHTML = `
-    <div id="credential-list"></div>
-    <button id="add-credential-btn" class="text-btn small neutral" data-icon-inline="plus">Add password</button>
-  `;
-  applyIcons();
-  document.getElementById('add-credential-btn').addEventListener('click', () => openCredentialModal());
+  body.innerHTML = `<div id="credential-list"></div>`;
   loadCredentials();
 }
 
@@ -1303,6 +1407,7 @@ function wireStaticControls() {
   document.getElementById('app-brand-version').textContent = `v${APP_VERSION}`;
 
   document.getElementById('new-tab-btn').addEventListener('click', () => createTab());
+  document.getElementById('clear-btn').addEventListener('click', clearActiveTerminal);
   document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
   document.getElementById('pin-btn').addEventListener('click', togglePin);
   document.getElementById('appearance-btn').addEventListener('click', (e) => {
@@ -1325,6 +1430,7 @@ function wireStaticControls() {
   document.getElementById('snippet-modal').querySelector('.modal-scrim').addEventListener('click', closeSnippetModal);
 
   document.getElementById('vault-lock-btn').addEventListener('click', lockVaultNow);
+  document.getElementById('add-credential-btn').addEventListener('click', () => openCredentialModal());
   document.getElementById('credential-cancel-btn').addEventListener('click', closeCredentialModal);
   document.getElementById('credential-save-btn').addEventListener('click', saveCredentialFromModal);
   document.getElementById('credential-delete-btn').addEventListener('click', handleCredentialDeleteClick);
