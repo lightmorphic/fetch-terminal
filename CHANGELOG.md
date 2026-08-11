@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-08-11
+
+### Changed
+
+- "Fetch Terminal", its version number, the update-status dot, and the
+  Lightmorphic credit now all sit on a single line in the sidebar
+  footer instead of two. The Lightmorphic credit shrank further
+  ("Created by" → "by", smaller logo, no background) to make room.
+- The clear-terminal button now draws an actual broom instead of a
+  vague swoosh, and sits in a permanently filled accent-colored circle
+  instead of only highlighting on hover.
+
 ## [1.4.2] - 2026-08-11
 
 ### Changed
