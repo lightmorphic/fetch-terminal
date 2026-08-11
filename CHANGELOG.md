@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.5] - 2026-08-11
+
+### Fixed
+
+- "Fetch Terminal" + version could silently wrap into a garbled
+  multi-line mess instead of a clean single line whenever the row's
+  content got even slightly too wide for the sidebar: nothing stopped
+  flex-shrink from squeezing text spans below their natural width,
+  which made them wrap internally. Added `flex-shrink: 0` to the
+  brand/version group and the Lightmorphic credit so the row can only
+  ever overflow cleanly (never happens at current sizes) instead of
+  corrupting into multiple lines.
+
+### Changed
+
+- The Lightmorphic logo is 20% bigger again (12px → 14.4px), with the
+  surrounding "Fetch Terminal"/version text trimmed slightly to keep
+  everything on one line at the larger size.
+
 ## [1.4.4] - 2026-08-11
 
 ### Changed
