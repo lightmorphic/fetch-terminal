@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-08-11
+
+### Changed
+
+- "+ New snippet" moved out of a full-width button under the list and
+  into a small icon button next to the search field at the top of the
+  sidebar.
+- The passwords section collapsed further: the "Passwords" label, PIN
+  entry/unlock field, and add/lock actions now all share a single row
+  instead of a header row plus a separate input row. The unlock button
+  and the "lock now" button are now the same button slot, just showing
+  a different icon depending on whether the vault is locked or open.
+- The "Created by Lightmorphic" credit is smaller, and the
+  up-to-date/update-available status dot moved back next to the
+  version number (it had ended up next to the Lightmorphic credit
+  instead in 1.4.1, which wasn't the intent).
+
 ## [1.4.1] - 2026-08-11
 
 ### Added

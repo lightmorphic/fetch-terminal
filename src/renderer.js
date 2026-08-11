@@ -797,17 +797,15 @@ async function refreshVaultStatus() {
 }
 
 function renderCredentialSection() {
-  const body = document.getElementById('credential-body');
-  document.getElementById('vault-lock-btn').classList.toggle('hidden', !vaultUnlocked);
-  document.getElementById('add-credential-btn').classList.toggle('hidden', !vaultUnlocked);
-  body.innerHTML = '';
+  const controls = document.getElementById('credential-controls');
+  const list = document.getElementById('credential-list');
+  controls.innerHTML = '';
+  list.innerHTML = '';
 
   if (!vaultHasPin) {
-    body.innerHTML = `
-      <div class="vault-pin-row">
-        <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="Choose a PIN (4+ characters)" autocomplete="off" data-tooltip="Protects saved passwords from anyone else who uses this computer — separate from any system password, never leaves this device" />
-        <button id="vault-pin-submit" class="icon-btn accent-icon-btn" data-icon="check" data-tooltip="Set PIN"></button>
-      </div>
+    controls.innerHTML = `
+      <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="New PIN" autocomplete="off" data-tooltip="Protects saved passwords from anyone else who uses this computer — separate from any system password, never leaves this device" />
+      <button id="vault-pin-submit" class="icon-btn accent-icon-btn" data-icon="check" data-tooltip="Set PIN"></button>
     `;
     applyIcons();
     wireVaultPinInput(setupVaultPin);
@@ -815,18 +813,22 @@ function renderCredentialSection() {
   }
 
   if (!vaultUnlocked) {
-    body.innerHTML = `
-      <div class="vault-pin-row">
-        <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="Enter PIN to unlock" autocomplete="off" />
-        <button id="vault-pin-submit" class="icon-btn accent-icon-btn" data-icon="unlock" data-tooltip="Unlock"></button>
-      </div>
+    controls.innerHTML = `
+      <input id="vault-pin-input" class="vault-pin-input" type="password" placeholder="PIN" autocomplete="off" />
+      <button id="vault-pin-submit" class="icon-btn accent-icon-btn" data-icon="unlock" data-tooltip="Unlock"></button>
     `;
     applyIcons();
     wireVaultPinInput(unlockVault);
     return;
   }
 
-  body.innerHTML = `<div id="credential-list"></div>`;
+  controls.innerHTML = `
+    <button id="add-credential-btn" class="icon-btn" data-icon="plus" data-tooltip="Add password"></button>
+    <button id="vault-lock-btn" class="icon-btn" data-icon="lock" data-tooltip="Lock now"></button>
+  `;
+  applyIcons();
+  document.getElementById('add-credential-btn').addEventListener('click', () => openCredentialModal());
+  document.getElementById('vault-lock-btn').addEventListener('click', lockVaultNow);
   loadCredentials();
 }
 
@@ -1429,8 +1431,6 @@ function wireStaticControls() {
   document.getElementById('snippet-delete-btn').addEventListener('click', deleteSnippetFromModal);
   document.getElementById('snippet-modal').querySelector('.modal-scrim').addEventListener('click', closeSnippetModal);
 
-  document.getElementById('vault-lock-btn').addEventListener('click', lockVaultNow);
-  document.getElementById('add-credential-btn').addEventListener('click', () => openCredentialModal());
   document.getElementById('credential-cancel-btn').addEventListener('click', closeCredentialModal);
   document.getElementById('credential-save-btn').addEventListener('click', saveCredentialFromModal);
   document.getElementById('credential-delete-btn').addEventListener('click', handleCredentialDeleteClick);
