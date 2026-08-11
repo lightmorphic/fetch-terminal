@@ -777,30 +777,34 @@ input:focus, textarea:focus {
 
 #app-brand {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
-  gap: 5px;
+  gap: 3px;
   padding-top: 4px;
+  min-width: 0;
 }
 .app-brand-top {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 3px;
+  flex-shrink: 0;
 }
 .app-brand-name {
-  font-size: 11.5px;
+  font-size: 9.5px;
   font-weight: 600;
   color: var(--md-primary);
+  white-space: nowrap;
 }
 .app-brand-version {
-  font-size: 10px;
+  font-size: 8.5px;
   color: var(--md-on-surface-variant);
   font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  white-space: nowrap;
 }
 .app-brand-link {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 3px;
   text-decoration: none;
 }
 .app-brand-link:hover .app-brand-name,
@@ -809,16 +813,18 @@ input:focus, textarea:focus {
 .lightmorphic-credit {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   margin-left: auto;
+  flex-shrink: 0;
   color: var(--md-on-surface-variant);
-  font-size: 9.5px;
+  font-size: 7.5px;
   text-decoration: none;
   opacity: 0.75;
+  white-space: nowrap;
   transition: opacity var(--motion-fast), color var(--motion-fast);
 }
 .lightmorphic-credit:hover { opacity: 1; color: var(--md-on-surface); }
-.lightmorphic-credit img { display: block; height: 10px; width: auto; }
+.lightmorphic-credit img { display: block; height: 14.4px; width: auto; flex-shrink: 0; }
 
 .update-dot {
   position: relative;
@@ -862,7 +868,6 @@ input:focus, textarea:focus {
 #global-tooltip.visible { opacity: 1; }
 
 .update-btn {
-  flex-basis: 100%;
   margin-top: 4px;
   padding: 6px 10px;
   border-radius: var(--radius-lg);
