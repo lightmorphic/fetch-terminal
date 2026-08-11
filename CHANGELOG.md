@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-08-11
+
+### Added
+
+- A clear button in the titlebar, next to the appearance toggle. Sends
+  the same thing typing `clear` and pressing Enter would, so it works
+  identically over a remote SSH session too, not just local scrollback.
+- Snippets can now be reordered by dragging them, via a small grip
+  handle that appears on hover. (Disabled while a search filter is
+  active, since a filtered subset can't map cleanly back to full-list
+  positions.)
+
+### Changed
+
+- Snippet rows are now a single compact line (name and command side
+  by side) instead of two stacked lines.
+- The passwords section is more compact: the PIN entry/unlock row and
+  the "add password" action now live in the section header instead of
+  spanning several stacked rows.
+
+### Fixed
+
+- Pasting a multi-line script used to run every line immediately and
+  unattended, since each embedded newline reached the shell as its own
+  Enter keypress. A paste now only types the first line; each further
+  line is queued and only gets typed onto the next prompt once you
+  press Enter on the one before it, so a pasted script runs the same
+  way as typing it by hand, one line at a time.
+- The app's own auto-updater, GitHub links, and package metadata still
+  pointed at the old `fosscharlie/fetch-terminal` repo location from
+  before the project moved to `lightmorphic/fetch-terminal` — the
+  update check would have been polling the wrong repo indefinitely.
+
 ## [1.3.3] - 2026-08-03
 
 ### Fixed
@@ -744,29 +777,29 @@ removed everything that wasn't earning its place.
   generated application icon.
 - README, CHANGELOG, and SECURITY documentation.
 
-[Unreleased]: https://github.com/fosscharlie/fetch-terminal/compare/0.12.0...HEAD
-[0.12.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.2...0.12.0
-[0.11.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.1...0.11.2
-[0.11.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.11.0...0.11.1
-[0.11.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.1...0.11.0
-[0.10.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.10.0...0.10.1
-[0.10.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.2...0.10.0
-[0.9.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.1...0.9.2
-[0.9.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.9.0...0.9.1
-[0.9.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.1...0.9.0
-[0.8.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.8.0...0.8.1
-[0.8.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.1...0.8.0
-[0.7.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.7.0...0.7.1
-[0.7.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.4...0.7.0
-[0.6.4]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.3...0.6.4
-[0.6.3]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.2...0.6.3
-[0.6.2]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.1...0.6.2
-[0.6.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.6.0...0.6.1
-[0.6.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.5.1...0.6.0
-[0.5.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.5.0...0.5.1
-[0.5.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.4.1...0.5.0
-[0.4.1]: https://github.com/fosscharlie/fetch-terminal/compare/0.4.0...0.4.1
-[0.4.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.3.0...0.4.0
-[0.3.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.2.0...0.3.0
-[0.2.0]: https://github.com/fosscharlie/fetch-terminal/compare/0.1.0...0.2.0
-[0.1.0]: https://github.com/fosscharlie/fetch-terminal/releases/tag/0.1.0
+[Unreleased]: https://github.com/lightmorphic/fetch-terminal/compare/0.12.0...HEAD
+[0.12.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.11.2...0.12.0
+[0.11.2]: https://github.com/lightmorphic/fetch-terminal/compare/0.11.1...0.11.2
+[0.11.1]: https://github.com/lightmorphic/fetch-terminal/compare/0.11.0...0.11.1
+[0.11.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.10.1...0.11.0
+[0.10.1]: https://github.com/lightmorphic/fetch-terminal/compare/0.10.0...0.10.1
+[0.10.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.9.2...0.10.0
+[0.9.2]: https://github.com/lightmorphic/fetch-terminal/compare/0.9.1...0.9.2
+[0.9.1]: https://github.com/lightmorphic/fetch-terminal/compare/0.9.0...0.9.1
+[0.9.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.8.1...0.9.0
+[0.8.1]: https://github.com/lightmorphic/fetch-terminal/compare/0.8.0...0.8.1
+[0.8.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.7.1...0.8.0
+[0.7.1]: https://github.com/lightmorphic/fetch-terminal/compare/0.7.0...0.7.1
+[0.7.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.6.4...0.7.0
+[0.6.4]: https://github.com/lightmorphic/fetch-terminal/compare/0.6.3...0.6.4
+[0.6.3]: https://github.com/lightmorphic/fetch-terminal/compare/0.6.2...0.6.3
+[0.6.2]: https://github.com/lightmorphic/fetch-terminal/compare/0.6.1...0.6.2
+[0.6.1]: https://github.com/lightmorphic/fetch-terminal/compare/0.6.0...0.6.1
+[0.6.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.5.1...0.6.0
+[0.5.1]: https://github.com/lightmorphic/fetch-terminal/compare/0.5.0...0.5.1
+[0.5.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.4.1...0.5.0
+[0.4.1]: https://github.com/lightmorphic/fetch-terminal/compare/0.4.0...0.4.1
+[0.4.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.3.0...0.4.0
+[0.3.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.2.0...0.3.0
+[0.2.0]: https://github.com/lightmorphic/fetch-terminal/compare/0.1.0...0.2.0
+[0.1.0]: https://github.com/lightmorphic/fetch-terminal/releases/tag/0.1.0

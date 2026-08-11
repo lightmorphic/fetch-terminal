@@ -1,6 +1,6 @@
 # fetchterminal.org
 
-The project site for [Fetch Terminal](https://github.com/fosscharlie/fetch-terminal), a lightweight, open source terminal emulator for the Linux desktop.
+The project site for [Fetch Terminal](https://github.com/lightmorphic/fetch-terminal), a lightweight, open source terminal emulator for the Linux desktop.
 
 It's a plain static page: no build step, no framework, no CDN. Everything it loads (fonts, xterm.js, the icon set) is vendored into this repo, so the page never makes an outbound request beyond serving itself.
 

@@ -69,7 +69,7 @@ no hosted download yet, so you build an AppImage from source once, then run
 it like any other AppImage.
 
 ```sh
-git clone https://github.com/fosscharlie/fetch-terminal.git
+git clone https://github.com/lightmorphic/fetch-terminal.git
 cd fetch-terminal
 npm install
 npm run dist

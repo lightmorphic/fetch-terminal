@@ -15,7 +15,7 @@ the most recently released version receives security fixes.
 Please **do not** open a public GitHub issue for security vulnerabilities.
 
 Instead, use GitHub's private reporting feature: go to the
-[Security tab](https://github.com/fosscharlie/fetch-terminal/security) of
+[Security tab](https://github.com/lightmorphic/fetch-terminal/security) of
 this repository and click **"Report a vulnerability"**. Include:
 
 - A description of the issue and its potential impact
