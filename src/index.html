@@ -27,7 +27,7 @@
       <div class="titlebar-drag spacer"></div>
       <button id="clear-btn" class="icon-btn titlebar-btn filled-accent" data-icon="clear" data-tooltip="Clear terminal"></button>
       <div class="titlebar-popover-anchor">
-        <button id="appearance-btn" class="icon-btn titlebar-btn" data-icon="palette" data-tooltip="Appearance"></button>
+        <button id="appearance-btn" class="icon-btn titlebar-btn filled-accent" data-icon="palette" data-tooltip="Appearance"></button>
         <div id="appearance-popover" class="popover hidden">
           <div class="popover-scrim"></div>
           <div class="popover-panel">
@@ -70,14 +70,16 @@
           <button id="reset-data-btn" class="text-btn small neutral reset-data-btn" data-tooltip="Delete all snippets, history, passwords, and settings">Reset</button>
         </div>
         <div id="app-brand">
-          <a id="app-brand-link" class="app-brand-link" href="https://github.com/lightmorphic/fetch-terminal" data-tooltip="View on GitHub">
-            <span class="app-brand-name">Fetch Terminal</span>
-            <span id="app-brand-version" class="app-brand-version"></span>
-          </a>
-          <span id="update-dot" class="update-dot" data-tooltip="Checking for updates…"></span>
+          <div class="app-brand-top">
+            <a id="app-brand-link" class="app-brand-link" href="https://github.com/lightmorphic/fetch-terminal" data-tooltip="View on GitHub">
+              <span class="app-brand-name">Fetch Terminal</span>
+              <span id="app-brand-version" class="app-brand-version"></span>
+            </a>
+            <span id="update-dot" class="update-dot" data-tooltip="Checking for updates…"></span>
+          </div>
           <a id="lightmorphic-credit" class="lightmorphic-credit" href="https://lightmorphic.co.uk" data-tooltip="lightmorphic.co.uk">
-            <span>by</span>
-            <img src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="36" height="7" />
+            <span>Created by</span>
+            <img src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="50" height="10" />
           </a>
           <button id="update-btn" class="update-btn hidden"></button>
         </div>
