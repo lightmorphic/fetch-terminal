@@ -27,7 +27,7 @@ const ICONS = {
   pin: svg('<path d="M12 21s-7-7.5-7-12a7 7 0 0 1 14 0c0 4.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.2"/>'),
   auto: svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor" stroke="none"/>'),
   update: svg('<path d="M12 3v10"/><path d="M7.5 9.5 12 14l4.5-4.5"/><path d="M5 20h14"/>'),
-  clear: svg('<path d="M19 5 9.5 14.5"/><path d="M9.5 14.5c-2.5 0-5.5 1-7 5 3.6-0.8 5.3 0.4 7-1.3"/><path d="M13.5 7.5l3 3"/>'),
+  clear: svg('<line x1="18" y1="3" x2="10.5" y2="10.5"/><path d="M10.5 10.5 4.5 19.5h11z"/><line x1="7.3" y1="14.5" x2="6.3" y2="18.7"/><line x1="10.5" y1="14.5" x2="10.5" y2="19"/><line x1="13.7" y1="14.5" x2="14.2" y2="18.7"/>'),
   grip: svg('<circle cx="9" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.3" fill="currentColor" stroke="none"/>'),
 };
 
