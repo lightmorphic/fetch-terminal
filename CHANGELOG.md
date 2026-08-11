@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-08-11
+
+### Changed
+
+- The Lightmorphic credit is bigger again ("by" → "Created by", larger
+  logo) and pushed to the right edge of the sidebar footer, with "Fetch
+  Terminal" and its version left-aligned instead of centered — both
+  still share one line.
+- The appearance/theme button is now a filled accent circle like the
+  clear button, instead of only highlighting on hover.
+- The window's outer edge outline is twice as thick and explicitly
+  forced square (`border-radius: 0`), after visual artifacts at the
+  corners on a real display.
+
+### Investigated
+
+- Revisited rounded window corners (tried and reverted once already in
+  0.18.0). Confirmed the underlying constraint still applies: real
+  per-pixel window transparency on Linux only renders correctly with a
+  compositing window manager running, which several of this app's
+  target desktops (Cinnamon/Xfce/MATE spins) often don't run by
+  default — without one, the window still comes back opaque and
+  square regardless of any CSS. Left the window shape as-is.
+
 ## [1.4.3] - 2026-08-11
 
 ### Changed
