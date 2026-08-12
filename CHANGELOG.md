@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.6] - 2026-08-11
+
+### Fixed
+
+- A multi-line paste could still type the next queued line's raw text
+  straight into an interactive prompt (a `sudo` password prompt, a y/n
+  confirmation, ...) the instant the previous line's Enter was sent —
+  there's no reliable way to tell "command finished" apart from
+  "command is silently waiting for a password" from the terminal
+  output alone. Nothing is auto-typed anymore. Plain Enter is left
+  completely untouched, so it always does whatever the terminal
+  currently expects.
+
+### Added
+
+- A small indicator now appears while a multi-line paste has queued
+  lines left, showing how many remain and a preview of the next one.
+  Hovering it shows the full remaining script. `Ctrl+Enter` — a
+  combination no shell or prompt reads any meaning into — deliberately
+  advances to the next line; regular typing and plain Enter are
+  never touched by it.
+
 ## [1.4.5] - 2026-08-11
 
 ### Fixed

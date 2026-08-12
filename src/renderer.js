@@ -157,13 +157,69 @@ function pasteIntoTerminal(tab) {
   // A multi-line paste used to reach the shell with every embedded newline
   // intact, which the shell reads as an Enter keypress — so the whole
   // script ran unattended the instant it was pasted, line by line, with no
-  // chance to review or stop it. Instead, type only the first line and
-  // queue the rest: each further line only gets typed in (still not run)
-  // once the user presses Enter on the one before it, so a multi-line
-  // paste behaves like typing it by hand one line at a time.
+  // chance to review or stop it, and no way to answer a password or
+  // confirmation prompt partway through — whatever the next line's text
+  // happened to be just got typed straight into that prompt instead.
+  //
+  // There's no reliable way for this app to tell "the previous line
+  // finished, the shell is ready" apart from "the previous line is
+  // silently waiting for a password" — both just look like silence on the
+  // terminal, and a password prompt has no fixed, detectable shape (every
+  // shell/locale/sudo config can print something different). So nothing
+  // past the first line is ever typed in automatically. The rest sits in
+  // tab.pasteQueue, visible in the indicator below, and only moves onto
+  // the input line one at a time via Ctrl+Enter — a key the shell itself
+  // never acts on, so it can never collide with answering a real prompt.
+  // Plain Enter is completely untouched: it always does whatever the
+  // terminal currently expects, password or not.
   tab.pasteQueue = lines.slice(1);
   const outgoing = processUserInput(tab, lines[0]);
   if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
+  renderPasteQueueIndicator(tab);
+}
+
+function renderPasteQueueIndicator(tab) {
+  const el = tab.pasteQueueEl;
+  if (!tab.pasteQueue || !tab.pasteQueue.length) {
+    el.classList.add('hidden');
+    return;
+  }
+  const [next, ...rest] = tab.pasteQueue;
+  const count = tab.pasteQueue.length;
+  el.innerHTML = '';
+  const label = document.createElement('span');
+  label.textContent = `${count} more pasted line${count === 1 ? '' : 's'} — `;
+  const kbd = document.createElement('kbd');
+  kbd.textContent = 'Ctrl+Enter';
+  const forNext = document.createElement('span');
+  forNext.textContent = ' for next: ';
+  const cmd = document.createElement('span');
+  cmd.className = 'paste-queue-next-cmd';
+  cmd.textContent = next;
+  el.append(label, kbd, forNext, cmd);
+  // The full remaining script, not just the next line, so pasting a
+  // script actually lets you review all of it before any of it runs.
+  el.dataset.tooltip = [next, ...rest].map((line, i) => `${i + 1}. ${line}`).join('\n');
+  el.classList.remove('hidden');
+}
+
+// Ctrl+Enter is never something a shell or an interactive prompt (sudo,
+// a y/n confirmation, ssh's host-key prompt, etc.) reads any meaning
+// into, so using it as the sole way to advance the paste queue means it
+// can never accidentally fire while you're mid-way through answering
+// one of those — unlike plain Enter, which always has to stay free for
+// whatever the terminal is actually asking for right now.
+function advancePasteQueue(tab) {
+  if (!tab.pasteQueue || !tab.pasteQueue.length) return;
+  const nextLine = tab.pasteQueue.shift();
+  if (!tab.pasteQueue.length) tab.pasteQueue = null;
+  // \x15 (Ctrl+U) clears whatever's currently on the input line first —
+  // normally nothing, but defensive in case something was typed after
+  // the previous queued line ran and before this one was requested.
+  ipcRenderer.send('pty:write', { tabId: tab.id, data: '\x15' + nextLine });
+  tab.inputBuffer = nextLine;
+  refreshSuggestion(tab);
+  renderPasteQueueIndicator(tab);
 }
 
 const MAX_TABS = 4;
@@ -180,6 +236,10 @@ function createTab() {
   const ghost = document.createElement('div');
   ghost.className = 'autocomplete-ghost';
   pane.appendChild(ghost);
+
+  const pasteQueueEl = document.createElement('div');
+  pasteQueueEl.className = 'paste-queue-indicator hidden';
+  pane.appendChild(pasteQueueEl);
 
   document.getElementById('terminals').appendChild(pane);
 
@@ -206,6 +266,7 @@ function createTab() {
     fitAddon,
     pane,
     ghostEl: ghost,
+    pasteQueueEl,
     inputBuffer: '',
     suggestion: null,
     pasteQueue: null,
@@ -231,9 +292,22 @@ function createTab() {
   // completely alone, so they keep their normal terminal meaning
   // (interrupt, etc.) exactly as before.
   term.attachCustomKeyEventHandler((event) => {
-    if (event.type !== 'keydown' || event.altKey || !event.shiftKey) return true;
+    if (event.type !== 'keydown' || event.altKey) return true;
     if (!(event.ctrlKey || event.metaKey)) return true;
     const key = event.key.toLowerCase();
+
+    // Deliberately plain Ctrl+Enter, no Shift — a shell or an interactive
+    // prompt (sudo, a y/n confirmation, ...) never reads any meaning into
+    // this combination, so it can advance the paste queue without any
+    // risk of colliding with plain Enter answering whatever the terminal
+    // is actually asking for right now. Only intercepted when there's an
+    // actual queue to advance, so it's otherwise left alone.
+    if (!event.shiftKey && key === 'enter' && tab.pasteQueue && tab.pasteQueue.length) {
+      event.preventDefault();
+      advancePasteQueue(tab);
+      return false;
+    }
+    if (!event.shiftKey) return true;
 
     // Returning false only stops xterm's own key handling — it does not
     // stop the browser's native paste action from also firing on the same
@@ -454,7 +528,10 @@ function clearActiveTerminal() {
   if (!tab) return;
   ipcRenderer.send('pty:write', { tabId: tab.id, data: 'clear\r' });
   tab.inputBuffer = '';
-  tab.pasteQueue = null;
+  if (tab.pasteQueue) {
+    tab.pasteQueue = null;
+    renderPasteQueueIndicator(tab);
+  }
   clearSuggestion(tab);
   tab.term.focus();
 }
@@ -475,15 +552,7 @@ function commitLine(tab) {
 function processUserInput(tab, data) {
   if (data === '\r' || data === '\n') {
     commitLine(tab);
-    let outgoing = data;
-    if (tab.pasteQueue && tab.pasteQueue.length) {
-      const nextLine = tab.pasteQueue.shift();
-      if (!tab.pasteQueue.length) tab.pasteQueue = null;
-      tab.inputBuffer = nextLine;
-      refreshSuggestion(tab);
-      outgoing += nextLine;
-    }
-    return outgoing;
+    return data;
   }
   if (data === '\x7f' || data === '\b') {
     tab.inputBuffer = tab.inputBuffer.slice(0, -1);
@@ -492,7 +561,10 @@ function processUserInput(tab, data) {
   }
   if (data === '\x03') {
     tab.inputBuffer = '';
-    tab.pasteQueue = null;
+    if (tab.pasteQueue) {
+      tab.pasteQueue = null;
+      renderPasteQueueIndicator(tab);
+    }
     clearSuggestion(tab);
     return data;
   }

@@ -857,8 +857,12 @@ input:focus, textarea:focus {
   border-radius: var(--radius-md);
   font-size: 11.5px;
   font-weight: 500;
-  line-height: 1.3;
-  white-space: nowrap;
+  line-height: 1.4;
+  /* pre-line: collapses runs of whitespace like normal text, but keeps
+     real newline characters — most tooltips are one line and unaffected,
+     but the paste-queue tooltip needs its line breaks preserved. */
+  white-space: pre-line;
+  max-width: 320px;
   box-shadow: var(--elevation-2);
   opacity: 0;
   pointer-events: none;
@@ -945,6 +949,47 @@ input:focus, textarea:focus {
   font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
   white-space: pre;
   z-index: 2;
+}
+
+.paste-queue-indicator {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 40px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--md-surface-4) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--md-outline-variant);
+  box-shadow: var(--elevation-2);
+  font-size: 11.5px;
+  color: var(--md-on-surface-variant);
+  z-index: 3;
+  cursor: default;
+}
+.paste-queue-indicator.hidden { display: none; }
+.paste-queue-indicator kbd {
+  flex: none;
+  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  background: var(--md-surface-5);
+  color: var(--md-on-surface);
+  border: 1px solid var(--md-outline-variant);
+}
+.paste-queue-next-cmd {
+  flex: 1;
+  min-width: 0;
+  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
+  color: var(--md-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ---------- Modals ---------- */
