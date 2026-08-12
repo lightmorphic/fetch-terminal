@@ -71,18 +71,23 @@
         </div>
         <div id="app-brand">
           <div class="app-brand-top">
-            <a id="app-brand-link" class="app-brand-link" href="https://github.com/lightmorphic/fetch-terminal" data-tooltip="View on GitHub">
+            <a id="app-brand-link" class="app-brand-link" href="https://fetchterminal.org" data-tooltip="fetchterminal.org">
               <span class="app-brand-name">Fetch Terminal</span>
               <span id="app-brand-version" class="app-brand-version"></span>
             </a>
-            <span id="update-dot" class="update-dot" data-tooltip="Checking for updates…"></span>
+            <button id="update-dot" type="button" class="update-dot" data-tooltip="Checking for updates…">
+              <svg class="update-ring" viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">
+                <circle class="update-ring-track" cx="7" cy="7" r="5.7"></circle>
+                <circle class="update-ring-progress" cx="7" cy="7" r="5.7"></circle>
+              </svg>
+              <span id="update-dot-overlay" class="update-dot-overlay"></span>
+            </button>
           </div>
           <a id="lightmorphic-credit" class="lightmorphic-credit" href="https://lightmorphic.co.uk" data-tooltip="lightmorphic.co.uk">
             <span>Created by</span>
             <img src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="72" height="14.4" />
           </a>
         </div>
-        <button id="update-btn" class="update-btn hidden"></button>
       </div>
     </aside>
 
