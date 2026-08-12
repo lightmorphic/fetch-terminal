@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.7] - 2026-08-12
+
+### Changed
+
+- Replaced the separate "Update to vX.Y.Z" / "Restart & install" button
+  with Lightmorphic's house update-status widget: the small dot next to
+  the app name is now the entire update UI. It's solid green when
+  up to date, solid amber with a download-arrow overlay when an update
+  is available (click to download), a hollow ring tracing the download
+  progress while downloading, solid green with a restart-arrow overlay
+  once downloaded (click to restart), and solid red if it can't reach
+  GitHub. Colors match the exact Lightmorphic palette (`#4BAE4F` /
+  `#FFC006` / `#F34236`) used across every other self-hosted app.
+- The dot is no longer clickable to force a manual re-check in the
+  up-to-date/error states — only in the two states that have an actual
+  action to take (download, restart), matching the house spec.
+- The app name/version now link to fetchterminal.org instead of the
+  GitHub repo, matching the same house convention.
+
 ## [1.4.6] - 2026-08-11
 
 ### Fixed

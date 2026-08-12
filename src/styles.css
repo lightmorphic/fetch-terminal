@@ -785,7 +785,7 @@ input:focus, textarea:focus {
 }
 .app-brand-top {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 3px;
   flex-shrink: 0;
 }
@@ -826,19 +826,60 @@ input:focus, textarea:focus {
 .lightmorphic-credit:hover { opacity: 1; color: var(--md-on-surface); }
 .lightmorphic-credit img { display: block; height: 14.4px; width: auto; flex-shrink: 0; }
 
+/* Lightmorphic's house update-status widget: one small dot carries the
+   entire update UI (state color + overlay icon + progress ring) instead
+   of a separate button — see the update-widget skill for the canonical
+   spec this follows across every self-hosted app. */
 .update-dot {
   position: relative;
-  width: 7px;
-  height: 7px;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--md-on-surface-variant);
-  cursor: pointer;
+  cursor: default;
   transition: background var(--motion-fast);
 }
-.update-dot.checking { background: var(--md-on-surface-variant); opacity: 0.6; }
-.update-dot.up-to-date { background: #5cc37e; }
-.update-dot.available { background: var(--md-error); }
-.update-dot.error { background: var(--md-on-surface-variant); }
+.update-dot.checking { background: var(--md-on-surface-variant); opacity: 0.55; }
+.update-dot.up-to-date { background: #4BAE4F; }
+.update-dot.available { background: #FFC006; cursor: pointer; }
+.update-dot.downloaded { background: #4BAE4F; cursor: pointer; }
+.update-dot.error { background: #F34236; }
+.update-dot.downloading { background: transparent; }
+
+.update-dot-overlay {
+  display: none;
+  color: #ffffff;
+  pointer-events: none;
+}
+.update-dot-overlay svg { width: 8px; height: 8px; display: block; }
+.update-dot.available .update-dot-overlay,
+.update-dot.downloaded .update-dot-overlay { display: flex; }
+
+.update-ring {
+  display: none;
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+.update-dot.downloading .update-ring { display: block; }
+.update-ring-track {
+  fill: none;
+  stroke: var(--md-outline-variant);
+  stroke-width: 1.6;
+}
+.update-ring-progress {
+  fill: none;
+  stroke: #FFC006;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 150ms linear;
+}
 
 /* Modern rounded tooltip, replacing the OS-native title attribute look */
 /* Rendered at the document level (not nested inside the hovered element)
@@ -870,27 +911,6 @@ input:focus, textarea:focus {
   z-index: 9999;
 }
 #global-tooltip.visible { opacity: 1; }
-
-.update-btn {
-  margin-top: 4px;
-  padding: 6px 10px;
-  border-radius: var(--radius-lg);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--md-primary-on);
-  background: var(--md-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  box-shadow: var(--elevation-1);
-  transition: filter var(--motion-fast), box-shadow var(--motion-fast);
-}
-.update-btn:hover:not(:disabled) { filter: brightness(0.96); box-shadow: var(--elevation-2); }
-.update-btn:active:not(:disabled) { filter: brightness(0.9); box-shadow: var(--elevation-1); }
-.update-btn:disabled { cursor: default; opacity: 0.85; }
-.update-btn .btn-icon svg { width: 12px; height: 12px; }
-.update-btn.hidden { display: none; }
 
 /* ---------- Terminals ---------- */
 

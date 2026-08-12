@@ -1328,78 +1328,82 @@ function insertCommand(command) {
 }
 
 // ---------- Updates ----------
+//
+// One dot carries the whole update UI (Lightmorphic's house update-status
+// widget — see the update-widget skill): its color and overlay icon ARE
+// the interface, with the download/restart actions built into clicking
+// the dot itself rather than a separate button. The dot is only ever
+// clickable in the two states that have an action to take.
 
-let latestUpdateVersion = null;
+// 2*pi*r for the ring's r=5.7 (set in index.html) — stroke-dashoffset is
+// computed against this to trace the download progress ring.
+const UPDATE_RING_CIRCUMFERENCE = 2 * Math.PI * 5.7;
 
-function setUpdateButton({ label, action, disabled = false }) {
-  const btn = document.getElementById('update-btn');
-  btn.classList.remove('hidden');
-  btn.disabled = disabled;
-  btn.dataset.action = action || '';
-  btn.innerHTML = '';
-  const iconSpan = document.createElement('span');
-  iconSpan.className = 'btn-icon';
-  iconSpan.innerHTML = icon('update'); // icon() only ever returns our own static SVG markup
-  const labelSpan = document.createElement('span');
-  // label can include the update's version string, which ultimately comes
-  // from GitHub release metadata — external data. textContent (not
-  // innerHTML) keeps that from ever being parsed as markup.
-  labelSpan.textContent = label;
-  btn.append(iconSpan, labelSpan);
+let currentUpdateAction = null; // null | 'download' | 'install'
+
+function setUpdateDotOverlay(iconName) {
+  const overlay = document.getElementById('update-dot-overlay');
+  overlay.innerHTML = iconName ? icon(iconName) : '';
 }
 
-function setUpdateDot(cls, tooltip) {
+function setUpdateRingProgress(fraction) {
+  const ring = document.querySelector('.update-ring-progress');
+  const offset = UPDATE_RING_CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, fraction)));
+  ring.style.strokeDasharray = String(UPDATE_RING_CIRCUMFERENCE);
+  ring.style.strokeDashoffset = String(offset);
+}
+
+function setUpdateDot({ cls, tooltip, action = null, overlay = null }) {
   const dot = document.getElementById('update-dot');
   dot.className = `update-dot ${cls}`;
   dot.dataset.tooltip = tooltip;
+  currentUpdateAction = action;
+  setUpdateDotOverlay(overlay);
 }
 
 function applyUpdateState(payload) {
-  const btn = document.getElementById('update-btn');
   switch (payload.state) {
     case 'checking':
-      setUpdateDot('checking', 'Checking for updates…');
+      setUpdateDot({ cls: 'checking', tooltip: 'Checking for updates…' });
       break;
     case 'available':
-      latestUpdateVersion = payload.version;
-      setUpdateButton({ label: `Update to v${payload.version}`, action: 'download' });
-      setUpdateDot('available', `Update available: v${payload.version} (click to re-check)`);
+      setUpdateDot({
+        cls: 'available',
+        tooltip: 'Update available — click to download',
+        action: 'download',
+        overlay: 'update',
+      });
       break;
-    case 'downloading': {
-      const pct = Math.round(payload.percent || 0);
-      setUpdateButton({ label: `Downloading… ${pct}%`, action: 'downloading', disabled: true });
+    case 'downloading':
+      // No percentage in the tooltip — the ring itself is the progress
+      // indicator, and the spec is explicit about not duplicating that
+      // as text anywhere.
+      setUpdateDot({ cls: 'downloading', tooltip: 'Downloading update…' });
+      setUpdateRingProgress((payload.percent || 0) / 100);
       break;
-    }
     case 'downloaded':
-      setUpdateButton({ label: 'Restart & install update', action: 'install' });
-      setUpdateDot('available', `Update ready to install: v${payload.version}`);
+      setUpdateDot({
+        cls: 'downloaded',
+        tooltip: 'Click to restart the app',
+        action: 'install',
+        overlay: 'restart',
+      });
       break;
-    case 'error': {
-      if (btn.dataset.action === 'downloading') {
-        showToast('Update failed to download');
-      }
-      btn.classList.add('hidden');
-      const detail = payload.message ? `: ${payload.message}` : '';
-      setUpdateDot('error', `Update check failed${detail} (click to retry)`);
+    case 'error':
+      if (currentUpdateAction === 'download') showToast('Update failed to download');
+      setUpdateDot({ cls: 'error', tooltip: "Can't connect to GitHub" });
       break;
-    }
     case 'not-available':
-      btn.classList.add('hidden');
-      setUpdateDot('up-to-date', `You're on the latest version, v${APP_VERSION} (click to re-check)`);
-      break;
     default:
-      btn.classList.add('hidden');
+      setUpdateDot({ cls: 'up-to-date', tooltip: 'Up to date' });
       break;
   }
 }
 
-async function handleUpdateButtonClick() {
-  const btn = document.getElementById('update-btn');
-  const action = btn.dataset.action;
-  if (action === 'download') {
-    setUpdateButton({ label: `Downloading… 0%`, action: 'downloading', disabled: true });
+async function handleUpdateDotClick() {
+  if (currentUpdateAction === 'download') {
     await ipcRenderer.invoke('update:download');
-  } else if (action === 'install') {
+  } else if (currentUpdateAction === 'install') {
     await ipcRenderer.invoke('update:install');
   }
 }
@@ -1521,8 +1525,7 @@ function wireStaticControls() {
   document.getElementById('btn-max').addEventListener('click', () => ipcRenderer.send('window:maximize-toggle'));
   document.getElementById('btn-close').addEventListener('click', () => ipcRenderer.send('window:close'));
 
-  document.getElementById('update-btn').addEventListener('click', handleUpdateButtonClick);
-  document.getElementById('update-dot').addEventListener('click', () => ipcRenderer.invoke('update:check'));
+  document.getElementById('update-dot').addEventListener('click', handleUpdateDotClick);
   ipcRenderer.on('update:state', (_event, payload) => applyUpdateState(payload));
 
   document.addEventListener('keydown', (e) => {
