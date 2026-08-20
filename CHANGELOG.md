@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.8] - 2026-08-20
+
+### Fixed
+
+- The app failed to start at all on most current Linux systems. If
+  double-clicking Fetch Terminal did nothing, or you saw "AppImages
+  require FUSE to run", that was this: the AppImage needed the old
+  FUSE 2 library, which Ubuntu 23.04 and later, current Fedora,
+  openSUSE and the immutable spins (Silverblue, Bazzite) no longer
+  ship. It now uses a self-contained runtime that needs no FUSE at
+  all. Earlier versions cannot update themselves out of this, so
+  download 1.4.8 once from the Releases page.
+
 ## [1.4.7] - 2026-08-12
 
 ### Changed
