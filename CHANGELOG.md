@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- The keep-sidebar-open padlock icon is no longer accent-colored — it
+  follows the theme's text color like the other plain icons.
+
 ## [1.7.0] - 2026-08-28
 
 ### Changed

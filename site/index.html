@@ -23,7 +23,7 @@
         <a href="#features">Features</a>
         <a href="#security">Security</a>
         <a href="#install">Install</a>
-        <a href="https://github.com/lightmorphic/fetch-terminal" class="site-nav-github">GitHub</a>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch between light and dark mode"></button>
       </nav>
     </div>
   </header>
@@ -41,7 +41,6 @@
           </p>
           <div class="hero-ctas">
             <a class="btn btn-primary" href="https://github.com/lightmorphic/fetch-terminal/releases/latest">Download for Linux</a>
-            <a class="btn btn-ghost" href="https://github.com/lightmorphic/fetch-terminal">View source</a>
           </div>
         </div>
       </div>
@@ -127,8 +126,8 @@
             </div>
             <h3>Themes that follow your desktop</h3>
             <p>Light, dark, or auto, matched to your OS’s own preference,
-              in 10 accent colors. The whole app re-themes instantly:
-              buttons, tabs, icons, even the terminal’s cursor.</p>
+              in 15 full-strength accent colors. The whole app re-themes
+              instantly: buttons, tabs, icons, even the terminal’s cursor.</p>
           </article>
 
           <article class="feature-card">
@@ -169,12 +168,35 @@
           <article class="feature-card">
             <div class="feature-illustration" aria-hidden="true">
               <div class="mini-update-dot"></div>
-              <div class="mini-hint">Checks GitHub Releases every 30 minutes</div>
+              <div class="mini-hint">Checks hourly — or click the dot to check now</div>
             </div>
             <h3>Updates itself, on your terms</h3>
-            <p>A status dot shows exactly what’s going on. Nothing
-              downloads or installs without you clicking through both
-              steps yourself.</p>
+            <p>One plain dot is the whole update UI: green means up to
+              date, amber means an update is ready, blue means click to
+              restart into the new version. Nothing downloads or installs
+              without you clicking it yourself.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-illustration" aria-hidden="true">
+              <div class="mini-terminal-line">sudo apt update<br />sudo apt upgrade</div>
+              <div class="mini-hint">Nothing runs until you press Enter</div>
+            </div>
+            <h3>Paste whole scripts, safely</h3>
+            <p>Paste a multi-line script and the shell takes it as one
+              block — review it, press Enter once, and it runs top to
+              bottom, still pausing properly for passwords.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-illustration" aria-hidden="true">
+              <div class="mini-terminal-line">git<span class="mini-ghost"> push origin main</span></div>
+              <div class="mini-hint">Stored locally, searchable, yours</div>
+            </div>
+            <h3>Searchable command history</h3>
+            <p>Every command you run is kept in a local, searchable
+              history — it’s what powers the autocomplete, and it never
+              leaves your machine.</p>
           </article>
 
           <article class="feature-card">
@@ -192,7 +214,8 @@
 
         <a class="features-credit lightmorphic-badge" href="https://lightmorphic.com" target="_blank" rel="noopener noreferrer" translate="no">
           <span>Created by</span>
-          <img src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="125" height="25" loading="lazy" />
+          <img class="logo-dark" src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="125" height="25" loading="lazy" />
+          <img class="logo-light" src="images/lightmorphic-tb-250x50-sq.webp" alt="Lightmorphic" width="125" height="25" loading="lazy" />
           <span class="external-link-icon" data-icon="externalLink" aria-hidden="true"></span>
         </a>
       </div>
@@ -214,7 +237,7 @@
           <li>MIT licensed, read every line yourself</li>
           <li>No analytics, no telemetry, no tracking on this site or in the app</li>
           <li>Passwords encrypted via your OS’s own keyring, never a homemade cipher</li>
-          <li>PIN comparison is constant-time; wrong guesses get rate-limited</li>
+          <li>PIN comparison is constant-time; five wrong guesses lock the vault for an hour, even across restarts</li>
           <li>Every local file it writes is locked to your own user account</li>
         </ul>
       </div>
@@ -250,7 +273,8 @@
       <span>This page loads nothing from anywhere else. View its source; it’s the whole thing.</span>
       <a class="site-footer-sponsor lightmorphic-badge" href="https://lightmorphic.com" target="_blank" rel="noopener noreferrer" translate="no">
         <span>Created by</span>
-        <img src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="125" height="25" loading="lazy" />
+        <img class="logo-dark" src="images/lightmorphic-dark-tb-250x50-sq.webp" alt="Lightmorphic" width="125" height="25" loading="lazy" />
+        <img class="logo-light" src="images/lightmorphic-tb-250x50-sq.webp" alt="Lightmorphic" width="125" height="25" loading="lazy" />
         <span class="external-link-icon" data-icon="externalLink" aria-hidden="true"></span>
       </a>
     </div>
@@ -258,6 +282,7 @@
 
   <script src="vendor/xterm.js"></script>
   <script src="icons.js"></script>
+  <script src="site.js"></script>
   <script src="demo.js"></script>
 </body>
 </html>

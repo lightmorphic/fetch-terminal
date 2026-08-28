@@ -18,6 +18,8 @@ const SITE_ICONS = {
   dollar: '$',
   arrow: '→',
   externalLink: svg('<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><line x1="10" y1="14" x2="21" y2="3"/>'),
+  sun: svg('<circle cx="12" cy="12" r="4.2"/><line x1="12" y1="2.5" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="21.5"/><line x1="4.5" y1="12" x2="2.5" y2="12"/><line x1="21.5" y1="12" x2="19.5" y2="12"/><line x1="18.7" y1="5.3" x2="17.3" y2="6.7"/><line x1="6.7" y1="17.3" x2="5.3" y2="18.7"/><line x1="18.7" y1="18.7" x2="17.3" y2="17.3"/><line x1="6.7" y1="6.7" x2="5.3" y2="5.3"/>'),
+  moon: svg('<path d="M20.5 13.4A8.5 8.5 0 1 1 10.6 3.5a7 7 0 0 0 9.9 9.9z"/>'),
 };
 
 document.querySelectorAll('[data-icon]').forEach((el) => {
