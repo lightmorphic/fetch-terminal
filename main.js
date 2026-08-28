@@ -108,6 +108,22 @@ function bundledIconPath() {
   return path.join(__dirname, 'build', 'icons', '512x512.png');
 }
 
+// Where the desktop expects user-installed icons and launchers to live.
+// resolveAppIcon and ensureDesktopIntegration have to agree on the icon's
+// exact path — one writes it, the other reads it back — so they derive it
+// from here rather than each spelling it out.
+function xdgDataHome() {
+  return process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
+}
+
+function managedIconDir() {
+  return path.join(xdgDataHome(), 'icons', 'hicolor', '512x512', 'apps');
+}
+
+function managedIconPath() {
+  return path.join(managedIconDir(), 'fetch-terminal.png');
+}
+
 // Prefers the copy this app manages under ~/.local/share (written by
 // ensureDesktopIntegration below, and confirmed world-readable there) over
 // the one bundled inside the packaged app's own asar archive — asar path
@@ -117,8 +133,7 @@ function bundledIconPath() {
 // before desktop integration has had a chance to run.
 function resolveAppIcon() {
   if (process.env.APPIMAGE) {
-    const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
-    const managed = path.join(dataHome, 'icons', 'hicolor', '512x512', 'apps', 'fetch-terminal.png');
+    const managed = managedIconPath();
     if (fs.existsSync(managed)) return managed;
   }
   return bundledIconPath();
@@ -146,13 +161,11 @@ function restoreThemeSource() {
 function ensureDesktopIntegration() {
   if (process.platform !== 'linux' || !process.env.APPIMAGE) return;
   try {
-    const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
-    const desktopDir = path.join(dataHome, 'applications');
-    const iconDir = path.join(dataHome, 'icons', 'hicolor', '512x512', 'apps');
+    const desktopDir = path.join(xdgDataHome(), 'applications');
     fs.mkdirSync(desktopDir, { recursive: true });
-    fs.mkdirSync(iconDir, { recursive: true });
+    fs.mkdirSync(managedIconDir(), { recursive: true });
 
-    const iconTarget = path.join(iconDir, 'fetch-terminal.png');
+    const iconTarget = managedIconPath();
     fs.copyFileSync(bundledIconPath(), iconTarget);
     // copyFileSync's resulting mode isn't guaranteed to match the source
     // file's — it's subject to this process's own umask, which can leave
@@ -184,7 +197,7 @@ function ensureDesktopIntegration() {
     // tool is guaranteed to exist, and nothing here depends on it working.
     for (const [cmd, args] of [
       ['update-desktop-database', [desktopDir]],
-      ['gtk-update-icon-cache', ['-f', '-t', path.join(dataHome, 'icons', 'hicolor')]],
+      ['gtk-update-icon-cache', ['-f', '-t', path.join(xdgDataHome(), 'icons', 'hicolor')]],
     ]) {
       try { require('child_process').execFileSync(cmd, args, { stdio: 'ignore' }); } catch (err) { /* not installed, or not needed on this desktop */ }
     }
@@ -631,9 +644,4 @@ ipcMain.handle('history:add', (event, command) => {
   while (history.length > HISTORY_LIMIT) history.shift();
   writeJson(HISTORY_FILE(), history);
   return history;
-});
-
-ipcMain.handle('history:clear', () => {
-  writeJson(HISTORY_FILE(), []);
-  return [];
 });

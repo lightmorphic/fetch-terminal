@@ -48,13 +48,13 @@
 
 :root {
   /* ---- Material Design 3 roles — dark scheme (default) ----
-     A genuine M3 multi-key-color scheme: a violet primary, a muted
-     violet-grey secondary, and a warm coral tertiary used sparingly (for
-     SSH snippets) — all flat, tonal colors. No gradients, no glows; that's
-     not how Material renders color, however "modern" it might look. */
+     A violet primary and a warm coral tertiary used sparingly (for SSH
+     snippets) — all flat, tonal colors. No gradients, no glows; that's
+     not how Material renders color, however "modern" it might look.
+     These are the fallbacks: applyAccent() overwrites primary/tertiary
+     at runtime with the accent picked in the appearance panel. */
   --md-bg: #0b0b10;
   --md-surface: #131218;
-  --md-surface-1: #191724;
   --md-surface-2: #1d1a2a;
   --md-surface-3: #201e31;
   --md-surface-4: #211f34;
@@ -66,16 +66,9 @@
   --md-primary: #b7a9ff;
   --md-primary-on: #22195c;
   --md-primary-container: #3a3070;
-  --md-on-primary-container: #e3ddff;
-  --md-secondary: #c9c2db;
-  --md-secondary-container: #46445a;
-  --md-on-secondary-container: #e5dff6;
   --md-tertiary: #ffb59d;
-  --md-tertiary-container: #4a3735;
-  --md-on-tertiary-container: #fcbdaa;
   --md-error: #ffb4ab;
   --md-error-container: rgba(255, 180, 171, 0.14);
-  --md-danger: var(--md-error);
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 26px;
@@ -94,7 +87,6 @@
        surfaces here stay close to white with only a hint of the accent. */
     --md-bg: #fafafc;
     --md-surface: #ffffff;
-    --md-surface-1: #fdfcff;
     --md-surface-2: #fbfaff;
     --md-surface-3: #f9f8ff;
     --md-surface-4: #f7f6ff;
@@ -106,13 +98,7 @@
     --md-primary: #5c4cb8;
     --md-primary-on: #ffffff;
     --md-primary-container: #e5e2f4;
-    --md-on-primary-container: #403581;
-    --md-secondary: #5d5a72;
-    --md-secondary-container: #e8e8eb;
-    --md-on-secondary-container: #3c3a4a;
     --md-tertiary: #8f4c2e;
-    --md-tertiary-container: #f4e7e2;
-    --md-on-tertiary-container: #74361e;
     --md-error: #ba1a1a;
     --md-error-container: rgba(186, 26, 26, 0.1);
     --elevation-1: 0 1px 2px rgba(30, 20, 60, 0.08), 0 1px 3px 1px rgba(30, 20, 60, 0.06);
@@ -825,9 +811,9 @@ input:focus, textarea:focus {
 .lightmorphic-credit img { display: block; height: 21px; width: auto; flex-shrink: 0; }
 
 /* Lightmorphic's house update-status widget: one small dot carries the
-   entire update UI (state color + overlay icon + progress ring) instead
-   of a separate button — see the update-widget skill for the canonical
-   spec this follows across every self-hosted app. */
+   entire update UI (plain state color + progress ring, no icon inside)
+   instead of a separate button — see the update-widget skill for the
+   canonical spec this follows across every self-hosted app. */
 .update-dot {
   position: relative;
   flex: none;

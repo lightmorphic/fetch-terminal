@@ -26,14 +26,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # Full history so the stamp below can read real commit dates.
+          fetch-depth: 0
 
       # The visible "Last updated" date, the structured data's
       # dateModified, and the sitemap lastmod all derive from the newest
-      # dated entry in CHANGELOG.md — self-maintaining, and never the
-      # build timestamp (a redeploy is not a content change).
-      - name: Stamp last-updated from the changelog
+      # commit that actually changed something under site/ — self-
+      # maintaining, and never the build timestamp (a redeploy on its own
+      # is not a content change).
+      - name: Stamp last-updated from the newest site commit
         run: |
-          d=$(grep -oE '^## \[[0-9.]+\] - [0-9]{4}-[0-9]{2}-[0-9]{2}' CHANGELOG.md | head -n1 | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+          d=$(git log -1 --format=%cs -- site/)
           if [ -n "$d" ]; then
             human=$(date -u -d "$d" '+%-d %B %Y')
             sed -i -E "s|<time id=\"last-updated\" datetime=\"[0-9-]+\">[^<]*</time>|<time id=\"last-updated\" datetime=\"$d\">$human</time>|" site/index.html
