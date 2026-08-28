@@ -1,0 +1,28 @@
+# Fetch Terminal
+
+> A free, open source (MIT) terminal emulator for Linux, built with
+> Electron by Lightmorphic. Made for people who don't want to memorize
+> commands: saved snippets run with a click, previously-typed commands
+> autocomplete as a ghost suggestion, and an encrypted password vault
+> types passwords without ever showing them.
+
+Key facts:
+
+- Ships as a single AppImage; needs no FUSE library, so it runs on
+  current Ubuntu, Fedora, openSUSE, Mint, Arch and immutable spins.
+- Passwords are encrypted with the OS keyring and are write-only: once
+  saved they can only be used or deleted, never viewed or exported.
+  The vault is PIN-gated; five wrong guesses lock it for an hour.
+- No analytics, telemetry, or tracking. The app's only self-initiated
+  network request is a release check.
+- Multi-line pastes reach the shell as one bracketed block: nothing
+  runs until Enter is pressed, and password prompts still work.
+- Light/dark/auto themes with 15 full-strength accent colors.
+
+## Links
+
+- [Homepage](https://fetchterminal.org/)
+- [Source code](https://github.com/lightmorphic/fetch-terminal)
+- [Latest release](https://github.com/lightmorphic/fetch-terminal/releases/latest)
+- [Security policy](https://github.com/lightmorphic/fetch-terminal/blob/main/SECURITY.md)
+- [Created by Lightmorphic](https://lightmorphic.com/)
