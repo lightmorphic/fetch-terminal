@@ -56,17 +56,6 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Extract changelog section
-        if: steps.check.outputs.exists == 'false'
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          awk -v target="## [$VERSION]" '
-            index($0, target) == 1 { found=1; next }
-            found && index($0, "## [") == 1 { exit }
-            found { print }
-          ' CHANGELOG.md > release-notes.md
-
       - name: Create tag and release
         if: steps.check.outputs.exists == 'false'
         env:
@@ -76,7 +65,7 @@ jobs:
           gh release create "$VERSION" \
             --target "${{ github.sha }}" \
             --title "$VERSION" \
-            --notes-file release-notes.md
+            --notes "Fetch Terminal $VERSION — download the AppImage below, make it executable, and run it."
 
       - name: Install dependencies
         run: npm ci

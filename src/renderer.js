@@ -1091,12 +1091,10 @@ THEME_MEDIA.addEventListener('change', () => {
   applyAccent(currentAccentHue);
 });
 
-// ---------- Accent color (10 Material Design hues, spread for max contrast
-// in both light and dark schemes) ----------
-
-// The five extra hues are lifted from the Lightmorphic brand palette
-// (Deep Orange #FF5721, Lime #CBDC38, Light Green #8AC248, Light Blue
-// #03A8F3, Deep Purple #6639AB), converted to hues for the HSL system.
+// ---------- Accent color ----------
+//
+// Fifteen hues taken from the Lightmorphic brand palette and converted to
+// HSL hue angles, spread for contrast in both light and dark schemes.
 const ACCENT_COLORS = [
   { name: 'Red', hue: 355 },
   { name: 'Deep Orange', hue: 15 },
@@ -1153,23 +1151,9 @@ function applyAccent(hue) {
   root.setProperty('--md-primary-on', accentTextColor(hue, ACCENT_S, ACCENT_L));
   root.setProperty('--md-tertiary', hsl(tertiaryHue, ACCENT_S, ACCENT_L));
   root.setProperty('--md-tertiary-on', accentTextColor(tertiaryHue, ACCENT_S, ACCENT_L));
-  if (isDarkMode()) {
-    root.setProperty('--md-primary-container', hsl(hue, 65, 32));
-    root.setProperty('--md-on-primary-container', hsl(hue, 90, 88));
-    root.setProperty('--md-secondary', hsl(hue, 35, 75));
-    root.setProperty('--md-secondary-container', hsl(hue, 35, 30));
-    root.setProperty('--md-on-secondary-container', hsl(hue, 45, 90));
-    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 65, 32));
-    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 90, 88));
-  } else {
-    root.setProperty('--md-primary-container', hsl(hue, 90, 88));
-    root.setProperty('--md-on-primary-container', hsl(hue, 90, 20));
-    root.setProperty('--md-secondary', hsl(hue, 30, 38));
-    root.setProperty('--md-secondary-container', hsl(hue, 35, 86));
-    root.setProperty('--md-on-secondary-container', hsl(hue, 35, 22));
-    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 90, 88));
-    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 90, 20));
-  }
+  // The one accent-derived tone that still has to differ per scheme: a
+  // deep tint behind the accent on dark, a pale one on light.
+  root.setProperty('--md-primary-container', isDarkMode() ? hsl(hue, 65, 32) : hsl(hue, 90, 88));
   applyThemeToAllTerminals();
   renderAccentSwatches();
 }
@@ -1196,16 +1180,11 @@ async function selectAccent(hue) {
   closeAppearancePopover();
 }
 
-function openAppearancePopover() {
-  document.getElementById('appearance-popover').classList.remove('hidden');
-}
 function closeAppearancePopover() {
   document.getElementById('appearance-popover').classList.add('hidden');
 }
 function toggleAppearancePopover() {
-  const popover = document.getElementById('appearance-popover');
-  if (popover.classList.contains('hidden')) openAppearancePopover();
-  else closeAppearancePopover();
+  document.getElementById('appearance-popover').classList.toggle('hidden');
 }
 
 async function loadAccent() {
@@ -1272,10 +1251,10 @@ function insertCommand(command) {
 // ---------- Updates ----------
 //
 // One dot carries the whole update UI (Lightmorphic's house update-status
-// widget — see the update-widget skill): its color and overlay icon ARE
-// the interface, with the download/restart actions built into clicking
-// the dot itself rather than a separate button. The dot is only ever
-// clickable in the two states that have an action to take.
+// widget — see the update-widget skill): its plain color IS the interface
+// — green up to date, amber ready to download, blue ready to restart —
+// with every action built into clicking the dot rather than a separate
+// button. No icons sit inside it.
 
 // 2*pi*r for the ring's r=5.7 (set in index.html) — stroke-dashoffset is
 // computed against this to trace the download progress ring.
