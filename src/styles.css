@@ -422,7 +422,7 @@ input:focus, textarea:focus {
   color: var(--md-primary-on);
   background: var(--md-primary);
 }
-.icon-btn.accent-icon-btn { color: var(--md-primary); }
+.icon-btn.accent-icon-btn { color: var(--md-on-surface); }
 .icon-btn.accent-icon-btn:hover { color: var(--md-primary-on); background: var(--md-primary); }
 .icon-btn.filled-accent {
   color: var(--md-primary-on);
