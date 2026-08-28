@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-08-28
+
+### Changed
+
+- Pasting a multi-line script now behaves like GNOME Terminal and
+  Console: the whole script is handed to the shell in one bracketed
+  paste, so you can review it on the prompt and a single Enter runs it
+  top to bottom — still stopping at any password or confirmation prompt
+  a command opens along the way. This replaces the Ctrl+Enter
+  line-by-line paste queue introduced in 1.4.6.
+- The terminal's red/green/yellow/blue/magenta/cyan now use the vivid
+  Lightmorphic brand palette in both dark and light themes, instead of
+  the previous washed-out pastels.
+- Accent colors across the app are much more saturated, and the
+  appearance picker gains five new accents — Deep Orange, Lime, Light
+  Green, Light Blue and Deep Purple — for fifteen in total.
+- Sidebar footer: the "Fetch Terminal" label is gone — the website link
+  now sits on the version number next to the update dot — and the
+  "Created by Lightmorphic" credit is larger and links to
+  lightmorphic.com.
+
 ## [1.4.8] - 2026-08-20
 
 ### Fixed

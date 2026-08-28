@@ -778,7 +778,7 @@ input:focus, textarea:focus {
 #app-brand {
   display: flex;
   flex-wrap: nowrap;
-  align-items: baseline;
+  align-items: center;
   gap: 3px;
   padding-top: 4px;
   min-width: 0;
@@ -789,15 +789,10 @@ input:focus, textarea:focus {
   gap: 3px;
   flex-shrink: 0;
 }
-.app-brand-name {
+.app-brand-version {
   font-size: 9.5px;
   font-weight: 600;
   color: var(--md-primary);
-  white-space: nowrap;
-}
-.app-brand-version {
-  font-size: 8.5px;
-  color: var(--md-on-surface-variant);
   font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
   white-space: nowrap;
 }
@@ -807,24 +802,23 @@ input:focus, textarea:focus {
   gap: 3px;
   text-decoration: none;
 }
-.app-brand-link:hover .app-brand-name,
 .app-brand-link:hover .app-brand-version { text-decoration: underline; }
 
 .lightmorphic-credit {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   margin-left: auto;
   flex-shrink: 0;
   color: var(--md-on-surface-variant);
-  font-size: 7.5px;
+  font-size: 10.5px;
   text-decoration: none;
-  opacity: 0.75;
+  opacity: 0.9;
   white-space: nowrap;
   transition: opacity var(--motion-fast), color var(--motion-fast);
 }
 .lightmorphic-credit:hover { opacity: 1; color: var(--md-on-surface); }
-.lightmorphic-credit img { display: block; height: 14.4px; width: auto; flex-shrink: 0; }
+.lightmorphic-credit img { display: block; height: 21px; width: auto; flex-shrink: 0; }
 
 /* Lightmorphic's house update-status widget: one small dot carries the
    entire update UI (state color + overlay icon + progress ring) instead
@@ -900,8 +894,7 @@ input:focus, textarea:focus {
   font-weight: 500;
   line-height: 1.4;
   /* pre-line: collapses runs of whitespace like normal text, but keeps
-     real newline characters — most tooltips are one line and unaffected,
-     but the paste-queue tooltip needs its line breaks preserved. */
+     real newline characters so multi-line tooltips stay readable. */
   white-space: pre-line;
   max-width: 320px;
   box-shadow: var(--elevation-2);
@@ -969,47 +962,6 @@ input:focus, textarea:focus {
   font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
   white-space: pre;
   z-index: 2;
-}
-
-.paste-queue-indicator {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: calc(100% - 40px);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--md-surface-4) 92%, transparent);
-  backdrop-filter: blur(6px);
-  border: 1px solid var(--md-outline-variant);
-  box-shadow: var(--elevation-2);
-  font-size: 11.5px;
-  color: var(--md-on-surface-variant);
-  z-index: 3;
-  cursor: default;
-}
-.paste-queue-indicator.hidden { display: none; }
-.paste-queue-indicator kbd {
-  flex: none;
-  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
-  font-size: 10.5px;
-  padding: 1px 5px;
-  border-radius: var(--radius-sm);
-  background: var(--md-surface-5);
-  color: var(--md-on-surface);
-  border: 1px solid var(--md-outline-variant);
-}
-.paste-queue-next-cmd {
-  flex: 1;
-  min-width: 0;
-  font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
-  color: var(--md-on-surface);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* ---------- Modals ---------- */
