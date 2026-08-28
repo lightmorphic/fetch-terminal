@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-08-28
+
 ### Changed
 
 - Fetch Terminal is now licensed under the GNU General Public License,
   version 3 or later, instead of the MIT License. The source stays free
   to read, use and modify; what changes is that anyone distributing a
   modified version must publish their changes under the same license.
+- Every release now also carries a copy of the AppImage under the fixed
+  name `Fetch-Terminal.AppImage`, so fetchterminal.org's download button
+  starts the download straight away instead of sending you to a releases
+  page to find the right file.
 
 ## [1.7.1] - 2026-08-28
 
