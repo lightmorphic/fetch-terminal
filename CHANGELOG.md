@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-08-28
+
 ### Changed
 
 - The keep-sidebar-open padlock icon is no longer accent-colored — it
   follows the theme's text color like the other plain icons.
+- The terminal's blinking cursor is now the same color as the text
+  (white on dark, near-black on light) instead of the accent color.
 
 ## [1.7.0] - 2026-08-28
 
