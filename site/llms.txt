@@ -1,6 +1,6 @@
 # Fetch Terminal
 
-> A free, open source (MIT) terminal emulator for Linux, built with
+> A free, open source (GPL-3.0-or-later) terminal emulator for Linux, built with
 > Electron by Lightmorphic. Made for people who don't want to memorize
 > commands: saved snippets run with a click, previously-typed commands
 > autocomplete as a ghost suggestion, and an encrypted password vault
