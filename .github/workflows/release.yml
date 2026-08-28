@@ -92,6 +92,13 @@ jobs:
           echo "appimage=$appimage" >> "$GITHUB_OUTPUT"
           echo "yml=$yml" >> "$GITHUB_OUTPUT"
 
+      # A second copy under a fixed, version-less name. The AppImage is
+      # ~116 MB, over GitHub's 100 MB per-file limit, so it can't be
+      # committed into the Pages site itself — but this name makes
+      # releases/latest/download/Fetch-Terminal.AppImage a permanent URL
+      # that always serves the newest build, so the site's download
+      # button never has to be edited for a release. The versioned copy
+      # stays: it's what latest-linux.yml points the auto-updater at.
       - name: Attach build artifacts to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -99,4 +106,6 @@ jobs:
           APPIMAGE: ${{ steps.artifacts.outputs.appimage }}
           YML: ${{ steps.artifacts.outputs.yml }}
         run: |
-          gh release upload "$VERSION" "$APPIMAGE" "$YML" --clobber
+          cp "$APPIMAGE" "$RUNNER_TEMP/Fetch-Terminal.AppImage"
+          gh release upload "$VERSION" "$APPIMAGE" "$YML" \
+            "$RUNNER_TEMP/Fetch-Terminal.AppImage" --clobber
