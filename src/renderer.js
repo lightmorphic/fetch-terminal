@@ -5,6 +5,9 @@ const { WebLinksAddon } = require('@xterm/addon-web-links');
 const { icon } = require('./icons');
 const { version: APP_VERSION } = require('../package.json');
 
+// ANSI slots use the Lightmorphic brand palette (red #F34236, green
+// #4BAE4F, amber #FFC006, blue #2295F1, pink #E8207E, cyan #00BCD3) so
+// terminal colors read as the color they're named, not washed pastels.
 const DARK_TERMINAL_THEME = {
   background: '#0b0b10',
   foreground: '#ecebf5',
@@ -12,23 +15,25 @@ const DARK_TERMINAL_THEME = {
   cursorAccent: '#0b0b10',
   selectionBackground: 'rgba(139, 124, 255, 0.28)',
   black: '#201e31',
-  red: '#f2b8b5',
-  green: '#b7dda8',
-  yellow: '#f0debe',
-  blue: '#8fb8ff',
-  magenta: '#c792ea',
-  cyan: '#34e7d3',
+  red: '#F34236',
+  green: '#4BAE4F',
+  yellow: '#FFC006',
+  blue: '#2295F1',
+  magenta: '#E8207E',
+  cyan: '#00BCD3',
   white: '#ecebf5',
   brightBlack: '#57546a',
-  brightRed: '#ffb4ab',
-  brightGreen: '#c9f0bb',
-  brightYellow: '#ffe8c7',
-  brightBlue: '#b9d4ff',
-  brightMagenta: '#e0c2ff',
-  brightCyan: '#7ff5e6',
+  brightRed: '#FF6F62',
+  brightGreen: '#6FD473',
+  brightYellow: '#FFEA3A',
+  brightBlue: '#5CB3FF',
+  brightMagenta: '#F45CA2',
+  brightCyan: '#35E0F0',
   brightWhite: '#ffffff',
 };
 
+// Same Lightmorphic hues, darkened just enough to stay readable on the
+// near-white background; the bright slots carry the exact brand hexes.
 const LIGHT_TERMINAL_THEME = {
   background: '#fafafc',
   foreground: '#18171f',
@@ -36,20 +41,20 @@ const LIGHT_TERMINAL_THEME = {
   cursorAccent: '#fafafc',
   selectionBackground: 'rgba(106, 90, 239, 0.2)',
   black: '#e5e4ec',
-  red: '#b3261e',
-  green: '#2e6b3e',
-  yellow: '#8a6a00',
-  blue: '#2457c5',
-  magenta: '#7a3ea1',
-  cyan: '#0aa899',
+  red: '#D42A1E',
+  green: '#358A39',
+  yellow: '#A67C00',
+  blue: '#1273C4',
+  magenta: '#C21367',
+  cyan: '#0093A5',
   white: '#18171f',
   brightBlack: '#8f8da0',
-  brightRed: '#d3372f',
-  brightGreen: '#3e8a52',
-  brightYellow: '#a6822a',
-  brightBlue: '#3f6fe0',
-  brightMagenta: '#9457c2',
-  brightCyan: '#0ec2b0',
+  brightRed: '#F34236',
+  brightGreen: '#4BAE4F',
+  brightYellow: '#C79500',
+  brightBlue: '#2295F1',
+  brightMagenta: '#E8207E',
+  brightCyan: '#00BCD3',
   brightWhite: '#000000',
 };
 
@@ -65,10 +70,10 @@ function currentTerminalTheme() {
   const hue = typeof currentAccentHue === 'number' ? currentAccentHue : DEFAULT_ACCENT_HUE;
   return {
     ...base,
-    cursor: isDarkMode() ? hsl(hue, 85, 78) : hsl(hue, 55, 42),
-    selectionBackground: isDarkMode() ? hsla(hue, 85, 78, 0.28) : hsla(hue, 55, 42, 0.2),
-    green: isDarkMode() ? hsl(hue, 70, 72) : hsl(hue, 60, 38),
-    brightGreen: isDarkMode() ? hsl(hue, 75, 80) : hsl(hue, 65, 46),
+    cursor: isDarkMode() ? hsl(hue, 95, 68) : hsl(hue, 80, 42),
+    selectionBackground: isDarkMode() ? hsla(hue, 95, 68, 0.28) : hsla(hue, 80, 42, 0.2),
+    green: isDarkMode() ? hsl(hue, 85, 62) : hsl(hue, 80, 36),
+    brightGreen: isDarkMode() ? hsl(hue, 90, 70) : hsl(hue, 85, 44),
   };
 }
 
@@ -142,84 +147,20 @@ function copySelection(tab) {
 function pasteIntoTerminal(tab) {
   const text = clipboard.readText();
   if (!text) return;
-  const lines = text.split(/\r\n|\r|\n/);
-  // A trailing newline in the clipboard (common when copying a whole
-  // script) splits into a trailing empty string — drop it so it doesn't
-  // become a phantom blank line queued after the real last line.
-  if (lines.length > 1 && lines[lines.length - 1] === '') lines.pop();
 
-  if (lines.length <= 1) {
+  if (!/[\r\n]/.test(text)) {
     const outgoing = processUserInput(tab, text);
     if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
     return;
   }
 
-  // A multi-line paste used to reach the shell with every embedded newline
-  // intact, which the shell reads as an Enter keypress — so the whole
-  // script ran unattended the instant it was pasted, line by line, with no
-  // chance to review or stop it, and no way to answer a password or
-  // confirmation prompt partway through — whatever the next line's text
-  // happened to be just got typed straight into that prompt instead.
-  //
-  // There's no reliable way for this app to tell "the previous line
-  // finished, the shell is ready" apart from "the previous line is
-  // silently waiting for a password" — both just look like silence on the
-  // terminal, and a password prompt has no fixed, detectable shape (every
-  // shell/locale/sudo config can print something different). So nothing
-  // past the first line is ever typed in automatically. The rest sits in
-  // tab.pasteQueue, visible in the indicator below, and only moves onto
-  // the input line one at a time via Ctrl+Enter — a key the shell itself
-  // never acts on, so it can never collide with answering a real prompt.
-  // Plain Enter is completely untouched: it always does whatever the
-  // terminal currently expects, password or not.
-  tab.pasteQueue = lines.slice(1);
-  const outgoing = processUserInput(tab, lines[0]);
-  if (outgoing) ipcRenderer.send('pty:write', { tabId: tab.id, data: outgoing });
-  renderPasteQueueIndicator(tab);
-}
-
-function renderPasteQueueIndicator(tab) {
-  const el = tab.pasteQueueEl;
-  if (!tab.pasteQueue || !tab.pasteQueue.length) {
-    el.classList.add('hidden');
-    return;
-  }
-  const [next, ...rest] = tab.pasteQueue;
-  const count = tab.pasteQueue.length;
-  el.innerHTML = '';
-  const label = document.createElement('span');
-  label.textContent = `${count} more pasted line${count === 1 ? '' : 's'} — `;
-  const kbd = document.createElement('kbd');
-  kbd.textContent = 'Ctrl+Enter';
-  const forNext = document.createElement('span');
-  forNext.textContent = ' for next: ';
-  const cmd = document.createElement('span');
-  cmd.className = 'paste-queue-next-cmd';
-  cmd.textContent = next;
-  el.append(label, kbd, forNext, cmd);
-  // The full remaining script, not just the next line, so pasting a
-  // script actually lets you review all of it before any of it runs.
-  el.dataset.tooltip = [next, ...rest].map((line, i) => `${i + 1}. ${line}`).join('\n');
-  el.classList.remove('hidden');
-}
-
-// Ctrl+Enter is never something a shell or an interactive prompt (sudo,
-// a y/n confirmation, ssh's host-key prompt, etc.) reads any meaning
-// into, so using it as the sole way to advance the paste queue means it
-// can never accidentally fire while you're mid-way through answering
-// one of those — unlike plain Enter, which always has to stay free for
-// whatever the terminal is actually asking for right now.
-function advancePasteQueue(tab) {
-  if (!tab.pasteQueue || !tab.pasteQueue.length) return;
-  const nextLine = tab.pasteQueue.shift();
-  if (!tab.pasteQueue.length) tab.pasteQueue = null;
-  // \x15 (Ctrl+U) clears whatever's currently on the input line first —
-  // normally nothing, but defensive in case something was typed after
-  // the previous queued line ran and before this one was requested.
-  ipcRenderer.send('pty:write', { tabId: tab.id, data: '\x15' + nextLine });
-  tab.inputBuffer = nextLine;
-  refreshSuggestion(tab);
-  renderPasteQueueIndicator(tab);
+  // Multi-line paste goes through xterm's own paste path, which honors
+  // bracketed paste mode — the same mechanism GNOME Terminal/Console use.
+  // A bracketed-paste-aware shell (bash 5.1+, zsh) receives the whole
+  // block as one unit, holds it for review, and runs it like a script on
+  // Enter — its own line-by-line execution keeps queued lines out of any
+  // password or confirmation prompt a command opens partway through.
+  tab.term.paste(text);
 }
 
 const MAX_TABS = 4;
@@ -236,10 +177,6 @@ function createTab() {
   const ghost = document.createElement('div');
   ghost.className = 'autocomplete-ghost';
   pane.appendChild(ghost);
-
-  const pasteQueueEl = document.createElement('div');
-  pasteQueueEl.className = 'paste-queue-indicator hidden';
-  pane.appendChild(pasteQueueEl);
 
   document.getElementById('terminals').appendChild(pane);
 
@@ -266,10 +203,8 @@ function createTab() {
     fitAddon,
     pane,
     ghostEl: ghost,
-    pasteQueueEl,
     inputBuffer: '',
     suggestion: null,
-    pasteQueue: null,
     title: 'Shell',
   };
   tabs.push(tab);
@@ -296,17 +231,6 @@ function createTab() {
     if (!(event.ctrlKey || event.metaKey)) return true;
     const key = event.key.toLowerCase();
 
-    // Deliberately plain Ctrl+Enter, no Shift — a shell or an interactive
-    // prompt (sudo, a y/n confirmation, ...) never reads any meaning into
-    // this combination, so it can advance the paste queue without any
-    // risk of colliding with plain Enter answering whatever the terminal
-    // is actually asking for right now. Only intercepted when there's an
-    // actual queue to advance, so it's otherwise left alone.
-    if (!event.shiftKey && key === 'enter' && tab.pasteQueue && tab.pasteQueue.length) {
-      event.preventDefault();
-      advancePasteQueue(tab);
-      return false;
-    }
     if (!event.shiftKey) return true;
 
     // Returning false only stops xterm's own key handling — it does not
@@ -528,10 +452,6 @@ function clearActiveTerminal() {
   if (!tab) return;
   ipcRenderer.send('pty:write', { tabId: tab.id, data: 'clear\r' });
   tab.inputBuffer = '';
-  if (tab.pasteQueue) {
-    tab.pasteQueue = null;
-    renderPasteQueueIndicator(tab);
-  }
   clearSuggestion(tab);
   tab.term.focus();
 }
@@ -561,10 +481,6 @@ function processUserInput(tab, data) {
   }
   if (data === '\x03') {
     tab.inputBuffer = '';
-    if (tab.pasteQueue) {
-      tab.pasteQueue = null;
-      renderPasteQueueIndicator(tab);
-    }
     clearSuggestion(tab);
     return data;
   }
@@ -1176,15 +1092,23 @@ THEME_MEDIA.addEventListener('change', () => {
 // ---------- Accent color (10 Material Design hues, spread for max contrast
 // in both light and dark schemes) ----------
 
+// The five extra hues are lifted from the Lightmorphic brand palette
+// (Deep Orange #FF5721, Lime #CBDC38, Light Green #8AC248, Light Blue
+// #03A8F3, Deep Purple #6639AB), converted to hues for the HSL system.
 const ACCENT_COLORS = [
   { name: 'Red', hue: 355 },
+  { name: 'Deep Orange', hue: 15 },
   { name: 'Orange', hue: 27 },
   { name: 'Amber', hue: 45 },
+  { name: 'Lime', hue: 66 },
+  { name: 'Light Green', hue: 88 },
   { name: 'Green', hue: 142 },
   { name: 'Teal', hue: 174 },
   { name: 'Cyan', hue: 190 },
+  { name: 'Light Blue', hue: 199 },
   { name: 'Blue', hue: 217 },
   { name: 'Indigo', hue: 231 },
+  { name: 'Deep Purple', hue: 264 },
   { name: 'Purple', hue: 291 },
   { name: 'Pink', hue: 330 },
 ];
@@ -1206,27 +1130,27 @@ function applyAccent(hue) {
   const tertiaryHue = (hue + 60) % 360;
   const root = document.documentElement.style;
   if (isDarkMode()) {
-    root.setProperty('--md-primary', hsl(hue, 85, 78));
-    root.setProperty('--md-primary-on', hsl(hue, 45, 18));
-    root.setProperty('--md-primary-container', hsl(hue, 40, 26));
-    root.setProperty('--md-on-primary-container', hsl(hue, 80, 90));
-    root.setProperty('--md-secondary', hsl(hue, 15, 78));
-    root.setProperty('--md-secondary-container', hsl(hue, 20, 28));
-    root.setProperty('--md-on-secondary-container', hsl(hue, 25, 90));
-    root.setProperty('--md-tertiary', hsl(tertiaryHue, 70, 78));
-    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 45, 26));
-    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 70, 88));
+    root.setProperty('--md-primary', hsl(hue, 95, 68));
+    root.setProperty('--md-primary-on', hsl(hue, 50, 14));
+    root.setProperty('--md-primary-container', hsl(hue, 55, 30));
+    root.setProperty('--md-on-primary-container', hsl(hue, 90, 88));
+    root.setProperty('--md-secondary', hsl(hue, 30, 75));
+    root.setProperty('--md-secondary-container', hsl(hue, 30, 30));
+    root.setProperty('--md-on-secondary-container', hsl(hue, 40, 90));
+    root.setProperty('--md-tertiary', hsl(tertiaryHue, 85, 68));
+    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 60, 30));
+    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 85, 88));
   } else {
-    root.setProperty('--md-primary', hsl(hue, 55, 42));
+    root.setProperty('--md-primary', hsl(hue, 80, 42));
     root.setProperty('--md-primary-on', '#ffffff');
-    root.setProperty('--md-primary-container', hsl(hue, 60, 92));
-    root.setProperty('--md-on-primary-container', hsl(hue, 55, 26));
-    root.setProperty('--md-secondary', hsl(hue, 10, 40));
-    root.setProperty('--md-secondary-container', hsl(hue, 15, 90));
-    root.setProperty('--md-on-secondary-container', hsl(hue, 15, 26));
-    root.setProperty('--md-tertiary', hsl(tertiaryHue, 45, 38));
-    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 55, 90));
-    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 45, 26));
+    root.setProperty('--md-primary-container', hsl(hue, 80, 90));
+    root.setProperty('--md-on-primary-container', hsl(hue, 75, 24));
+    root.setProperty('--md-secondary', hsl(hue, 25, 40));
+    root.setProperty('--md-secondary-container', hsl(hue, 30, 88));
+    root.setProperty('--md-on-secondary-container', hsl(hue, 30, 24));
+    root.setProperty('--md-tertiary', hsl(tertiaryHue, 70, 40));
+    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 75, 88));
+    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 70, 24));
   }
   applyThemeToAllTerminals();
   renderAccentSwatches();
@@ -1240,7 +1164,7 @@ function renderAccentSwatches() {
     const isSelected = accent.hue === currentAccentHue;
     const btn = document.createElement('button');
     btn.className = 'accent-swatch' + (isSelected ? ' selected' : '');
-    btn.style.background = hsl(accent.hue, 65, 55);
+    btn.style.background = hsl(accent.hue, 92, 52);
     btn.dataset.tooltip = accent.name;
     if (isSelected) btn.innerHTML = icon('check');
     btn.addEventListener('click', () => selectAccent(accent.hue));
