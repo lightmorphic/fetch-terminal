@@ -229,7 +229,7 @@ ipcMain.handle('update:install', () => {
   autoUpdater.quitAndInstall();
 });
 
-const UPDATE_CHECK_INTERVAL_MS = 30 * 60 * 1000;
+const UPDATE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
 
 app.whenReady().then(() => {
   restoreThemeSource();

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-08-28
+
+### Changed
+
+- The update dot is now plain color with no icons: click it while green
+  to check for updates on demand (it pulses three times, then either
+  settles back to green or turns amber), amber downloads with the
+  progress line tracing the edge of the circle, and once the line closes
+  at the top the dot turns blue — click blue to restart into the new
+  version. Automatic checks now run hourly instead of every half hour.
+- Accent colors are now used at full strength — the exact color picked
+  in the appearance panel, no softening — with the text on them
+  switching automatically: dark text on light accents (amber, lime,
+  green…), white text on dark ones (blue, purple, red…).
+
 ## [1.5.0] - 2026-08-28
 
 ### Changed

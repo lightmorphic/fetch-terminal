@@ -70,10 +70,10 @@ function currentTerminalTheme() {
   const hue = typeof currentAccentHue === 'number' ? currentAccentHue : DEFAULT_ACCENT_HUE;
   return {
     ...base,
-    cursor: isDarkMode() ? hsl(hue, 95, 68) : hsl(hue, 80, 42),
-    selectionBackground: isDarkMode() ? hsla(hue, 95, 68, 0.28) : hsla(hue, 80, 42, 0.2),
-    green: isDarkMode() ? hsl(hue, 85, 62) : hsl(hue, 80, 36),
-    brightGreen: isDarkMode() ? hsl(hue, 90, 70) : hsl(hue, 85, 44),
+    cursor: hsl(hue, ACCENT_S, ACCENT_L),
+    selectionBackground: hsla(hue, ACCENT_S, ACCENT_L, isDarkMode() ? 0.3 : 0.22),
+    green: isDarkMode() ? hsl(hue, ACCENT_S, ACCENT_L) : hsl(hue, 90, 36),
+    brightGreen: isDarkMode() ? hsl(hue, 95, 62) : hsl(hue, 95, 44),
   };
 }
 
@@ -1122,35 +1122,50 @@ function hsla(h, s, l, a) {
   return `hsl(${h} ${s}% ${l}% / ${a})`;
 }
 
-// Approximates Material Design 3's HCT tonal palettes with plain HSL math:
-// a light, low-contrast tone for dark-scheme roles, a deeper saturated tone
-// for light-scheme roles, and a hue offset for the tertiary accent.
+// The accent is used at full strength, so the text on top of it has to
+// adapt: light accents (yellow, lime, cyan…) get brand-navy text, dark
+// accents (blue, purple…) get white — decided by YIQ brightness.
+function hslToRgbBytes(h, s, l) {
+  s /= 100; l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  return [f(0), f(8), f(4)].map((v) => Math.round(v * 255));
+}
+function accentTextColor(h, s, l) {
+  const [r, g, b] = hslToRgbBytes(h, s, l);
+  return (r * 299 + g * 587 + b * 114) / 1000 >= 150 ? '#111827' : '#ffffff';
+}
+
+// The accent is the full-strength color in both schemes — the same
+// color you clicked in the picker — with the text on it flipping
+// between brand navy and white based on the accent's own brightness.
+const ACCENT_S = 100;
+const ACCENT_L = 50;
+
 function applyAccent(hue) {
   currentAccentHue = hue;
   const tertiaryHue = (hue + 60) % 360;
   const root = document.documentElement.style;
+  root.setProperty('--md-primary', hsl(hue, ACCENT_S, ACCENT_L));
+  root.setProperty('--md-primary-on', accentTextColor(hue, ACCENT_S, ACCENT_L));
+  root.setProperty('--md-tertiary', hsl(tertiaryHue, ACCENT_S, ACCENT_L));
   if (isDarkMode()) {
-    root.setProperty('--md-primary', hsl(hue, 95, 68));
-    root.setProperty('--md-primary-on', hsl(hue, 50, 14));
-    root.setProperty('--md-primary-container', hsl(hue, 55, 30));
+    root.setProperty('--md-primary-container', hsl(hue, 65, 32));
     root.setProperty('--md-on-primary-container', hsl(hue, 90, 88));
-    root.setProperty('--md-secondary', hsl(hue, 30, 75));
-    root.setProperty('--md-secondary-container', hsl(hue, 30, 30));
-    root.setProperty('--md-on-secondary-container', hsl(hue, 40, 90));
-    root.setProperty('--md-tertiary', hsl(tertiaryHue, 85, 68));
-    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 60, 30));
-    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 85, 88));
+    root.setProperty('--md-secondary', hsl(hue, 35, 75));
+    root.setProperty('--md-secondary-container', hsl(hue, 35, 30));
+    root.setProperty('--md-on-secondary-container', hsl(hue, 45, 90));
+    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 65, 32));
+    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 90, 88));
   } else {
-    root.setProperty('--md-primary', hsl(hue, 80, 42));
-    root.setProperty('--md-primary-on', '#ffffff');
-    root.setProperty('--md-primary-container', hsl(hue, 80, 90));
-    root.setProperty('--md-on-primary-container', hsl(hue, 75, 24));
-    root.setProperty('--md-secondary', hsl(hue, 25, 40));
-    root.setProperty('--md-secondary-container', hsl(hue, 30, 88));
-    root.setProperty('--md-on-secondary-container', hsl(hue, 30, 24));
-    root.setProperty('--md-tertiary', hsl(tertiaryHue, 70, 40));
-    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 75, 88));
-    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 70, 24));
+    root.setProperty('--md-primary-container', hsl(hue, 90, 88));
+    root.setProperty('--md-on-primary-container', hsl(hue, 90, 20));
+    root.setProperty('--md-secondary', hsl(hue, 30, 38));
+    root.setProperty('--md-secondary-container', hsl(hue, 35, 86));
+    root.setProperty('--md-on-secondary-container', hsl(hue, 35, 22));
+    root.setProperty('--md-tertiary-container', hsl(tertiaryHue, 90, 88));
+    root.setProperty('--md-on-tertiary-container', hsl(tertiaryHue, 90, 20));
   }
   applyThemeToAllTerminals();
   renderAccentSwatches();
@@ -1164,7 +1179,7 @@ function renderAccentSwatches() {
     const isSelected = accent.hue === currentAccentHue;
     const btn = document.createElement('button');
     btn.className = 'accent-swatch' + (isSelected ? ' selected' : '');
-    btn.style.background = hsl(accent.hue, 92, 52);
+    btn.style.background = hsl(accent.hue, ACCENT_S, ACCENT_L);
     btn.dataset.tooltip = accent.name;
     if (isSelected) btn.innerHTML = icon('check');
     btn.addEventListener('click', () => selectAccent(accent.hue));
@@ -1263,12 +1278,14 @@ function insertCommand(command) {
 // computed against this to trace the download progress ring.
 const UPDATE_RING_CIRCUMFERENCE = 2 * Math.PI * 5.7;
 
-let currentUpdateAction = null; // null | 'download' | 'install'
+let currentUpdateAction = null; // null | 'check' | 'download' | 'install'
 
-function setUpdateDotOverlay(iconName) {
-  const overlay = document.getElementById('update-dot-overlay');
-  overlay.innerHTML = iconName ? icon(iconName) : '';
-}
+// A manual check (clicking the green dot) pulses the dot three times
+// (3 × 600ms) and holds the green until the pulses finish — the result
+// is buffered so a fast "no update" answer doesn't cut the pulse short.
+const MANUAL_PULSE_MS = 1800;
+let manualCheckStartedAt = null;
+let pendingUpdatePayload = null;
 
 function setUpdateRingProgress(fraction) {
   const ring = document.querySelector('.update-ring-progress');
@@ -1277,12 +1294,11 @@ function setUpdateRingProgress(fraction) {
   ring.style.strokeDashoffset = String(offset);
 }
 
-function setUpdateDot({ cls, tooltip, action = null, overlay = null }) {
+function setUpdateDot({ cls, tooltip, action = null }) {
   const dot = document.getElementById('update-dot');
   dot.className = `update-dot ${cls}`;
   dot.dataset.tooltip = tooltip;
   currentUpdateAction = action;
-  setUpdateDotOverlay(overlay);
 }
 
 function applyUpdateState(payload) {
@@ -1295,7 +1311,6 @@ function applyUpdateState(payload) {
         cls: 'available',
         tooltip: 'Update available — click to download',
         action: 'download',
-        overlay: 'update',
       });
       break;
     case 'downloading':
@@ -1310,7 +1325,6 @@ function applyUpdateState(payload) {
         cls: 'downloaded',
         tooltip: 'Click to restart the app',
         action: 'install',
-        overlay: 'restart',
       });
       break;
     case 'error':
@@ -1319,9 +1333,29 @@ function applyUpdateState(payload) {
       break;
     case 'not-available':
     default:
-      setUpdateDot({ cls: 'up-to-date', tooltip: 'Up to date' });
+      setUpdateDot({ cls: 'up-to-date', tooltip: 'Up to date — click to check now', action: 'check' });
       break;
   }
+}
+
+function onUpdateState(payload) {
+  if (manualCheckStartedAt !== null) {
+    // The main process echoes a 'checking' state as soon as the manual
+    // check starts — ignore it, the pulsing green dot already says so.
+    if (payload.state === 'checking') return;
+    const elapsed = Date.now() - manualCheckStartedAt;
+    if (elapsed < MANUAL_PULSE_MS) {
+      pendingUpdatePayload = payload;
+      setTimeout(() => {
+        manualCheckStartedAt = null;
+        if (pendingUpdatePayload) applyUpdateState(pendingUpdatePayload);
+        pendingUpdatePayload = null;
+      }, MANUAL_PULSE_MS - elapsed);
+      return;
+    }
+    manualCheckStartedAt = null;
+  }
+  applyUpdateState(payload);
 }
 
 async function handleUpdateDotClick() {
@@ -1329,6 +1363,11 @@ async function handleUpdateDotClick() {
     await ipcRenderer.invoke('update:download');
   } else if (currentUpdateAction === 'install') {
     await ipcRenderer.invoke('update:install');
+  } else if (currentUpdateAction === 'check') {
+    manualCheckStartedAt = Date.now();
+    pendingUpdatePayload = null;
+    setUpdateDot({ cls: 'up-to-date pulsing', tooltip: 'Checking for updates…' });
+    await ipcRenderer.invoke('update:check');
   }
 }
 
@@ -1450,7 +1489,7 @@ function wireStaticControls() {
   document.getElementById('btn-close').addEventListener('click', () => ipcRenderer.send('window:close'));
 
   document.getElementById('update-dot').addEventListener('click', handleUpdateDotClick);
-  ipcRenderer.on('update:state', (_event, payload) => applyUpdateState(payload));
+  ipcRenderer.on('update:state', (_event, payload) => onUpdateState(payload));
 
   document.addEventListener('keydown', (e) => {
     const mod = e.ctrlKey || e.metaKey;
