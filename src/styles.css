@@ -840,20 +840,18 @@ input:focus, textarea:focus {
   transition: background var(--motion-fast);
 }
 .update-dot.checking { background: var(--md-on-surface-variant); opacity: 0.55; }
-.update-dot.up-to-date { background: #4BAE4F; }
+.update-dot.up-to-date { background: #4BAE4F; cursor: pointer; }
 .update-dot.available { background: #FFC006; cursor: pointer; }
-.update-dot.downloaded { background: #4BAE4F; cursor: pointer; }
+.update-dot.downloaded { background: #2295F1; cursor: pointer; }
 .update-dot.error { background: #F34236; }
 .update-dot.downloading { background: transparent; }
 
-.update-dot-overlay {
-  display: none;
-  color: #ffffff;
-  pointer-events: none;
+/* Manual check: three quick pulses while the answer comes back. */
+.update-dot.pulsing { animation: update-dot-pulse 0.6s ease-in-out 3; }
+@keyframes update-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.55; }
 }
-.update-dot-overlay svg { width: 8px; height: 8px; display: block; }
-.update-dot.available .update-dot-overlay,
-.update-dot.downloaded .update-dot-overlay { display: flex; }
 
 .update-ring {
   display: none;
