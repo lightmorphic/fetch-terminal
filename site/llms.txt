@@ -23,6 +23,7 @@ Key facts:
 
 - [Homepage](https://fetchterminal.org/)
 - [Source code](https://github.com/lightmorphic/fetch-terminal)
+- [Direct AppImage download](https://github.com/lightmorphic/fetch-terminal/releases/latest/download/Fetch-Terminal.AppImage)
 - [Latest release](https://github.com/lightmorphic/fetch-terminal/releases/latest)
 - [Security policy](https://github.com/lightmorphic/fetch-terminal/blob/main/SECURITY.md)
 - [Created by Lightmorphic](https://lightmorphic.com/)
