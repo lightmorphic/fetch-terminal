@@ -23,3 +23,10 @@
     try { localStorage.setItem('theme', next); } catch (err) { /* private mode */ }
   });
 })();
+
+// Copyright year: generated, never typed (the markup carries a static
+// fallback for anything that doesn't run scripts).
+(function () {
+  const el = document.getElementById('copyright-year');
+  if (el) el.textContent = String(new Date().getFullYear());
+})();
