@@ -291,7 +291,7 @@ input:focus, textarea:focus {
 }
 .theme-mode-btn svg { width: 15px; height: 15px; }
 .theme-mode-btn:hover { background: var(--md-surface-5); }
-.theme-mode-btn.active { background: var(--md-primary-container); color: var(--md-primary); }
+.theme-mode-btn.active { background: var(--md-primary); color: var(--md-primary-on); }
 
 #accent-swatches {
   display: grid;
@@ -323,7 +323,7 @@ input:focus, textarea:focus {
   font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.1px;
-  color: var(--md-primary);
+  color: var(--md-on-surface);
 }
 
 #tabbar {
@@ -414,15 +414,19 @@ input:focus, textarea:focus {
 .icon-btn:hover { background: var(--md-surface-2); color: var(--md-on-surface); }
 .icon-btn:disabled { opacity: 0.35; cursor: default; }
 .icon-btn:disabled:hover { background: none; color: var(--md-on-surface-variant); }
+/* Accent-filled buttons carry the full accent color as the fill and the
+   icon glyph in the accent's computed text color — white on dark
+   accents, brand navy on light ones — never a tinted shade of the
+   accent itself. */
 .icon-btn.active {
-  color: var(--md-primary);
-  background: var(--md-primary-container);
+  color: var(--md-primary-on);
+  background: var(--md-primary);
 }
 .icon-btn.accent-icon-btn { color: var(--md-primary); }
-.icon-btn.accent-icon-btn:hover { color: var(--md-primary); background: var(--md-primary-container); }
+.icon-btn.accent-icon-btn:hover { color: var(--md-primary-on); background: var(--md-primary); }
 .icon-btn.filled-accent {
-  color: var(--md-primary);
-  background: var(--md-primary-container);
+  color: var(--md-primary-on);
+  background: var(--md-primary);
 }
 .icon-btn.filled-accent:hover { filter: brightness(1.08); }
 
@@ -545,13 +549,13 @@ input:focus, textarea:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--md-primary-container);
-  color: var(--md-on-primary-container);
+  background: var(--md-primary);
+  color: var(--md-primary-on);
   font-size: 10.5px;
 }
 .snippet-icon.remote {
-  background: var(--md-tertiary-container);
-  color: var(--md-on-tertiary-container);
+  background: var(--md-tertiary);
+  color: var(--md-tertiary-on);
 }
 
 .snippet-text {
@@ -792,7 +796,7 @@ input:focus, textarea:focus {
 .app-brand-version {
   font-size: 9.5px;
   font-weight: 600;
-  color: var(--md-primary);
+  color: var(--md-on-surface);
   font-family: 'Geist Mono', 'Roboto Mono', 'DejaVu Sans Mono', monospace;
   white-space: nowrap;
 }

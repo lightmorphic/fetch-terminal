@@ -849,7 +849,7 @@ async function unlockVault() {
   const pin = input.value;
   const result = await ipcRenderer.invoke('vault:unlock', pin);
   if (!result || !result.ok) {
-    showToast(result && result.error === 'locked-out' ? 'Too many wrong PINs — try again shortly' : 'Wrong PIN');
+    showToast(result && result.error === 'locked-out' ? 'Too many wrong PINs — locked for an hour' : 'Wrong PIN');
     input.value = '';
     input.focus();
     return;
@@ -1150,6 +1150,7 @@ function applyAccent(hue) {
   root.setProperty('--md-primary', hsl(hue, ACCENT_S, ACCENT_L));
   root.setProperty('--md-primary-on', accentTextColor(hue, ACCENT_S, ACCENT_L));
   root.setProperty('--md-tertiary', hsl(tertiaryHue, ACCENT_S, ACCENT_L));
+  root.setProperty('--md-tertiary-on', accentTextColor(tertiaryHue, ACCENT_S, ACCENT_L));
   if (isDarkMode()) {
     root.setProperty('--md-primary-container', hsl(hue, 65, 32));
     root.setProperty('--md-on-primary-container', hsl(hue, 90, 88));
