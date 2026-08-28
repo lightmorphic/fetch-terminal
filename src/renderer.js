@@ -11,7 +11,7 @@ const { version: APP_VERSION } = require('../package.json');
 const DARK_TERMINAL_THEME = {
   background: '#0b0b10',
   foreground: '#ecebf5',
-  cursor: '#8b7cff',
+  cursor: '#ecebf5',
   cursorAccent: '#0b0b10',
   selectionBackground: 'rgba(139, 124, 255, 0.28)',
   black: '#201e31',
@@ -37,7 +37,7 @@ const DARK_TERMINAL_THEME = {
 const LIGHT_TERMINAL_THEME = {
   background: '#fafafc',
   foreground: '#18171f',
-  cursor: '#6a5aef',
+  cursor: '#18171f',
   cursorAccent: '#fafafc',
   selectionBackground: 'rgba(106, 90, 239, 0.2)',
   black: '#e5e4ec',
@@ -68,9 +68,11 @@ function isDarkMode() {
 function currentTerminalTheme() {
   const base = isDarkMode() ? DARK_TERMINAL_THEME : LIGHT_TERMINAL_THEME;
   const hue = typeof currentAccentHue === 'number' ? currentAccentHue : DEFAULT_ACCENT_HUE;
+  // The cursor deliberately stays the plain text color, not the accent —
+  // it's a blinking block, and a colored one reads as noise rather than
+  // as theming.
   return {
     ...base,
-    cursor: hsl(hue, ACCENT_S, ACCENT_L),
     selectionBackground: hsla(hue, ACCENT_S, ACCENT_L, isDarkMode() ? 0.3 : 0.22),
     green: isDarkMode() ? hsl(hue, ACCENT_S, ACCENT_L) : hsl(hue, 90, 36),
     brightGreen: isDarkMode() ? hsl(hue, 95, 62) : hsl(hue, 95, 44),
