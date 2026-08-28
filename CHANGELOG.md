@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-08-28
+
+### Changed
+
+- Entering the vault PIN wrong five times now locks the vault for a
+  full hour (up from 30 seconds), and the lockout survives quitting and
+  relaunching the app instead of resetting with it.
+- Accent-filled buttons (clear, appearance, theme picker, snippet
+  icons) now use the full accent as the fill with a white — or, on
+  light accents, navy — icon on top, instead of a tinted shade of the
+  accent. The "Fetch Terminal" titlebar name and the version number are
+  no longer accent-colored: they follow the theme (white-ish on dark,
+  near-black on light).
+
 ## [1.6.0] - 2026-08-28
 
 ### Changed

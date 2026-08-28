@@ -333,33 +333,36 @@ ipcMain.handle('vault:setPin', (event, pin) => {
   return { ok: true };
 });
 
-// scrypt already makes each guess relatively expensive, but that only
-// throttles a single attacker thread — cheap extra insurance against
-// someone spamming vault:unlock with a wordlist via repeated IPC calls
-// (the vault PIN is documented as a walk-away deterrent, not a
-// cryptographic barrier, but there's no reason to make guessing free).
+// Five wrong PINs lock the vault for an hour. The failure count and the
+// lockout deadline are persisted in credentials.json (not just process
+// memory), so quitting and relaunching the app doesn't reset the clock.
 const PIN_LOCKOUT_THRESHOLD = 5;
-const PIN_LOCKOUT_MS = 30 * 1000;
-let pinFailures = 0;
-let pinLockedUntil = 0;
+const PIN_LOCKOUT_MS = 60 * 60 * 1000;
 
 ipcMain.handle('vault:unlock', (event, pin) => {
-  if (Date.now() < pinLockedUntil) return { error: 'locked-out' };
   const data = readCredentialsFile();
   if (!data.pin) return { error: 'no-pin' };
+  const lockout = data.lockout || { failures: 0, until: 0 };
+  if (Date.now() < lockout.until) return { error: 'locked-out' };
   const ok = typeof pin === 'string' && pinMatches(pin, data.pin.salt, data.pin.hash);
   if (ok) {
-    pinFailures = 0;
+    if (data.lockout) {
+      delete data.lockout;
+      writeCredentialsFile(data);
+    }
     touchVaultActivity();
     sendVaultState();
-  } else {
-    pinFailures += 1;
-    if (pinFailures >= PIN_LOCKOUT_THRESHOLD) {
-      pinLockedUntil = Date.now() + PIN_LOCKOUT_MS;
-      pinFailures = 0;
-    }
+    return { ok };
   }
-  return { ok };
+  lockout.failures += 1;
+  lockout.until = 0;
+  if (lockout.failures >= PIN_LOCKOUT_THRESHOLD) {
+    lockout.until = Date.now() + PIN_LOCKOUT_MS;
+    lockout.failures = 0;
+  }
+  data.lockout = lockout;
+  writeCredentialsFile(data);
+  return lockout.until ? { ok: false, error: 'locked-out' } : { ok: false };
 });
 
 ipcMain.handle('vault:lock', () => {
