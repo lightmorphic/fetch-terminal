@@ -33,4 +33,4 @@ GitHub Pages, configured to serve from this repository's default branch. The `CN
 
 ## License
 
-MIT, see [LICENSE](LICENSE). xterm.js (vendored in `vendor/`) is MIT licensed, see `vendor/xterm-LICENSE.txt`. Geist (vendored in `fonts/`) is SIL Open Font License 1.1, see `fonts/GEIST-LICENSE.txt`.
+GPL-3.0-or-later, see [LICENSE](LICENSE). xterm.js (vendored in `vendor/`) is MIT licensed, see `vendor/xterm-LICENSE.txt`. Geist (vendored in `fonts/`) is SIL Open Font License 1.1, see `fonts/GEIST-LICENSE.txt`.

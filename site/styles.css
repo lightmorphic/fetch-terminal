@@ -662,9 +662,9 @@ h1 {
 .lightmorphic-badge, .lightmorphic-badge:hover { text-decoration: none; }
 /* The Lightmorphic wordmark ships in two variants; show the one that
    suits the page theme. */
-.logo-light { display: none; }
-html[data-theme="light"] .logo-dark { display: none; }
-html[data-theme="light"] .logo-light { display: block; }
+.lightmorphic-badge .logo-light { display: none; }
+html[data-theme="light"] .lightmorphic-badge .logo-dark { display: none; }
+html[data-theme="light"] .lightmorphic-badge .logo-light { display: block; }
 
 /* ---------- Responsive ---------- */
 

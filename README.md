@@ -255,8 +255,9 @@ anywhere. See "Resetting / removing all data" above for how to clear it.
 
 ## License
 
-Fetch Terminal is free software, licensed under the MIT License. See the
-[LICENSE](LICENSE) file for the full text.
+Fetch Terminal is free software, licensed under the GNU General Public
+License, version 3 or later. See the [LICENSE](LICENSE) file for the full
+text.
 
 ## Disclaimer
 
